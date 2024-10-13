@@ -1,6 +1,6 @@
-Changes to Crealitys Firmware:
+## Changes to Crealitys Firmware
 - Increased Autolevel-Grid to a 7x7-Mesh
-- Included @queeup-Forks Linear Advance
+- Included @queeup-Forks Linear Advance function. Go see his github for a nice firmware!
 
 
 
