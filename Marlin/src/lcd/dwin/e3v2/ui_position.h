@@ -8,12 +8,12 @@
 //主界面
     #define LOGO_LITTLE_X  72  //小LOGO坐标
     #define LOGO_LITTLE_Y  36
-//自动调平界面
-//编辑调平页面
+//自动调平界面 -- Automatic leveling interface
+//编辑调平页面 -- Edit Leveling Page
     #define WORD_TITLE_X 29 
     #define WORD_TITLE_Y 1
     #define OUTLINE_LEFT_X 12//40
-    #define OUTLINE_LEFT_Y 2//72
+    #define OUTLINE_LEFT_Y 47//72
     #define OUTLINE_RIGHT_X OUTLINE_LEFT_X+220//OUTLINE_LEFT_X+200//OUTLINE_LEFT_X+160
     #define OUTLINE_RIGHT_Y OUTLINE_LEFT_Y+220//OUTLINE_LEFT_Y+160
     //button——position
@@ -23,16 +23,16 @@
     #define BUTTON_EDIT_Y OUTLINE_RIGHT_Y+20//OUTLINE_RIGHT_Y+27
     #define BUTTON_OK_X  OUTLINE_RIGHT_X-BUTTON_W
     #define BUTTON_OK_Y  BUTTON_EDIT_Y//
-    //数据坐标
-    #define X_Axis_Interval  50//54   //x轴上间隔距离像素
-    #define Y_Axis_Interval  52//35   //y轴上间隔距离像素
-    #define Rect_LU_X_POS    OUTLINE_LEFT_X+10//32   //第一个左上x坐标
-    // #define Rect_LU_Y_POS    OUTLINE_LEFT_Y+10//157-4  //第一个左上y坐标
-    #define Rect_LU_Y_POS    (OUTLINE_LEFT_Y+20)+3*Y_Axis_Interval//157-4  //第一个左上y坐标
+    //数据坐标 -- Data coordinates
+    #define X_Axis_Interval  39//54   //x轴上间隔距离像素 -- The distance between pixels on the x-axis
+    #define Y_Axis_Interval  45//35   //y轴上间隔距离像素 -- The distance between pixels on the y axis
+    #define Rect_LU_X_POS    OUTLINE_LEFT_X+10//32   //第一个左上x坐标 -- The first upper left x coordinate
+    // #define Rect_LU_Y_POS    OUTLINE_LEFT_Y+10//157-4  //第一个左上y坐标 -- The first upper left y coordinate
+    #define Rect_LU_Y_POS    (OUTLINE_LEFT_Y+20)+3*Y_Axis_Interval//157-4  //第一个左上y坐标 -- The first upper left y coordinate
 
-    #define Rect_RD_X_POS    Rect_LU_X_POS+45//X_Axis_Interval//X_Axis_Interval//78   //第一个右下x坐标
-    // #define Rect_RD_Y_POS    Rect_LU_Y_POS+20//Y_Axis_Interval//Y_Axis_Interval//177-4  //第一个右下y坐标
-    #define Rect_RD_Y_POS    (Rect_LU_Y_POS+30)//Y_Axis_Interval//Y_Axis_Interval//177-4  //第一个右下y坐标
+    #define Rect_RD_X_POS    Rect_LU_X_POS+45//X_Axis_Interval//X_Axis_Interval//78   //第一个右下x坐标 -- The first lower right x coordinate
+    // #define Rect_RD_Y_POS    Rect_LU_Y_POS+20//Y_Axis_Interval//Y_Axis_Interval//177-4  //第一个右下y坐标 -- The first lower right y coordinate
+    #define Rect_RD_Y_POS    (Rect_LU_Y_POS+30)//Y_Axis_Interval//Y_Axis_Interval//177-4  //第一个右下y坐标 -- The first lower right y coordinate
 	
 #define TITLE_X 29
 #define TITLE_Y  1
