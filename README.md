@@ -23,9 +23,12 @@ For windows ensure to uncomment the line
 
 In file Marlin/src/lcd/dwin/ui_dacai.cpp
 
-## Disclaimer
-* I'm not responsable of the damage or brick that may happen to your printer if you don't know what are you doing.
-* I'm provided this fork tested on my own printer without warranties. 
+> [!CAUTION]
+> 
+> **Disclaimer**
+>
+>I'm not responsable of the damage or brick that may happen to your printer if you don't know what are you doing.
+>I'm provided this fork tested on my own printer without warranties.** 
 
 ____________________________________________________________________________________________
 
