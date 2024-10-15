@@ -1,14 +1,24 @@
-## Changes to Crealitys Firmware
-- Increased Autolevel-Grid to a 7x7-Mesh
-- Included @queeup-Forks Linear Advance function. Go see his github!
+## Changes to Creality's Firmware
+- Included the Autolevel-Grid to a 7x7-Mesh based on the fork of @aschmitt1909  (https://github.com/aschmitt1909/Ender-3V3-SE)
+- Included the Linear Advance functions based     on the fork of @queeup-Forks (https://github.com/queeup-Forks/Ender-3V3-SE)
+- Included the Support of Hosts Commands based    on the fork of @rtorchia      (https://github.com/rtorchia/Ender-3V3-SE/commits/main/) 
 
-On the right side under releases you can find a precompiled .bin, which you can just flash on your printer, if youre running 1.0.6 already.
-1. Put the firmware on your SD-Card
+- My fork changes includes:
+  1. The 7x7 Mesh to 5x5
+  2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
+
+
+Under Firmware folder you can find a precompiled .bin inside a zip file, which you can just flash on your printer, if youre running 1.0.6 already.
+1. Put the firmware on your SD-Card(Format you SD to fat32 recommended to use MiniTool Partition or Gparted)
 2. Rename it to something random, i.E. "hiPrinterPleaseFlashThisFirmware123.bin"
 3. Plug the SD Card in your printer and turn it on
 4. Wait for the update to finish - it needs ~10 seconds.
 5. Run a new Autolevel.
 
+
+## Disclaimer
+* I'm not responsable of the damage or brick that may happen to your printer if you don't know what are you doing.
+* I'm provided this fork tested on my own printer without warranties. 
 
 ____________________________________________________________________________________________
 
