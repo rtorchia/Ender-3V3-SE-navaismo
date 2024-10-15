@@ -7,13 +7,14 @@
   1. The 7x7 Mesh to 5x5
   2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
 
-
-Under Firmware folder you can find a precompiled .bin inside a zip file, which you can just flash on your printer, if youre running 1.0.6 already.
-1. Put the firmware on your SD-Card(Format you SD to fat32 recommended to use MiniTool Partition or Gparted)
-2. Rename it to something random, i.E. "hiPrinterPleaseFlashThisFirmware123.bin"
-3. Plug the SD Card in your printer and turn it on
-4. Wait for the update to finish - it needs ~10 seconds.
-5. Run a new Autolevel.
+> [!TIP]
+>
+> Under Firmware folder you can find a precompiled .bin inside a zip file, which you can just flash on your printer, if youre running 1.0.6 already.
+> 1. Put the firmware on your SD-Card(Format you SD to fat32 recommended to use MiniTool Partition or Gparted)
+> 2. Rename it to something random, i.E. "hiPrinterPleaseFlashThisFirmware123.bin"
+> 3. Plug the SD Card in your printer and turn it on
+> 4. Wait for the update to finish - it needs ~10 seconds.
+>5. Run a new Autolevel.
 
 
 ## Compilation made on Linux
