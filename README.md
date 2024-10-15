@@ -1,7 +1,7 @@
 ## Changes to Creality's Firmware
-- Included the Autolevel-Grid to a 7x7-Mesh based on the fork of @aschmitt1909  (https://github.com/aschmitt1909/Ender-3V3-SE)
-- Included the Linear Advance functions based     on the fork of @queeup-Forks (https://github.com/queeup-Forks/Ender-3V3-SE)
-- Included the Support of Hosts Commands based    on the fork of @rtorchia      (https://github.com/rtorchia/Ender-3V3-SE/commits/main/) 
+- Included the Autolevel-Grid to a 7x7-Mesh based on the fork of [@aschmitt1909](https://github.com/aschmitt1909/Ender-3V3-SE)
+- Included the Linear Advance functions based     on the fork of [@queeup-Forks](https://github.com/queeup-Forks/Ender-3V3-SE)
+- Included the Support of Hosts Commands based    on the fork of [@rtorchia](https://github.com/rtorchia/Ender-3V3-SE/commits/main/) 
 
 - My fork changes includes:
   1. The 7x7 Mesh to 5x5
