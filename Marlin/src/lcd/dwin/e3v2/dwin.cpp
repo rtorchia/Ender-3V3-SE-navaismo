@@ -7158,6 +7158,24 @@ void HMI_Info()
   DWIN_UpdateLCD();
 }
 
+
+/* M117 Info */
+void HMI_M117Info()
+{
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO)
+    return;
+  if (encoder_diffState == ENCODER_DIFF_ENTER)
+  {
+    // If enter go back to main menu
+    Goto_MainMenu();
+    HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数 --Flag not to refresh bottom parameters
+  }
+  DWIN_UpdateLCD(); //Update LCD
+}
+
+
+
 /* Tune */
 void HMI_Tune()
 {
@@ -8648,6 +8666,9 @@ void DWIN_HandleScreen()
   case POPUP_CONFIRM:
     HMI_Confirm();
     break; // 单独一个确认按钮的界面
+  case M117Info: // M117 window fix for HMI
+    HMI_M117Info();
+    break;  
   default:
     break;
   }
@@ -8965,17 +8986,21 @@ void HMI_Auto_Bed_PID(void)
   // DWIN_UpdateLCD(); //晓亮删除——20230207
 }
 
+
+//Function to send string to LCD
 void DWIN_Show_M117(char* str)
 {
-  Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // Flag not to refresh bottom parameters
-  DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Info, TITLE_X, TITLE_Y);
-  DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26);
-  DWIN_ICON_Show(ICON, ICON_PrintSize + 1, 115, 72);  
-  DWIN_Draw_String(true,true,font8x16,Color_White,Color_Bg_Black,(DWIN_WIDTH - strlen(str) * MENU_CHR_W) / 2 , 150,F(str));
+
+  checkkey = M117Info; //Implement Human Interface Control for M117
+  Clear_Main_Window(); 
+  Draw_Mid_Status_Area(true); // Draw Status Area, the one with Nozzle and bed temp.  
+  HMI_flag.Refresh_bottom_flag = false; // Flag not to refresh bottom parameters, we want to refresh here
+  DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Info, TITLE_X, TITLE_Y); // Info Label
+  DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26); // Back Label
+  DWIN_ICON_Show(ICON, ICON_PrintSize + 1, 115, 72);  // Back Icon
+  DWIN_Draw_String(true,true,font8x16,Color_White,Color_Bg_Black,(DWIN_WIDTH - strlen(str) * MENU_CHR_W) / 2 , 150,F(str)); // Centered Received String
   Draw_Back_First();
-  //Goto_MainMenu();
-  DWIN_UpdateLCD();
+
 }
 
 void DWIN_CompletedHoming()

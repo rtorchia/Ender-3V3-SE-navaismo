@@ -156,6 +156,11 @@ enum processID : uint8_t {
   ONE_HIGH, //一键对高页面
   POPUP_CONFIRM,//弹窗确定界面
   Max_GUI,
+ #if ENABLED(DWIN_CREALITY_LCD) // Enable the M117 string into LCD if LCD and Hosts commands are enabled.
+  #if ENABLED(HOST_ACTION_COMMANDS)
+    M117Info,
+  #endif
+ #endif  
 };
 
 enum DC_language{
