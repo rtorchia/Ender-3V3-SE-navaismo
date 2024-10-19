@@ -6,6 +6,15 @@
 - My fork changes includes:
   1. The 7x7 Mesh to 5x5
   2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
+  3. Added M117 Support to show Messages in the LCD Screen.
+
+<br />
+
+----
+
+<br />
+
+
 
 > [!TIP]
 >
@@ -23,6 +32,15 @@ For windows ensure to uncomment the line
 ```//#include <wstring.h>```
 
 In file Marlin/src/lcd/dwin/ui_dacai.cpp
+
+<br />
+
+----
+
+<br />
+
+
+
 
 > [!CAUTION]
 > 
