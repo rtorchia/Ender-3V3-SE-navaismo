@@ -26,17 +26,51 @@
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
+#include "../parser.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+#include "../../lcd/dwin/e3v2/dwin.h"
+#endif
 
 /**
  * M117: Set LCD Status Message
  */
-void GcodeSuite::M117() {
+void GcodeSuite::M117()
+{
+
+#if ENABLED(HOST_ACTION_COMMANDS)
+
+  if (parser.string_arg && parser.string_arg[0] != '\0')
+  {
+    char *my_string = parser.string_arg;
+    SERIAL_ECHOLN("Got M117 Command from Serial Terminal");
+    SERIAL_ECHOLNPAIR("String received: ", my_string);
+    delay(200);
+
+    if (strlen(my_string) > 30)
+    {
+      SERIAL_ECHOLN("Warning: String too long");
+      SERIAL_ECHOLN("Not sending to LCD");
+    }
+    else
+    {
+      TERN_(DWIN_CREALITY_LCD, DWIN_Show_M117(my_string));
+    }
+  }
+  else
+  {
+    SERIAL_ECHOLN("Warning: No string provided with M117");
+  }
+#endif
 
   if (parser.string_arg && parser.string_arg[0])
+  {
     ui.set_status(parser.string_arg);
+  }
   else
+  {
     ui.reset_status();
-
+  }
 }
 
 #endif // HAS_STATUS_MESSAGE

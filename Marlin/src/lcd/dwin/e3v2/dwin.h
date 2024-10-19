@@ -825,6 +825,8 @@ void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y,
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
+void DWIN_Show_M117(char* str);
+
 void DWIN_CompletedHoming();
 void DWIN_CompletedHeight();
 void DWIN_CompletedLeveling();
