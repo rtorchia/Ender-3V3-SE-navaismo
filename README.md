@@ -7,6 +7,12 @@
   1. The 7x7 Mesh to 5x5
   2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
   3. Added M117 Support to show Messages in the LCD Screen.
+  4. Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
+  5. Added cutom comand O9000 toreceive Data to render in the Print Job Page from Octo print.
+
+
+<br />
+  ![Octorpint Print Job Details](https://imgur.com/Ir8u0tD)
 
 <br />
 

@@ -9746,14 +9746,14 @@ void DWIN_OctoUpdate_ETA(const char *time)
   const char *uTime = time && time[0] != '\0' ? time : "00 : 00 : 00"; 
   strncpy(vvptime_left, uTime, sizeof(vvptime_left) - 1);                      // ensure non empty string
   DWIN_Draw_Rectangle(1, All_Black, 120, 144, 230, 156);                                     // Clear previous Value
-  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 120, 144, F(uTime)); // Update Current layer with new value, trying to keep simetry
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 144, F(uTime)); // Update Current layer with new value, trying to keep simetry
 }
 
 
 void DWIN_OctoShowImage(){
 
 
-  
+
 }
 
 void DWIN_CompletedHoming()
