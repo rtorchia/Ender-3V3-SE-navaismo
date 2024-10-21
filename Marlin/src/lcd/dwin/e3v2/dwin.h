@@ -159,6 +159,14 @@ enum processID : uint8_t {
  #if ENABLED(DWIN_CREALITY_LCD) // Enable the M117 string into LCD if LCD and Hosts commands are enabled.
   #if ENABLED(HOST_ACTION_COMMANDS)
     M117Info,
+    O9000Ctrl,
+    O9000Tune,
+    O9000PrintSpeed,
+    O9000ETemp,
+    O9000BedTemp,
+    O9000FanSpeed,
+    O9000Homeoffset,
+    O9000Print_window,
   #endif
  #endif  
 };
@@ -830,7 +838,17 @@ void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y,
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
+// Octoprint messages support
 void DWIN_Show_M117(char* str);
+// Octoprint Print status
+void DWIN_OctoPrintJob(char* filename, char* print_time, char* ptime_left, char* total_layer, char* curr_layer, char* thumbnail, char *progress);
+// Function to update progress from octoprint in LCD
+void DWIN_OctoUpdate_Progress(const char *progress);
+// Function to update progress from octoprint in LCD
+void DWIN_OctoUpdate_CLayer(const char *layer);
+// Function to update progress from octoprint in LCD
+void DWIN_OctoUpdate_ETA(const char *time);
+
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedHeight();

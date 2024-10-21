@@ -54,7 +54,15 @@ void GcodeSuite::M117()
     }
     else
     {
-      TERN_(DWIN_CREALITY_LCD, DWIN_Show_M117(my_string));
+      // Supress INDICATOR messages from Octoprint
+      if (strstr(parser.string_arg, "INDICATOR-") != NULL)
+      {
+        SERIAL_ECHOLN("Indicator Layer, not showing in LCD");
+      }
+      else
+      {
+        TERN_(DWIN_CREALITY_LCD, DWIN_Show_M117(my_string));
+      }
     }
   }
   else
