@@ -8,11 +8,14 @@
   2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
   3. Added M117 Support to show Messages in the LCD Screen.
   4. Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
-  5. Added cutom comand O9000 toreceive Data to render in the Print Job Page from Octo print.
+  5. Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
 
 
 <br />
-  ![Octorpint Print Job Details](https://i.imgur.com/Ir8u0tD.jpeg)
+
+
+  ![Octorpint Print Job Detai](https://i.imgur.com/Ir8u0tD.jpeg)
+
 
 <br />
 
