@@ -12,7 +12,7 @@
 
 
 <br />
-  ![Octorpint Print Job Details](https://imgur.com/Ir8u0tD)
+  ![Octorpint Print Job Details](https://i.imgur.com/Ir8u0tD.jpeg)
 
 <br />
 
