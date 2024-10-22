@@ -755,6 +755,118 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
 }
 */
 
+
+// Function to Send Image Preview to DWIN LCD
+uint8_t OctoDWINPreview(){
+  const char b64_buffer[] = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPER"
+                          "ETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4e"
+                          "Hh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAwADADASIAAhEBAx"
+                          "EB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQID"
+                          "AAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRk"
+                          "dISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2"
+                          "t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQ"
+                          "AAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEI"
+                          "FEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2"
+                          "hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU"
+                          "1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD4yoorv/hL4FtvEnim5sfEb32n29"
+                          "lbrcSwpFtmlBK7VG77oYNndg8Y45zQByPhrSLjXtfsdGtJIo5ryZYleU4Rc9zjsOtey/EPwB4Z8IfC"
+                          "O7FhGuo6qTC9zqUoG5T5iqUiX+BOevLHuccVteNrLTrDx98PrHRrG2s9Otrq4SGOFCPvBDlieWPXkm"
+                          "ur8Y+GLjxD4bv9DLfZpruEi3d/umVcOgJ7AnaCewbPNAHyJRUt3bzWl1La3MTRTwu0ckbDBVgcEH3B"
+                          "FRUAe7fs4+HvDb6PJ4m1LTft2ox3jwW5lIaKEBFO8Rnhny3G7IHUDPNdJ4cjuLz44+J3kkMk11YW7F"
+                          "3bqfkXk/hVP9mq0N38PrhFkCMuoytyCcjZFnp7ZP4V3d5pmleH9Tg8Y6vHPZwSwLY3kyp8oj8zKTN3"
+                          "ABOwn/aTOACQAVNf8PRXUllq87yJNodyLzKKXDR7T5iYUE7gvzADn5SMZNep+D4dFuIra6DwapDc22"
+                          "ba4hIYOvdeDgkA547GtTw3/Z+p6Z9ntjDdW9wBLDfQOMSocMkikcE9Px9jXhfjLw14++CGuXXizwcE"
+                          "1vwfNL9ovNMZCVsvmyxC5O1eWxIvAz8wOASAYn7UXwT1iG+uPG/huz+2WrKX1KGL/WIVH+u29xgDdj"
+                          "JyC3QnHzTX6J/C34reGfiHoUt5o04hv4EJn0+5cJLGR0JxnKnjDDI59cgfKH7Utz8NbrxcZfBkTR6t"
+                          "v/4mZtQv2JmIOSuP+WmcZ2/KcnPzZyAW/wBmv4ieGvDqP4d8Tb7OK4uTLb6gDlYnYKo3D+EAqDu6c8"
+                          "4xk/Xi6dZeK/Db2OqwW9xZyxGJgn3XBUhsEcFWB7evYivzUr074LfGbxL8OLyK2SR9R0AsTLp0jcLu"
+                          "OS0bdUbPOPunJyMnIAPWtW0f4h/s63z6r4enm8S+BWYma3mOGt8kffwDsOT99RtOTlQSK9a0v44fD/"
+                          "VfBMniVNctrWOAqt1aXXyzoSCdmzqxIDY25B2kA8HHG+Of2l/Btv4VhvfD/napqF7b4/s2aLYsJOQf"
+                          "NJBHGCCATnjHB3V8b6ndG+1G5vTb29uZ5Wk8m3jCRR5OdqKOijoB6UAdN8T/ABJomu+OLzWvCOit4e"
+                          "sp0ZPJjfaX3Bg7bVOEDK2Cikjr6muRoooA/9k=";
+
+ //char base64_in[4];                          // 保存base64编码的数组
+  static unsigned char base64_out[3] = {'0'}; // 保存base64解码的数组
+  char getBase64Cnt = 0;                      // 从U盘获取的，base64编码的数据
+  static signed char deCodeBase64Cnt = 0;     // 已经解码得了数据
+  unsigned long deCodePicLenCnt = 0;          // 保存已经获取的图片数据
+  static char lCmdBuf[100];
+  bool getPicEndFlag = false;
+  static char picBuf[PIN_BUG_LEN_DWIN+1];
+  unsigned long picLen = PIN_BUG_LEN_DACAI;
+
+   // clearing prev data
+    for (int i = 0; i < sizeof(base64_out); i++)
+    {
+      base64_out[i] = '0x00';
+    }
+    deCodeBase64Cnt = 0;
+
+  if ((deCodeBase64Cnt > 0) && (deCodePicLenCnt < picLen))
+  {
+    
+    memset(lCmdBuf, 0, sizeof(lCmdBuf));
+
+    for (int deCode = deCodeBase64Cnt; deCode > 0; deCode--)
+    {
+      if (deCodePicLenCnt < 0)
+      {
+        picBuf[deCodePicLenCnt++] = base64_out[3 - deCode];
+      }
+      else
+      {
+        break;
+      }
+    }
+  }
+
+  while(deCodePicLenCnt < picLen)
+  {
+   
+    memset(base64_out, 0, sizeof(base64_out));
+    deCodeBase64Cnt = base64_decode(b64_buffer, 4, base64_out);
+    for(int i = deCodeBase64Cnt; i < 3; i++)
+    {
+      base64_out[i] = 0;
+    }
+    // 这里强制给3，因为始终是4 --> 3 字符
+    deCodeBase64Cnt = 3;
+
+    int test = deCodeBase64Cnt;
+    for (int deCode = 0; deCode < test; deCode++)
+    {
+      if (deCodePicLenCnt < picLen)
+      {
+        // 特殊处理一下末尾字符，找到了FF D9后退出
+        if (getPicEndFlag)
+        {
+          picBuf[deCodePicLenCnt++] = 0;
+        }
+        else
+        {
+          picBuf[deCodePicLenCnt++] = base64_out[deCode];
+        }
+
+        if (deCodePicLenCnt > 2 && \
+           ((picBuf[deCodePicLenCnt-1] == 0xD9 && picBuf[deCodePicLenCnt-2] == 0xFF) || (picBuf[deCodePicLenCnt-1] == 0xd9 && picBuf[deCodePicLenCnt-2] == 0xff)))
+        {
+          getPicEndFlag = true;
+        }
+        deCodeBase64Cnt--;
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    watchdog_refresh();
+     uiShow.UI_SendJpegDate(picBuf, PIN_BUG_LEN_DACAI);
+     gcodePicDispalyOnOff(0x0003, true);
+   
+  }
+}
+
 /**
  * @功能   xxxxxxxxxxxxxxxxxxxxxxxx
  * @Author Creality

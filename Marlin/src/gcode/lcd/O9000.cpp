@@ -55,7 +55,7 @@ void GcodeSuite::O9000()
     char *my_string = parser.string_arg;
     SERIAL_ECHOLNPAIR("Received: ", my_string);
 
-    if (strcmp(my_string, "S") == 0)
+    if (strcmp(my_string, "SC") == 0)
     {
       // Received all params lets render
       SERIAL_ECHOLN("Received all params, now render in LCD");
@@ -117,6 +117,17 @@ void GcodeSuite::O9000()
       const char *val = getParsedValue(my_string);
       SERIAL_ECHOLNPAIR("Updating Curr_Layer to: ", val);
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoUpdate_ETA(val));
+    }
+    else if (strstr(my_string, "PF|") != NULL)
+    {
+      // Print Finished
+      SERIAL_ECHOLN("Print Finished");
+      TERN_(DWIN_CREALITY_LCD, DWIN_OctoJobFinish());
+    }
+    else if (strstr(my_string, "BU1|") != NULL)
+    {
+      
+      TERN_(DWIN_CREALITY_LCD, DWIN_OctoShowGCodeImage());
     }
     else
     {

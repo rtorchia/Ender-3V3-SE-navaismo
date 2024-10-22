@@ -95,6 +95,7 @@ extern model_information_t model_information;
 #define VP_OVERLAY_PIC_PTINT_DACAI        0xB001              /* 打印界面的预览图 -- 特殊处理大彩屏，预览图地址不能重复 */
 
 extern uint8_t gcodePicDataSendToDwin(char *, unsigned int , unsigned char , unsigned char );
+extern uint8_t OctoDWINPreview();
 extern uint8_t read_gcode_model_information(void);
 extern char Parse_Only_Picture_Data(char* fileName,char * time, char * FilamentUsed, char * layerHeight);
 #endif

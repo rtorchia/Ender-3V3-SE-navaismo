@@ -848,6 +848,11 @@ void DWIN_OctoUpdate_Progress(const char *progress);
 void DWIN_OctoUpdate_CLayer(const char *layer);
 // Function to update progress from octoprint in LCD
 void DWIN_OctoUpdate_ETA(const char *time);
+// Function to show Gcode Preview
+void DWIN_OctoShowGCodeImage();
+// Fucntion to finish job
+void DWIN_OctoJobFinish();
+
 
 
 void DWIN_CompletedHoming();
