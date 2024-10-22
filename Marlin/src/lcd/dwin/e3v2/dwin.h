@@ -167,6 +167,7 @@ enum processID : uint8_t {
     O9000FanSpeed,
     O9000Homeoffset,
     O9000Print_window,
+    OctoFinish,
   #endif
  #endif  
 };

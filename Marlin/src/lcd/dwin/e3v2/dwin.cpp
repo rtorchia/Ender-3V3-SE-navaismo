@@ -245,7 +245,7 @@ char vvtotal_layer[50];
 char vvcurr_layer[50];
 char vvthumb[50];
 char vvprogress[30];
-bool updateOctoData = true; 
+bool updateOctoData = true;
 #endif
 #endif
 
@@ -803,7 +803,7 @@ void ICON_Leveling(bool show)
 
 void ICON_Tune()
 {
-  updateOctoData=false; 
+  updateOctoData = false;
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -886,7 +886,7 @@ void ICON_Continue()
 
 void ICON_Stop()
 {
-  
+
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -3140,7 +3140,6 @@ void HMI_Zoffset()
   }
 }
 
-
 void HMI_O9000Zoffset()
 {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
@@ -3257,7 +3256,6 @@ void HMI_ETemp()
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, VALUERANGE_X, MBASE(temp_line) + TEMP_SET_OFFSET, HMI_ValueStruct.E_Temp);
   }
 }
-
 
 void HMI_O9000ETemp()
 {
@@ -3406,7 +3404,6 @@ void HMI_BedTemp()
   }
 }
 
-
 void HMI_O9000BedTemp()
 {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
@@ -3550,7 +3547,6 @@ void HMI_FanSpeed()
     }
   }
 }
-
 
 void HMI_O9000FanSpeed()
 {
@@ -5378,7 +5374,6 @@ void HMI_PauseOrStop()
   DWIN_UpdateLCD();
 }
 
-
 /* Pause and Stop window */
 void HMI_O900PauseOrStop()
 {
@@ -5402,9 +5397,9 @@ void HMI_O900PauseOrStop()
         {
           SERIAL_ECHOLN("M79 S2"); // 3:cloud print pause
         }
-      updateOctoData = true;  
-      DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
-      
+        updateOctoData = true;
+        DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
+
         // queue.inject_P(PSTR("M25"));
         RUN_AND_WAIT_GCODE_CMD("M25", true);
         ICON_Continue();
@@ -5414,7 +5409,6 @@ void HMI_O900PauseOrStop()
       {
         updateOctoData = true;
         DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
-      
       }
     }
     else if (select_print.now == 2)
@@ -5453,13 +5447,12 @@ void HMI_O900PauseOrStop()
       }
       else
         updateOctoData = true;
-        DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
-       // cancel stop
+      DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
+      // cancel stop
     }
   }
   DWIN_UpdateLCD();
 }
-
 
 #if ENABLED(HAS_CHECKFILAMENT)
 /* Check filament */
@@ -7576,6 +7569,21 @@ void HMI_M117Info()
   DWIN_UpdateLCD(); // Update LCD
 }
 
+/* Print Finish */
+void HMI_OctoFinish()
+{
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO)
+    return;
+  if (encoder_diffState == ENCODER_DIFF_ENTER)
+  {
+    // If enter go back to main menu
+    Goto_MainMenu();
+    HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数 --Flag not to refresh bottom parameters
+  }
+  DWIN_UpdateLCD(); // Update LCD
+}
+
 // Octoprint Job control
 void HMI_O9000()
 {
@@ -7713,8 +7721,7 @@ void HMI_O9000()
   DWIN_UpdateLCD();
 }
 
-
-//OctoTune
+// OctoTune
 void HMI_O9000Tune()
 {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -7761,7 +7768,7 @@ void HMI_O9000Tune()
     case 0:
     { // Back
       select_print.set(0);
-      //SERIAL_ECHOLNPAIR("returning from Tune menu with FN as: ", vvfilename);
+      // SERIAL_ECHOLNPAIR("returning from Tune menu with FN as: ", vvfilename);
       updateOctoData = true;
       DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
     }
@@ -7818,7 +7825,6 @@ void HMI_O9000Tune()
   }
   DWIN_UpdateLCD();
 }
-
 
 /* Tune */
 void HMI_Tune()
@@ -9318,25 +9324,28 @@ void DWIN_HandleScreen()
     break;
   case O9000Tune: // Octoprint Tune HMI
     HMI_O9000Tune();
-    break;  
+    break;
   case O9000PrintSpeed:
     HMI_O9000PrintSpeed();
-    break;  
+    break;
   case O9000ETemp:
     HMI_O9000ETemp();
     break;
   case O9000BedTemp:
     HMI_O9000BedTemp();
-    break;  
+    break;
   case O9000FanSpeed:
     HMI_O9000FanSpeed();
-    break;  
+    break;
   case O9000Homeoffset:
     HMI_O9000Zoffset();
-    break;  
+    break;
   case O9000Print_window:
     HMI_O900PauseOrStop();
-    break;  
+    break;
+  case OctoFinish:
+    HMI_OctoFinish();
+    break;
   default:
     break;
   }
@@ -9678,20 +9687,19 @@ void DWIN_OctoPrintJob(char *filename, char *print_time, char *ptime_left, char 
   const char *vprint_time = print_time && print_time[0] != '\0' ? print_time : "00:00:00";
   const char *vptime_left = ptime_left && ptime_left[0] != '\0' ? ptime_left : "00:00:00";
   const char *vtotal_layer = total_layer && total_layer[0] != '\0' ? total_layer : "0";
-  const char *vcurr_layer = curr_layer && curr_layer[0] != '\0' ? curr_layer : "      0";; // first render layer is always 0 from there we update values(spaces are needed to correct format and clear values)
+  const char *vcurr_layer = curr_layer && curr_layer[0] != '\0' ? curr_layer : "      0";
+  ; // first render layer is always 0 from there we update values(spaces are needed to correct format and clear values)
   const char *vthumb = "";
   const char *vprogress = progress && progress[0] != '\0' ? progress : "0";
-  
- //Copy to reuse vlues outside the function
- strncpy(vvfilename, vfilename, sizeof(vvfilename) - 1);
- strncpy(vvprint_time, vprint_time, sizeof(vvprint_time) - 1);
- strncpy(vvptime_left, vptime_left, sizeof(vvptime_left) - 1);
- strncpy(vvtotal_layer, vtotal_layer, sizeof(vvtotal_layer) - 1);
- strncpy(vvcurr_layer, vcurr_layer, sizeof(vvcurr_layer) - 1);
- strncpy(vvprogress, vprogress, sizeof(vvprogress) - 1);
 
-  
- 
+  // Copy to reuse vlues outside the function
+  strncpy(vvfilename, vfilename, sizeof(vvfilename) - 1);
+  strncpy(vvprint_time, vprint_time, sizeof(vvprint_time) - 1);
+  strncpy(vvptime_left, vptime_left, sizeof(vvptime_left) - 1);
+  strncpy(vvtotal_layer, vtotal_layer, sizeof(vvtotal_layer) - 1);
+  strncpy(vvcurr_layer, vcurr_layer, sizeof(vvcurr_layer) - 1);
+  strncpy(vvprogress, vprogress, sizeof(vvprogress) - 1);
+
   char show_layers[51] = {0};
   snprintf(show_layers, sizeof(show_layers), "%s / %s", vcurr_layer, vtotal_layer);
 
@@ -9704,14 +9712,14 @@ void DWIN_OctoPrintJob(char *filename, char *print_time, char *ptime_left, char 
   Draw_Title(vfilename); // FileName as Title
   if (vthumb == NULL || vthumb[0] == '\0')
     DC_Show_defaut_imageOcto(); // For the moment show default preview
-  
+
   Draw_Print_ProgressBarOcto(atoi(vprogress));
   DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 123, F("Print Time:")); // Label Print Time
-  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 123, F(vprint_time));  // value Print Time
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 123, F(vprint_time));   // value Print Time
   DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 144, F("Time Left:"));  // Label Time Left
-  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 144, F(vptime_left));  // value Time Left
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 144, F(vptime_left));   // value Time Left
   DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 165, F("Layer:"));      // Label Print Time
-  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 80, 165, F(show_layers));   // Label Print Time
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 80, 165, F(show_layers));    // Label Print Time
 
   ICON_Tune();
   if (printingIsPaused() && !HMI_flag.cloud_printing_flag)
@@ -9737,19 +9745,21 @@ void DWIN_OctoUpdate_Progress(const char *progress)
 {
   const char *uPgr = progress && progress[0] != '\0' ? progress : "0"; // ensure non empty string
   strncpy(vvprogress, uPgr, sizeof(vvprogress) - 1);
-  if(updateOctoData){
+  if (updateOctoData)
+  {
     Draw_Print_ProgressBarOcto(atoi(uPgr));
-  }  
+  }
 }
 
 // Function to update progress from octoprint in LCD
 void DWIN_OctoUpdate_CLayer(const char *layer)
 {
   const char *uVal = layer && layer[0] != '\0' ? layer : "---";
-  strncpy(vvcurr_layer, uVal, sizeof(vvcurr_layer) - 1);   // ensure non empty string
-  
-  if(updateOctoData){
-    DWIN_Draw_Rectangle(1, All_Black, 80, 165, 144, 177); // Clear previous Value
+  strncpy(vvcurr_layer, uVal, sizeof(vvcurr_layer) - 1); // ensure non empty string
+
+  if (updateOctoData)
+  {
+    DWIN_Draw_Rectangle(1, All_Black, 80, 165, 144, 177);                                                            // Clear previous Value
     DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, (125 - (strlen(uVal) * 6)), 165, F(uVal)); // Update Current layer with new value, trying to keep simetry
   }
 }
@@ -9757,39 +9767,46 @@ void DWIN_OctoUpdate_CLayer(const char *layer)
 // Function to update progress from octoprint in LCD
 void DWIN_OctoUpdate_ETA(const char *time)
 {
-  const char *uTime = time && time[0] != '\0' ? time : "00 : 00 : 00"; 
-  strncpy(vvptime_left, uTime, sizeof(vvptime_left) - 1);  // ensure non empty string
-  if(updateOctoData){
-    DWIN_Draw_Rectangle(1, All_Black, 120, 144, 230, 156);   // Clear previous Value
+  const char *uTime = time && time[0] != '\0' ? time : "00 : 00 : 00";
+  strncpy(vvptime_left, uTime, sizeof(vvptime_left) - 1); // ensure non empty string
+  if (updateOctoData)
+  {
+    DWIN_Draw_Rectangle(1, All_Black, 120, 144, 230, 156);                                     // Clear previous Value
     DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 144, F(uTime)); // Update Current layer with new value, trying to keep simetry
   }
 }
 
 // clear controls and allow go back main window
-void DWIN_OctoJobFinish(){
-  checkkey = M117Info;
+void DWIN_OctoJobFinish()
+{
+  checkkey = OctoFinish;
+  HMI_flag.Refresh_bottom_flag = true;
+  char show_layers[51] = {0};
+  snprintf(show_layers, sizeof(show_layers), "%s / %s", vvcurr_layer, vvtotal_layer);
   Clear_Title_Bar();
-  DWIN_Draw_Rectangle(1, All_Black, 10, 191, 40, 240);
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, CLEAR_50_X, CLEAR_50_Y, DWIN_WIDTH - 1, STATUS_Y - 1);      
-  #if ENABLED(DWIN_CREALITY_320_LCD)
-      // show print done confirm
-      if (HMI_flag.language < Language_Max) // rock_20211120
-      {
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, TITLE_X, TITLE_Y);
-        DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, OK_BUTTON_X, OK_BUTTON_Y);
-      }
-  #endif
-  
+  Clear_Main_Window();
+  DC_Show_defaut_imageOcto(); // For the moment show default preview
+  Draw_Print_ProgressBarOcto(atoi("100"));
+  DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 123, F("Print Time:")); // Label Print Time
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 123, F(vvprint_time));   // value Print Time
+  DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 144, F("Time Left:"));  // Label Time Left
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 144, F(vvptime_left));   // value Time Left
+  DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 165, F("Layer:"));      // Label Print Time
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 80, 165, F(show_layers));    // Label Print Time
 
-
+  // show print done confirm
+  if (HMI_flag.language < Language_Max) // rock_20211120
+  {
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, TITLE_X, TITLE_Y);
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, OK_BUTTON_X, 210);
+  }
 }
 
-
-void DWIN_OctoShowGCodeImage(){
+void DWIN_OctoShowGCodeImage()
+{
   checkkey = M117Info; // Implement Human Interface Control for M117
   Clear_Main_Window();
   OctoDWINPreview();
-
 }
 
 void DWIN_CompletedHoming()

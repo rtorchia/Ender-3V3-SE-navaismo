@@ -757,7 +757,7 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
 
 
 // Function to Send Image Preview to DWIN LCD
-uint8_t OctoDWINPreview(){
+/*uint8_t OctoDWINPreview(){
   const char b64_buffer[] = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPER"
                           "ETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4e"
                           "Hh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAwADADASIAAhEBAx"
@@ -865,7 +865,7 @@ uint8_t OctoDWINPreview(){
      gcodePicDispalyOnOff(0x0003, true);
    
   }
-}
+}*/
 
 /**
  * @功能   xxxxxxxxxxxxxxxxxxxxxxxx

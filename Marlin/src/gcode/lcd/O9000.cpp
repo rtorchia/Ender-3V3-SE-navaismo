@@ -55,7 +55,7 @@ void GcodeSuite::O9000()
     char *my_string = parser.string_arg;
     SERIAL_ECHOLNPAIR("Received: ", my_string);
 
-    if (strcmp(my_string, "SC") == 0)
+    if (strcmp(my_string, "SC|") == 0)
     {
       // Received all params lets render
       SERIAL_ECHOLN("Received all params, now render in LCD");
