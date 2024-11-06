@@ -558,43 +558,43 @@ void UI_SHOW_t::UI_ShowTextUnicode(const char *str, const int strlen, unsigned l
 
 unsigned long arr_data_num;
 /**
- * 功能:    发送jpg图片前的握手动作
- * jpeg:    指向图片数据的指针
- * path:    发送的路径
+ * 功能:    发送jpg图片前的握手动作 -- Handshake before sending jpg images
+ * jpeg:    指向图片数据的指针 -- pointer to image data
+ * path:    发送的路径 -- path to send
  */
 bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
 {
-  // 当使用大彩屏时
+  // 当使用大彩屏时 -- When using large color screen
   if (!IsDacaiScreenConnect)
     return true;
 
   uint8_t receivedbyte;
   uint8_t cmd_pos = 0;
   uint8_t buffer[10];
-  uint32_t cmd_state = 0;  // 队列帧尾检测状态
+  uint32_t cmd_state = 0;  // 队列帧尾检测状态 -- Queue frame end detection status
 
-  uint8_t cmd_dl_response[7] = {0xEE,0xFB,0x01,0xFF,0xFC,0xFF,0xFF};   // 屏幕返回的下载确认命令
+  uint8_t cmd_dl_response[7] = {0xEE,0xFB,0x01,0xFF,0xFC,0xFF,0xFF};   // 屏幕返回的下载确认命令 -- Download confirmation command returned by the screen
   unsigned long jpgSize = size;
 
-  // 下载命令
+  // 下载命令 -- Download command
   databuf[0] = CMD_HEAD;
   databuf[1] = 0xFB;
-  // 下载包大小
+  // 下载包大小 -- Download package size
   databuf[2] = (DACAI_JPG_BYTES_PER_BUF>>8)&0xff;
   databuf[3] = (DACAI_JPG_BYTES_PER_BUF)&0xff;
-  // 零食波特率，不修改时，设置0
+  // 零食波特率，不修改时，设置0 -- Snack baud rate, set to 0 when not modified
   databuf[4] = (0>>8)&0xff;
   databuf[5] = (0)&0xff;
-  // 文件大小
+  // 文件大小 -- File size
   databuf[6] = (jpgSize>>24)&0xff;
   databuf[7] = (jpgSize>>16)&0xff;
   databuf[8] = (jpgSize>>8)&0xff;
   databuf[9] = (jpgSize)&0xff;
-  // 文件路径
+  // 文件路径 -- File path
   memcpy(&databuf[10], path, strlen(path));
-  // 增加帧尾
+  // 增加帧尾 -- Add frame tail
   memcpy(&databuf[strlen(path) + 12], frameEnd, 4);
-  // 发送命令帧
+  // 发送命令帧 -- Send command frame
   // SERIAL_ECHO("\r\n ");
   // for (int aa = 0; aa <= strlen(path) + 16; aa++) {
   //     SERIAL_ECHO(databuf[aa]);
@@ -614,20 +614,20 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
     {
       return false;
     }
-    // 接收处理
+    // 接收处理 -- Receive processing
     if(LCD_SERIAL.available())
     {
-      // 取一个数据
+      // 取一个数据 -- Take a data
       receivedbyte = LCD_SERIAL.read();
       if(cmd_pos == 0 && receivedbyte != CMD_HEAD)
       {
-        // 指令的第一个字节必须是帧头
+        // 指令的第一个字节必须是帧头 -- The first byte of the instruction must be the frame header
         continue;
       }
 
       if(cmd_pos < 10)
       {
-        // 防止溢出
+        // 防止溢出 -- Prevent overflow
         buffer[cmd_pos++] = receivedbyte;
       }
       else
@@ -635,10 +635,10 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
         return false;
       }
 
-      // 拼接最后4字节，组成最后一个32位整数
+      // 拼接最后4字节，组成最后一个32位整数 -- Splice the last 4 bytes to form the last 32-bit integer
       cmd_state = ((cmd_state << 8) | receivedbyte);
       delay(2);
-      // 帧尾判断
+      // 帧尾判断 -- Frame end
       if(cmd_state == CMD_TAIL)
       {
         // for (int i = 0; i < cmd_pos; i++)
@@ -648,7 +648,7 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
         {
           break;
         }
-        // 重新检测帧尾
+        // 重新检测帧尾 -- Re-detect frame end
         cmd_state = 0;
       }
     }
@@ -662,9 +662,9 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
 }
 
 /**
- * 功能:    发送jpg图片整包数据
- * jpeg:    指向图片数据的指针
- * size:    图片数据长度（从gcode里面读取出来）
+ * 功能:    发送jpg图片整包数据 -- Send jpg picture data in a whole package
+ * jpeg:    指向图片数据的指针 -- Pointer to the image data
+ * size:    图片数据长度（从gcode里面读取出来）-- Image data length (read from gcode)
  */
  bool UI_SHOW_t::UI_SendJpegDate(const char *jpeg, unsigned long size)
 {
@@ -685,7 +685,7 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
 
   for (i = 0; i < jpgSize / DACAI_JPG_BYTES_PER_FRAME; i++)
   {
-    // 发送命令帧 -- dwin_uart_write 这个接口传入的字节长度不要超255
+    // 发送命令帧 -- dwin_uart_write 这个接口传入的字节长度不要超255 -- Send command frame -- dwin_uart_write The byte length passed in by this interface should not exceed 255
     for (sendPacket = 0; sendPacket < jpgSize / DACAI_JPG_BYTES_PER_PACKET; sendPacket++)
     {
       // SERIAL_ECHOLN(sendPacket);
@@ -700,7 +700,7 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
       delay(5);
     }
 
-    // 2048字节发送完剩下的
+    // 2048字节发送完剩下的 -- 2048 bytes are sent and the rest
     if(jpgSize % DACAI_JPG_BYTES_PER_PACKET)
     {
       j = (jpgSize - DACAI_JPG_BYTES_PER_PACKET * sendPacket);
@@ -720,7 +720,7 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
 
   if (jpgSize % DACAI_JPG_BYTES_PER_FRAME)
   {
-    // 小于2048字节处理
+    // 小于2048字节处理 -- Processing less than 2048 bytes
     for (sendPacket = 0; sendPacket < jpgSize / DACAI_JPG_BYTES_PER_PACKET; sendPacket++)
     {
       databuf[2] = (arr_data_num) >> 8;
@@ -732,7 +732,7 @@ bool UI_SHOW_t::UI_SendJpegDateHandshake(unsigned long size, const char *path)
       delay(5);
     }
 
-    // 2048字节发送完剩下的
+    // 2048字节发送完剩下的 -- 2048 bytes are sent and the rest
     if(jpgSize % DACAI_JPG_BYTES_PER_PACKET)
     {
       j = (jpgSize - DACAI_JPG_BYTES_PER_PACKET * sendPacket);
@@ -763,7 +763,7 @@ void UI_SHOW_t::UI_DisplayJpegDate(unsigned long _screen_id)
   databuf[3] = _screen_id >> 8;
   databuf[4] = _screen_id & 0xFF;
 
-  // 增加帧尾
+  // 增加帧尾 -- Add frame tail
   memcpy(&databuf[5], frameEnd, 4);
 
   dwin_uart_write(databuf, 9);

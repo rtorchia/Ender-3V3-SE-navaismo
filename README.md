@@ -11,6 +11,9 @@
   5. Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
 
 
+
+ This firmware needs the [OctoPrint Custom Plugin to send 09000 commands](https://github.com/navaismo/OctoPrint-E3v3seprintjobdetails) in order to render the job in the LCD.
+
 <br />
 
 
