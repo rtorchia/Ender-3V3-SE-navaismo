@@ -25,6 +25,7 @@
 > 4. Wait for the update to finish - it needs ~10 seconds.
 >5. Run a new Autolevel.
 
+Also install the Octoprint plugin at https://github.com/navaismo/OctoPrint-E3v3seprintjobdetails to enable the communication of the modified Ender 3V3SE firmware, and Octoprint to Render in the Printer's LCD the current print JOB.
 
 ## Compilation made on Linux
 For windows ensure to uncomment the line
