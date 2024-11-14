@@ -7,6 +7,18 @@
   1. The 7x7 Mesh to 5x5
   2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
   3. Added M117 Support to show Messages in the LCD Screen.
+  4. Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
+  5. Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
+
+
+
+ This firmware needs the [OctoPrint Custom Plugin to send 09000 commands](https://github.com/navaismo/OctoPrint-E3v3seprintjobdetails) in order to render the job in the LCD.
+
+<br />
+
+
+  ![Octorpint Print Job Detai](https://i.imgur.com/Ir8u0tD.jpeg)
+
 
 <br />
 

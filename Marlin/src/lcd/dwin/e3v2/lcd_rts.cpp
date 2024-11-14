@@ -18,24 +18,30 @@
 #define USER_LOGIC_DEUBG
 #include "../dwin_lcd.h"
 /**
- * @功能   从U盘中读取预览图数据并解码
+ * @功能   从U盘中读取预览图数据并解码 -- Read preview image data from USB disk and decode it
  * @Author Creality
  * @Time   2022-04-13
- * buf          : 用于保存解码后的数据
- * picLen       : 需要的数据长度
+ * buf          : 用于保存解码后的数据 -- Used to save decoded data
+ * picLen       : 需要的数据长度 -- Required data length
  * resetFlag    : 重置数据标志 -- 由于Base64解码后是3的倍数（4个Base64字符解码后是4个字节数据），但是入参‘picLen’不一定是3的倍数。
  *                所以单次调用后，剩余的没有使用到的字节数据保存在“base64_out”，其长度为“deCodeBase64Cnt”
  *                当显示完第一张图片后，显示第二张图时，需要清除一下这两个数据，防止影响第二张图片的显示
  *                true -- 清除历史数据 （“base64_out”，“deCodeBase64Cnt”）
  *                false -- 不动作
+ * 
+ *                Reset data flag -- Since Base64 is a multiple of 3 after decoding (4 Base64 characters are decoded into 4 bytes of data), the input parameter 'picLen' is not necessarily a multiple of 3.
+ *                So after a single call, the remaining unused byte data is saved in "base64_out", and its length is "deCodeBase64Cnt"
+ *                After displaying the first picture, when displaying the second picture, you need to clear these two data to prevent affecting the display of the second picture
+ *                true -- Clear historical data ("base64_out", "deCodeBase64Cnt")
+ *                false -- No action
  */
 bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
 {
-  char base64_in[4];                          // 保存base64编码的数组
-  static unsigned char base64_out[3] = {'0'}; // 保存base64解码的数组
-  char getBase64Cnt = 0;                      // 从U盘获取的，base64编码的数据
-  static signed char deCodeBase64Cnt = 0;     // 已经解码得了数据
-  unsigned long deCodePicLenCnt = 0;          // 保存已经获取的图片数据
+  char base64_in[4];                          // 保存base64编码的数组 -- Save base64 encoded array
+  static unsigned char base64_out[3] = {'0'}; // 保存base64解码的数组 -- Save base64 decoded array
+  char getBase64Cnt = 0;                      // 从U盘获取的，base64编码的数据 -- Base64 encoded data obtained from USB drive
+  static signed char deCodeBase64Cnt = 0;     // 已经解码得了数据 -- Decoded data
+  unsigned long deCodePicLenCnt = 0;          // 保存已经获取的图片数据 -- Save the obtained image data
   static char lCmdBuf[100];
   bool getPicEndFlag = false;
 
@@ -46,7 +52,7 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
                          // "\r\n gcodePicGetDataFormBase64(...), .picLen = ", picLen);
   // }
 
-  // 清除上次记录
+  // 清除上次记录 -- Clear last record
   if (resetFlag)
   {
     for (int i = 0; i < sizeof(base64_out); i++)
@@ -91,7 +97,7 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
     char j, ret;
     for ( j = 0; j < 20; j++)
     {
-      // 从U盘中获取一个字符
+      // 从U盘中获取一个字符 -- Get a character from USB disk
       ret = card.get();
 
       if (ret == ';' || ret == ' ' || ret == '\r' || ret == '\n')
@@ -113,7 +119,7 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
     {
       base64_out[i] = 0;
     }
-    // 这里强制给3，因为始终是4 --> 3 字符
+    // 这里强制给3，因为始终是4 --> 3 字符 -- 3 is forced here because it is always 4 --> 3 characters
     deCodeBase64Cnt = 3;
 
     // if (ENABLED(USER_LOGIC_DEUBG))
@@ -127,7 +133,7 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
     {
       if (deCodePicLenCnt < picLen)
       {
-        // 特殊处理一下末尾字符，找到了FF D9后退出
+        // 特殊处理一下末尾字符，找到了FF D9后退出 -- Specially process the last character and exit after finding FF D9.
         if (getPicEndFlag)
         {
           buf[deCodePicLenCnt++] = 0;
@@ -173,10 +179,10 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
 }
 
 /**
- * @功能   gcode预览图显示、隐藏
+ * @功能   gcode预览图显示、隐藏 -- gcode preview display and hide
  * @Author Creality
  * @Time   2021-0-27
- * jpgAddr      地址
+ * jpgAddr      地址 -- address
  * onoff        显示(onoff == true)，隐藏(onoff == false)
  * 显示地址
  */
@@ -204,7 +210,7 @@ static const char * gcode_information_name[] =
   "MINY","MINZ","MAXX","MAXY","MAXZ"
 };
 //PIC_OK;
-#define READ_PIC_TIME            500  //读取图片预览数据超时时间
+#define READ_PIC_TIME            500  //读取图片预览数据超时时间 -- Timeout for reading image preview data
 uint8_t read_gcode_model_information(void)
 { 
   millis_t ms = millis();
@@ -235,7 +241,7 @@ uint8_t read_gcode_model_information(void)
     i = 0;
     memset(buf_true, 0, sizeof(buf_true));
     // ret=0;
-    // 搜索到下一个;字符,就结束
+    // 搜索到下一个;字符,就结束 -- The search ends when the next; character is found
     next_read_pic_ms = millis()+READ_PIC_TIME;
     while(ret != ';')
     {
@@ -243,27 +249,27 @@ uint8_t read_gcode_model_information(void)
       ret = card.get();
       buf[i] = ret;
       i++;
-      // 如果找了很多都没找到';',说明文件错误,直接退出
+      // 如果找了很多都没找到';',说明文件错误,直接退出 -- If you can't find ';' after searching a lot, it means the file is wrong and exit directly.
       if(i > 50)
       {
         goto gcode_information_err;
       }
-      // 结束,buf[]包含结束';'
+      // 结束,buf[]包含结束';' -- // End, buf[] contains end ';'
     }
     // SERIAL_ECHO_MSG("buf:",buf);
     // for(k = 0;k < 9;k++)
     for(k = 0;k < 3;k++)
     {
-      // 查找关键字
+      // 查找关键字 -- // Find keywords
       char_pos = strstr(buf, gcode_information_name[k]);
-      // 已经找到相对应的数据
+      // 已经找到相对应的数据 -- // Corresponding data has been found
       if(char_pos != NULL)
       {
-        // 舍去文字,直接提取数值
+        // 舍去文字,直接提取数值 -- // Remove the text and extract the value directly
         char_pos+=strlen(gcode_information_name[k]);
         while (1)
         {
-          // 跳过冒号
+          // 跳过冒号 -- skip colon
           // char_pos++;
           if(*char_pos++ == ':')break;
         }
@@ -277,7 +283,7 @@ uint8_t read_gcode_model_information(void)
           }
         }
         // SERIAL_ECHOLNPAIR(" strlen(buf_true)=: ", strlen(buf_true)); // rock_20210909
-        if(' '==buf_true[0])strncpy(buf_true, buf_true+1,strlen(buf_true));//去除字符串前面的空格
+        if(' '==buf_true[0])strncpy(buf_true, buf_true+1,strlen(buf_true));//去除字符串前面的空格 -- Remove spaces in front of string
         i = 0;
         memset(buf, 0, sizeof(buf));
         // SERIAL_ECHOLN(buf_true);
@@ -308,7 +314,7 @@ uint8_t read_gcode_model_information(void)
         // break;
       }
     }
-    ret = 0;  //清空ret
+    ret = 0;  //清空ret -- Clear ret
     if(buf_state)
     {
       /*
@@ -356,10 +362,20 @@ uint8_t read_gcode_model_information(void)
  * isDisplay    : 是否显示该图片
  * jpgAddr      : 显示图片的地址
  */
+/**
+ * @Function Read the jpeg picture display from gcode: 
+ *      1. Send it to the screen display; 
+ *      2. Let the pointer skip this picture and then find the next picture.
+ * @Author Creality
+ * @Time 2021-12-01
+ * picLenth: picture length (base64 encoded length)
+ * isDisplay: whether to display the image
+ * jpgAddr: Display the address of the image
+ */
 extern unsigned long arr_data_num;
 bool gcodePicDataRead(unsigned long picLenth, char isDisplay, unsigned long jpgAddr)
 {
-  //          96*96-耗时-Ms  200*200-耗时-Ms
+  //          96*96-耗时-Ms  200*200-耗时-Ms // 96*96-Time-consuming-Ms 200*200-Time-consuming-Ms
   //  * 2  :      1780        8900 
   //  * 4  :      940         4490 
   //  * 8  :      518         2010 
@@ -369,8 +385,8 @@ bool gcodePicDataRead(unsigned long picLenth, char isDisplay, unsigned long jpgA
   #define PIN_BUG_LEN_DWIN    PIN_BUG_LEN_DACAI + 20  // (JPG_BYTES_PER_FRAME * 12)
   #define PIN_DATA_LEN_DWIN   PIN_BUG_LEN_DACAI + 20  // (PIN_BUG_LEN_DWIN / 2)
 
-  static char picBuf[PIN_BUG_LEN_DWIN+1];   // 这个取 MXA(PIN_BUG_LEN_DACAI, PIN_BUG_LEN_DWIN)
-  unsigned long picLen;                     // 图片长度(解码后的长度)
+  static char picBuf[PIN_BUG_LEN_DWIN+1];   // 这个取 MXA(PIN_BUG_LEN_DACAI, PIN_BUG_LEN_DWIN) -- This takes MXA(PIN_BUG_LEN_DACAI, PIN_BUG_LEN_DWIN)
+  unsigned long picLen;                     // 图片长度(解码后的长度) -- Image length (decoded length)
   unsigned long j;
 
   // (picLenth / 4) * 3;
@@ -379,28 +395,28 @@ bool gcodePicDataRead(unsigned long picLenth, char isDisplay, unsigned long jpgA
   gcodePicGetDataFormBase64(picBuf, 0, true);
 
   arr_data_num = 0;
-  // 开始读取
-  // 一次传送2048个数据
+  // 开始读取 -- Start reading
+  // 一次传送2048个数据 -- Transmit 2048 data at one time
   for (j = 0; j < (picLen / PIN_BUG_LEN_DACAI); j++)
   {
     memset(picBuf, 0, sizeof(picBuf));
     // card.read(picBuf, PIN_BUG_LEN_DACAI);
     gcodePicGetDataFormBase64(picBuf, PIN_BUG_LEN_DACAI, false);
 
-    // 发送图片数据到指定地址
+    // 发送图片数据到指定地址 -- Send image data to the specified address
     if (isDisplay)
     {
       uiShow.UI_SendJpegDate(picBuf, PIN_BUG_LEN_DACAI);
     }
   }
-  // 剩下的不足2048字符的数据处理，根据迪文处理内容
+  // 剩下的不足2048字符的数据处理，根据迪文处理内容 -- The remaining data with less than 2048 characters will be processed according to the processing content of Diwen
   watchdog_refresh();
   if (picLen % PIN_BUG_LEN_DACAI != 0)
   {
     memset(picBuf, 0, sizeof(picBuf));
     gcodePicGetDataFormBase64(picBuf, (picLen - PIN_BUG_LEN_DACAI * j), false);
     // card.read(picBuf, (picLen - PIN_BUG_LEN_DACAI * j));
-    // 发送图片数据到指定地址
+    // 发送图片数据到指定地址 -- Send image data to the specified address
     if (isDisplay)
     {
       uiShow.UI_SendJpegDate(picBuf, picLen - PIN_BUG_LEN_DACAI * j);
@@ -423,6 +439,15 @@ bool gcodePicDataRead(unsigned long picLenth, char isDisplay, unsigned long jpgA
  * jpgAddr          显示地址
  * jpgFormat        图片类型（jpg、png）
  * jpgResolution    图片大小
+ */
+/**
+ *@Function gcode preview image existence judgment
+ *@Author Creality
+ *@Time 2021-12-01
+ *fileName gcode file name
+ *jpgAddr display address
+ *jpgFormat image type (jpg, png)
+ *jpgResolution image size
  */
 char gcodePicExistjudge(char *fileName, unsigned int jpgAddr, unsigned char jpgFormat, unsigned char jpgResolution)
 {
@@ -713,7 +738,15 @@ char gcodePicExistjudge(char *fileName, unsigned int jpgAddr, unsigned char jpgF
  * jpgFormat    图片类型（jpg、png）
  * jpgResolution     图片大小
  */
-/*
+/**
+ * @Function gcode preview is sent to Divin
+ * @Author Creality
+ * @Time 2021-12-01
+ * fileName gcode file name
+ * jpgAddr display address
+ * jpgFormat image type (jpg, png)
+ * jpgResolution image size
+ *//*
 uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned char jpgFormat, unsigned char jpgResolution)
 {
   char ret;
@@ -726,7 +759,7 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
   {
     
     ret = gcodePicExistjudge(fileName, jpgAddr, jpgFormat, jpgResolution);
-    // 当gcode中没有pic时，直接返回
+    // 当gcode中没有pic时，直接返回 --  When there is no pic in gcode, return directly
     if (ret == PIC_MISS_ERR)
     {
       card.closefile();
@@ -734,7 +767,7 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
     }
     else if ((ret == PIC_FORMAT_ERR) || (ret == PIC_RESOLITION_ERR))
     {
-      // 当格式或大小错误，继续往下判断
+      // 当格式或大小错误，继续往下判断 -- When the format or size is wrong, continue to judge.
       if (++returyCnt >= 3)
       {
         card.closefile();
@@ -755,6 +788,8 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
 }
 */
 
+
+
 /**
  * @功能   xxxxxxxxxxxxxxxxxxxxxxxx
  * @Author Creality
@@ -768,7 +803,19 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
   PIC_MISS_ERR,        // gcode无图片
  */
 // Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, char * layerHeight)
-
+/**
+ *  @function xxxxxxxxxxxxxxxxxxxxxxxx
+ *  @Author Creality
+ *  @Time 2021-12-01
+ *  time: gcode estimated printing time
+ *  Filament used： Material usage
+ *  Layer height: layer height
+ *  PIC_OK, //Picture display ok
+    PIC_FORMAT_ERR, //Picture format error
+    PIC_RESOLITION_ERR, //Wrong picture resolution
+    PIC_MISS_ERR, //gcode no picture
+ */
+// Parse_Only_Picture_Data(char*fileName, char *time, char *FilamentUsed, char *layerHeight)
 uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned char jpgFormat, unsigned char jpgResolution)
 {
   char ret;
@@ -785,7 +832,7 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
   // while (1)
   // {
     ret=read_gcode_model_information();
-    // 当gcode中没有pic时，直接返回
+    // 当gcode中没有pic时，直接返回 -- When there is no pic in gcode, return directly
     if (ret == PIC_MISS_ERR)
     {
       card.closefile();
@@ -794,7 +841,7 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
     /*
     else if ((ret == PIC_FORMAT_ERR) || (ret == PIC_RESOLITION_ERR))
     {
-      // 当格式或大小错误，继续往下判断
+      // 当格式或大小错误，继续往下判断 -- When the format or size is wrong, continue to judge.
       if (++returyCnt >= 3)
       {
         card.closefile();
@@ -814,7 +861,7 @@ uint8_t gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned ch
   // }
   
 }
-/*
+
 
 char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, char * layerHeight)
 {
@@ -823,59 +870,59 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
     unsigned char strBuf[STRING_MAX_LEN] = {0};
     unsigned char bufIndex = 0;
 	unsigned char buf[10] = {0};
-	uint8_t retryTimes = 0;	//重复查询次数
+	uint8_t retryTimes = 0;	//重复查询次数 -- Number of repeated queries
 
   SERIAL_ECHO("\r\n gcodePicDataSendToDwin fileName = ");
   SERIAL_ECHO(fileName);
   card.openFileRead(fileName);
 
-    // 读取一个字符串，以空格隔开
+    // 读取一个字符串，以空格隔开 -- Read a string, separated by spaces
     #define GET_STRING_ON_GCODE()
         {
-            // 读取一行，以换行符隔开
+            // 读取一行，以换行符隔开  -- Read one line, separated by newlines
             memset(strBuf, 0, sizeof(strBuf));
             int strLenMax;
             bool strStartFg = false;
             uint8_t curBufLen = 0;
-            retryTimes = 0;   // 查找次数
+            retryTimes = 0;   // 查找次数 -- Number of searches
             do {
                 for (strLenMax = 0; strLenMax < STRING_MAX_LEN; strLenMax++)
                 {
-                    ret = card.get();   // 从U盘中获取一个字符
+                    ret = card.get();   // 从U盘中获取一个字符 -- Get a character from USB disk
                     SERIAL_ECHO_MSG("1:",&ret);
-                    if (ret != ';' && strStartFg == false)  // 读到';'为一行的开始
+                    if (ret != ';' && strStartFg == false)  // 读到';'为一行的开始 -- Read ';' as the beginning of a line
                         continue;
                     else
                         strStartFg = true;
-                    if ((ret == '\r' || ret == '\n') && bufIndex != 0) break;   // 读到换行符，退出
+                    if ((ret == '\r' || ret == '\n') && bufIndex != 0) break;   // 读到换行符，退出 -- Read the newline character and exit
                     strBuf[bufIndex++] = ret;
                 }
                 SERIAL_ECHO_MSG("4f56ds:",strBuf);
                 if (strLenMax >= STRING_MAX_LEN) {
                     SERIAL_ECHO_MSG("curren srting lenth more than STRING_MAX_LEN(60)");
                     card.closefile();
-                    return false;	// 返回失败
+                    return false;	// 返回失败 -- Return failure
                 }
                 curBufLen = sizeof(strBuf);
                 if (retryTimes++ >= 5)
                 {
                     SERIAL_ECHO_MSG("retryTimes more than5 times");
                     card.closefile();
-                    return false;	// 返回失败
+                    return false;	// 返回失败 -- Return failure
                 }
             }while(curBufLen < 20);
 
-			      // 调试打印
+			      // 调试打印 -- Debug Print
             SERIAL_ECHO_MSG("strBuf = ", strBuf);
             SERIAL_ECHO_MSG("curBufLen = ", curBufLen);
       }
 
 
-	// 获取某一行的指定值
-	// 例如，获取“;TIME:464.876” 中的 “464.876”
+	// 获取某一行的指定值 -- Get the specified value of a row
+	// 例如，获取“;TIME:464.876” 中的 “464.876” -- For example, get "464.876" in ";TIME:464.876"
 
 
-	// 查找TIME
+	// 查找TIME -- Find time
 	retryTimes = 0;
 	do {
 		GET_STRING_ON_GCODE();
@@ -884,7 +931,7 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
 		if ( strstr((const char *)strBuf, "TIME" ) == NULL) {
 			sscanf((const char *)strBuf,"%s:%s",&buf, time);
 
-			// 调试打印信息
+			// 调试打印信息 -- Debug print information
 			SERIAL_ECHO_MSG("buf = ", buf);
             SERIAL_ECHO_MSG("time = ", time);
 			break;
@@ -893,12 +940,12 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
 		if (retryTimes++ >= 3) 
     {
       card.closefile();
-      return false;	// 超过3次，返回失败
+      return false;	// 超过3次，返回失败 -- More than 3 times, return failure
     }
 	}while(1);
 
 
-	// 查找 "Filament used"
+	// 查找 "Filament used" -- Find "Filament used"
 	retryTimes = 0;
 	do {
 		GET_STRING_ON_GCODE();
@@ -906,7 +953,7 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
 		if ( strstr((const char *)strBuf, "Filament used" ) == NULL) {
 			sscanf((const char *)strBuf,"%s:%s",&buf, FilamentUsed);
 
-			// 调试打印信息
+			// 调试打印信息 -- Debug print information
 			SERIAL_ECHO_MSG("buf = ", buf);
             SERIAL_ECHO_MSG("time = ", FilamentUsed);
 			break;
@@ -915,11 +962,11 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
 		if (retryTimes++ >= 3) 
     {
       card.closefile();
-      return false;	// 超过3次，返回失败
+      return false;	// 超过3次，返回失败 -- More than 3 times, return failure
     }
 	}while(1);
 
-	// 查找 "Layer height"
+	// 查找 "Layer height" -- Find "Layer height"
 	retryTimes = 0;
 	do {
 		GET_STRING_ON_GCODE();
@@ -927,7 +974,7 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
 		if ( strstr((const char *)strBuf, "Layer height" ) == NULL) {
 			sscanf((const char *)strBuf,"%s:%s",&buf, layerHeight);
 
-			// 调试打印信息
+			// 调试打印信息 -- Debug print information
 			SERIAL_ECHO_MSG("buf = ", buf);
             SERIAL_ECHO_MSG("time = ", layerHeight);
 			break;
@@ -936,9 +983,9 @@ char Parse_Only_Picture_Data(char* fileName, char * time, char * FilamentUsed, c
 		if (retryTimes++ >= 3) 
     {
       card.closefile();
-      return false;	// 超过3次，返回失败
+      return false;	// 超过3次，返回失败 -- -- More than 3 times, return failure
     }
 	}while(1);
 }
-*/
+
 ////////////////////////////

@@ -707,6 +707,12 @@ private:
     static void M117();
   #endif
 
+  #if ENABLED(DWIN_CREALITY_LCD)
+   #if ENABLED(HOST_ACTION_COMMANDS)
+    static void O9000(); // receive print details from serial device 
+  #endif
+  #endif
+
   static void M118();
   static void M119();
   static void M120();
@@ -1143,6 +1149,8 @@ private:
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     static void M710();
   #endif
+
+ 
 
   #if ANY(USE_AUTOZ_TOOL,USE_AUTOZ_TOOL_2)
     static void M8015();
