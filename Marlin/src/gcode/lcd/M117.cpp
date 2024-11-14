@@ -43,9 +43,10 @@ void GcodeSuite::M117()
   if (parser.string_arg && parser.string_arg[0] != '\0')
   {
     char *my_string = parser.string_arg;
-    SERIAL_ECHOLN("Got M117 Command from Serial Terminal");
-    SERIAL_ECHOLNPAIR("String received: ", my_string);
-    delay(200);
+
+    //SERIAL_ECHOLN("Got M117 Command from Serial Terminal");
+    //SERIAL_ECHOLNPAIR("String received: ", my_string);
+    //delay(200);
 
     if (strlen(my_string) > 30)
     {

@@ -853,8 +853,11 @@ void DWIN_OctoUpdate_ETA(const char *time);
 void DWIN_OctoShowGCodeImage();
 // Fucntion to finish job
 void DWIN_OctoJobFinish();
-
-
+// Function to show title
+void Draw_OctoTitle(const char *const title);
+void octo_make_name_without_ext(char *dst, char *src, size_t maxlen);
+void octoUpdateScroll();
+void clearOctoScrollVars();
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedHeight();

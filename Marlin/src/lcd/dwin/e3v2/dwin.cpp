@@ -949,6 +949,63 @@ void Draw_Title(const __FlashStringHelper *title)
   DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char *)title);
 }
 
+
+//vars to scroll title when octoprinting
+int scrollOffset = 0;
+unsigned long lastScrollTime = 0;
+const int scrollDelay2 = 250; // this to move chars
+int maxOffset;
+char visibleText[35] = {0};
+void Draw_OctoTitle(const char *const title)
+{
+  char* nTitle = const_cast<char*>(title);
+  
+  octo_make_name_without_ext(shift_name, nTitle, 100); // Copy to new string Long Name
+  maxOffset = strlen(shift_name); 
+  
+#if ENABLED(DWIN_CREALITY_480_LCD)
+
+#elif ENABLED(DWIN_CREALITY_320_LCD)
+  if (maxOffset > 30)
+  {
+    //move flag
+    scrollOffset = 0;
+    DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 0, 4, shift_name);
+  }
+  else
+  {
+  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 0, 4, shift_name);
+  }
+
+#endif
+}
+
+//scroll title name
+void octoUpdateScroll() {
+    if (strlen(shift_name) <= 30) return; // No need to update if filename is less than 30chars
+
+    unsigned long currentTime = millis(); // check interval
+    if (currentTime - lastScrollTime >= scrollDelay2) {
+        lastScrollTime = currentTime;
+        
+        Clear_Title_Bar(); //clear title bar to avoid ghosting text
+        strncpy(visibleText, shift_name + scrollOffset, 30); // copy the text to shift left
+        // Draw the string
+        DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 0, 4, visibleText);
+        
+        // Inc and reset
+        scrollOffset++;
+        if (scrollOffset > maxOffset) {
+            scrollOffset = 0;  // restart
+        }
+    }
+}
+
+
+
+
+
+
 void Clear_Menu_Area()
 {
 #if ENABLED(DWIN_CREALITY_480_LCD)
@@ -4235,6 +4292,33 @@ void make_name_without_ext(char *dst, char *src, size_t maxlen = MENU_CHAR_LIMIT
     dst[pos] = src[pos];
 }
 
+
+void octo_make_name_without_ext(char *dst, char *src, size_t maxlen = MENU_CHAR_LIMIT)
+{
+  
+  size_t pos = strlen(src); // index of ending nul
+
+  // For files, remove the extension
+  // which may be .gcode, .gco, or .g
+    while (pos && src[pos] != '.')
+      pos--; // find last '.' (stop at 0)
+
+  size_t len = pos; // nul or '.'
+  if (len > maxlen)
+  {                     // Keep the name short
+    pos = len = maxlen; // move nul down
+    dst[--pos] = '.';   // insert dots
+    dst[--pos] = '.';
+    dst[--pos] = '.';
+  }
+
+  dst[len] = '\0'; // end it
+
+  // Copy down to 0
+  while (pos--)
+    dst[pos] = src[pos];
+}
+
 void HMI_SDCardInit() { card.cdroot(); }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
@@ -4320,6 +4404,7 @@ void Draw_SDItem_Shifted(uint8_t &shift)
 
   shift_name[lastchar] = c;
 }
+
 
 #endif
 
@@ -5436,6 +5521,7 @@ void HMI_O900PauseOrStop()
         // BL24CXX::EEPROM_Reset(PLR_ADDR, (uint8_t*)&recovery.info, sizeof(recovery.info));//rock_20210812  清空 EEPROM
         // checkkey = Popup_Window;
         Popup_Window_Home(true); // rock_20221018
+        clearOctoScrollVars();
 
         card.abortFilePrintSoon(); // Let the main loop handle SD abort  //rock_20211020
         checkkey = Back_Main;
@@ -9667,7 +9753,7 @@ void HMI_Auto_Bed_PID(void)
 // Function to send string to LCD
 void DWIN_Show_M117(char *str)
 {
-
+  clearOctoScrollVars(); // If the OctoPrint-E3v3seprintjobdetails plugin is enable we will receive a cancel M117 so clear vars, if not is safe to clear since no job will be render
   checkkey = M117Info; // Implement Human Interface Control for M117
   Clear_Main_Window();
   Draw_Mid_Status_Area(true);                                                                                                    // Draw Status Area, the one with Nozzle and bed temp.
@@ -9710,7 +9796,7 @@ void DWIN_OctoPrintJob(char *filename, char *print_time, char *ptime_left, char 
   HMI_flag.Refresh_bottom_flag = false;
 
   // Todo Scroll filename if bigger than 25
-  Draw_Title(vfilename); // FileName as Title
+  Draw_OctoTitle(vfilename); // FileName as Title
   if (vthumb == NULL || vthumb[0] == '\0')
     DC_Show_defaut_imageOcto(); // For the moment show default preview
 
@@ -9768,6 +9854,7 @@ void DWIN_OctoUpdate_CLayer(const char *layer)
 // Function to update ETA from octoprint in LCD
 void DWIN_OctoUpdate_ETA(const char *time)
 {
+  octoUpdateScroll();
   const char *uTime = time && time[0] != '\0' ? time : "00 : 00 : 00";
   strncpy(vvptime_left, uTime, sizeof(vvptime_left) - 1); // ensure non empty string
   if (updateOctoData)
@@ -9777,6 +9864,12 @@ void DWIN_OctoUpdate_ETA(const char *time)
   }
 }
 
+void clearOctoScrollVars(){
+  shift_name[0] = '\0';       // clear scrolling variables
+  visibleText[0] = '\0';      
+  scrollOffset = 0;           
+  maxOffset = 0;   
+}
 // finishc job, clear controls and allow go back main window
 void DWIN_OctoJobFinish()
 {
@@ -9784,6 +9877,7 @@ void DWIN_OctoJobFinish()
   checkkey = OctoFinish;
   HMI_flag.Refresh_bottom_flag = true;
   char show_layers[51] = {0};
+  clearOctoScrollVars();
   snprintf(show_layers, sizeof(show_layers), "%s / %s", vvcurr_layer, vvtotal_layer);
   Clear_Title_Bar();
   Clear_Main_Window();

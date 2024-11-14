@@ -53,75 +53,75 @@ void GcodeSuite::O9000()
   if (parser.string_arg && parser.string_arg[0] != '\0')
   {
     char *my_string = parser.string_arg;
-    SERIAL_ECHOLNPAIR("Received: ", my_string);
+    //SERIAL_ECHOLNPAIR("Received: ", my_string);
 
     if (strcmp(my_string, "SC|") == 0)
     {
       // Received all params lets render
-      SERIAL_ECHOLN("Received all params, now render in LCD");
+      //SERIAL_ECHOLN("Received all params, now render in LCD");
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoPrintJob(filename, print_time, ptime_left, total_layers, curr_layer, thumbnail, progress));
     }
     else if (strstr(my_string, "SFN|") != NULL)
     {
       // Set FileName
       strncpy(filename, getParsedValue(my_string), sizeof(filename) - 1);
-      SERIAL_ECHOLNPAIR("Parameter 1 filename set: ", filename);
+      //SERIAL_ECHOLNPAIR("Parameter 1 filename set: ", filename);
     }
     else if (strstr(my_string, "SPT|") != NULL)
     {
       // Set Print Time
       strncpy(print_time, getParsedValue(my_string), sizeof(print_time) - 1);
-      SERIAL_ECHOLNPAIR("Parameter 2 print_time set: ", print_time);
+      //SERIAL_ECHOLNPAIR("Parameter 2 print_time set: ", print_time);
     }
     else if (strstr(my_string, "SET|") != NULL)
     {
       // Set Print Time Left
       strncpy(ptime_left, getParsedValue(my_string), sizeof(ptime_left) - 1);
-      SERIAL_ECHOLNPAIR("Parameter 3 ptime_left set: ", ptime_left);
+      //SERIAL_ECHOLNPAIR("Parameter 3 ptime_left set: ", ptime_left);
     }
     else if (strstr(my_string, "STL|") != NULL)
     {
       // Set Total Layers
       strncpy(total_layers, getParsedValue(my_string), sizeof(total_layers) - 1);
-      SERIAL_ECHOLNPAIR("Parameter 4  total_layers set: ", total_layers);
+      //SERIAL_ECHOLNPAIR("Parameter 4  total_layers set: ", total_layers);
     }
     else if (strstr(my_string, "SCL|") != NULL)
     {
       // Set Current Layer
       strncpy(curr_layer, getParsedValue(my_string), sizeof(curr_layer) - 1);
-      SERIAL_ECHOLNPAIR("Parameter 5 curr_layer set: ", curr_layer);
+      //SERIAL_ECHOLNPAIR("Parameter 5 curr_layer set: ", curr_layer);
     }
     else if (strstr(my_string, "SPP|") != NULL)
     {
       // Set Progress
       strncpy(progress, getParsedValue(my_string), sizeof(progress) - 1);
-      SERIAL_ECHOLNPAIR("Parameter 6 progress set: ", progress);
+      //SERIAL_ECHOLNPAIR("Parameter 6 progress set: ", progress);
     }
     else if (strstr(my_string, "UPP|") != NULL)
     {
       // Update Progress
       const char *val = getParsedValue(my_string);
-      SERIAL_ECHOLNPAIR("Updating Progress to: ", val);
+      //SERIAL_ECHOLNPAIR("Updating Progress to: ", val);
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoUpdate_Progress(val));
     }
     else if (strstr(my_string, "UCL|") != NULL)
     {
       // Update Current Layer
       const char *val = getParsedValue(my_string);
-      SERIAL_ECHOLNPAIR("Updating Curr_Layer to: ", val);
+      //SERIAL_ECHOLNPAIR("Updating Curr_Layer to: ", val);
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoUpdate_CLayer(val));
     }
     else if (strstr(my_string, "UET|") != NULL)
     {
       // Update Print Time Left
       const char *val = getParsedValue(my_string);
-      SERIAL_ECHOLNPAIR("Updating Curr_Layer to: ", val);
+      //SERIAL_ECHOLNPAIR("Updating Curr_Layer to: ", val);
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoUpdate_ETA(val));
     }
     else if (strstr(my_string, "PF|") != NULL)
     {
       // Print Finished
-      SERIAL_ECHOLN("Print Finished");
+      //SERIAL_ECHOLN("Print Finished");
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoJobFinish());
     }
     else if (strstr(my_string, "BU1|") != NULL)

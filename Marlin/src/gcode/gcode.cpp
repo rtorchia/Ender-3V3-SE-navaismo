@@ -1621,7 +1621,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok /*=false*/)
     switch (parser.codenum)
     {
     case 9000:
-      SERIAL_ECHOLN("Got O9000");
+      //SERIAL_ECHOLN("Got O9000");
       O9000();
       break;
     }
