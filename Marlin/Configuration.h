@@ -950,6 +950,7 @@
     #define MAX_JERK_EDIT_VALUES {20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
+
 #if ENABLED(HIGH_SPEED_1)
 #define DEFAULT_EJERK 10.0  // May be used by Linear Advance
 #else
@@ -1153,6 +1154,7 @@
 #else 
  #define NOZZLE_TO_PROBE_OFFSET { -31.75, -14.69, 0}  //prime 2023.02.10 朱工提供
 #endif
+
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 3 
@@ -1455,7 +1457,7 @@
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
   // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
-
+  //#define FILAMENT_RUNOUT_SCRIPT "M412 H"
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
