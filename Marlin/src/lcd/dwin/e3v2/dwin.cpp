@@ -9884,9 +9884,9 @@ void DWIN_OctoJobFinish()
   DC_Show_defaut_imageOcto(); // For the moment show default preview
   Draw_Print_ProgressBarOcto(atoi("100"));
   DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 145, F("Print Time:")); // Label Print Time
-  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 145, F(vvprint_time));   // value Print Time
-  DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 165, F("Time Left:"));  // Label Time Left
-  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 126, 165, F(vvptime_left));   // value Time Left
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 136, 145, F(vvprint_time));   // value Print Time
+  DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 165, F("Elapsed Time:"));  // Label Time Left
+  DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 138, 165, F(vvptime_left));   // value Time Left
   DWIN_Draw_String(false, false, font6x12, Color_Yellow, Color_Bg_Black, 12, 186, F("Layer:"));      // Label Print Time
   DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 80, 186, F(show_layers));    // Label Print Time
 
