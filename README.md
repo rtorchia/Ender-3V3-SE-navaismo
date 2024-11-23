@@ -8,13 +8,13 @@
 >
 > **My fork changes includes:**
 >
->  - The 7x7 Mesh to 5x5
->  - Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
->  - Added M117 Support to show Messages in the LCD Screen.
->  - Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
->  - Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
->  - Increased Buffers for the Serial Communication.
->  - Increased the BaudRate from 115200 to 128000. 
+>  - [x] The 7x7 Mesh to 5x5
+>  - [x] Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
+>  - [x] Added M117 Support to show Messages in the LCD Screen.
+>  - [x] Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
+>  - [x] Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
+>  - [x] Increased Buffers for the Serial Communication.
+>  - [x] Increased the BaudRate from 115200 to 128000. 
 
 
 <br />
@@ -58,8 +58,8 @@
 > 
 > **Disclaimer**
 >
->I'm not responsable of the damage or brick that may happen to your printer if you don't know what are you doing.
->I'm provided this fork tested on my own printer without warranties.** 
+> I'm not responsable of the damage or brick that may happen to your printer if you don't know what are you doing.
+> I'm provided this fork tested on my own printer without warranties.** 
 
 ____________________________________________________________________________________________
 
