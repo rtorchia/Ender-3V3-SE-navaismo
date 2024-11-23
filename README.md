@@ -3,16 +3,23 @@
 - Included the Linear Advance functions based     on the fork of [@queeup-Forks](https://github.com/queeup-Forks/Ender-3V3-SE)
 - Included the Support of Hosts Commands based    on the fork of [@rtorchia](https://github.com/rtorchia/Ender-3V3-SE/commits/main/) 
 
-- My fork changes includes:
-  1. The 7x7 Mesh to 5x5
-  2. Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
-  3. Added M117 Support to show Messages in the LCD Screen.
-  4. Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
-  5. Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
+
+> [!IMPORTANT]
+>
+> **My fork changes includes:**
+>
+>  - The 7x7 Mesh to 5x5
+>  - Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
+>  - Added M117 Support to show Messages in the LCD Screen.
+>  - Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
+>  - Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
+>  - Increased Buffers for the Serial Communication.
+>  - Increased the BaudRate from 115200 to 128000. 
 
 
+<br />
 
- This firmware needs the [OctoPrint Custom Plugin to send 09000 commands](https://github.com/navaismo/OctoPrint-E3v3seprintjobdetails) in order to render the job in the LCD.
+ - [x] ***This firmware needs the [OctoPrint Custom Plugin to send 09000 commands](https://github.com/navaismo/OctoPrint-E3v3seprintjobdetails) in order to render the job in the LCD.***
 
 <br />
 
@@ -35,18 +42,10 @@
 > 2. Rename it to something random, i.E. "hiPrinterPleaseFlashThisFirmware123.bin"
 > 3. Plug the SD Card in your printer and turn it on
 > 4. Wait for the update to finish - it needs ~10 seconds.
->5. Run a new Autolevel.
+> 5. Run a new Autolevel.
+> 6. In Octoprint enable the 128000 baud rate.
 
-Also install the Octoprint plugin at https://github.com/navaismo/OctoPrint-E3v3seprintjobdetails to enable the communication of the modified Ender 3V3SE firmware, and Octoprint to Render in the Printer's LCD the current print JOB.
 
-## Compilation made on Linux
-For windows ensure to uncomment the line
-
-```//#include <wstring.h>```
-
-In file Marlin/src/lcd/dwin/ui_dacai.cpp
-
-<br />
 
 ----
 
