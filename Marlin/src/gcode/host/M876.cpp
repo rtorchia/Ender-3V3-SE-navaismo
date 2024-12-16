@@ -21,7 +21,8 @@
  */
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+#if ENABLED(HOST_PROMPT_SUPPORT) 
+//&& DISABLED(EMERGENCY_PARSER)
 
 #include "../../feature/host_actions.h"
 #include "../gcode.h"

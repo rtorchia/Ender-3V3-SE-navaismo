@@ -129,6 +129,11 @@ void GcodeSuite::O9000()
       
       TERN_(DWIN_CREALITY_LCD, DWIN_OctoShowGCodeImage());
     }
+     else if (strstr(my_string, "OCON|") != NULL)
+    {
+      
+      TERN_(DWIN_CREALITY_LCD, Goto_OctoMainMenu());
+    }
     else
     {
       SERIAL_ECHOLN("Invalid Command Argument...");

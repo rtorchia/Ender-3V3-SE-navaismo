@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 #include "../queue.h"           // for getting the command port
-
+#include "../../core/serial.h"
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
@@ -48,6 +48,9 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
+
+  serial_connection_active = true;
+  SERIAL_ECHOLNPAIR("=====++++>> OCTO Value: ", serial_connection_active);
   SERIAL_ECHOLNPGM(
     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
     "SOURCE_CODE_URL:" SOURCE_CODE_URL " "

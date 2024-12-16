@@ -713,6 +713,10 @@ private:
   #endif
   #endif
 
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+      static void M876();
+  #endif
+
   static void M118();
   static void M119();
   static void M120();
