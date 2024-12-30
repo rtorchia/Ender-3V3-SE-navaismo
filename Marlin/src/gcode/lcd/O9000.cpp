@@ -131,8 +131,13 @@ void GcodeSuite::O9000()
     }
      else if (strstr(my_string, "OCON|") != NULL)
     {
-      
-      TERN_(DWIN_CREALITY_LCD, Goto_OctoMainMenu());
+      serial_connection_active = true;
+      TERN_(DWIN_CREALITY_LCD, Goto_MainMenu());
+    }
+     else if (strstr(my_string, "OCOFF|") != NULL)
+    {
+      serial_connection_active = false;
+      TERN_(DWIN_CREALITY_LCD, Goto_MainMenu());
     }
     else
     {

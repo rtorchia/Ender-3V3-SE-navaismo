@@ -21,6 +21,7 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "../../core/serial.h"
 
 #if ENABLED(HOST_ACTION_COMMANDS)
 
@@ -144,6 +145,8 @@ void host_action(PGM_P const pstr, const bool eol) {
   void host_response_handler(const uint8_t response) {
     const PromptReason hpr = host_prompt_reason;
     host_prompt_reason = PROMPT_NOT_DEFINED;  // Reset now ahead of logic
+     SERIAL_ECHOLNPAIR("=====++++>> Host Response: ", hpr);
+     SERIAL_ECHOLNPAIR("=====++++>> Host Response val: ", response);
     switch (hpr) {
       case PROMPT_FILAMENT_RUNOUT:
         switch (response) {

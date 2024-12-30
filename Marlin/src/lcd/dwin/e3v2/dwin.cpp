@@ -3004,7 +3004,15 @@ void Goto_MainMenu()
                                        //  DWIN_ICON_Show(ICON, ICON_LOGO, LOGO_LITTLE_X, LOGO_LITTLE_Y);
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); // rock_j
+    if(serial_connection_active)
+    {
+      DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 0, 4, F(" ~(o.O)~ OctoPrint Connected"));
+    }
+    else
+    {
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); // rock_j
+    }
+    //DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); // rock_j
   }
 #endif
   ICON_Print();
@@ -3014,23 +3022,6 @@ void Goto_MainMenu()
   (select_page.now == 3);
 }
 
-void Goto_OctoMainMenu()
-{
-  checkkey = MainMenu;
-  Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
-#if ENABLED(DWIN_CREALITY_480_LCD)
-  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);
-#elif ENABLED(DWIN_CREALITY_320_LCD)
-                                       //  DWIN_ICON_Show(ICON, ICON_LOGO, LOGO_LITTLE_X, LOGO_LITTLE_Y);
- DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 0, 4, F(" ~(o.O)~ OctoPrint Connected"));
-#endif
-  ICON_Print();
-  ICON_Prepare();
-  ICON_Control();
-  TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)
-  (select_page.now == 3);
-}
 
 inline ENCODER_DiffState get_encoder_state()
 {
@@ -7667,7 +7658,7 @@ void HMI_M117Info()
   if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
     // If enter go back to main menu
-    Goto_OctoMainMenu();
+    Goto_MainMenu();
     HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数 --Flag not to refresh bottom parameters
   }
   DWIN_UpdateLCD(); // Update LCD
@@ -7682,7 +7673,7 @@ void HMI_OctoFinish()
   if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
     // If enter go back to main menu
-    Goto_OctoMainMenu();
+    Goto_MainMenu();
     HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数 --Flag not to refresh bottom parameters
   }
   DWIN_UpdateLCD(); // Update LCD

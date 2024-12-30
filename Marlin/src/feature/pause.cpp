@@ -510,6 +510,7 @@ void show_continue_prompt(const bool is_reload) {
 }
 
 void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
+  SERIAL_ECHOLNPAIR("=====++++>> WaitConfirm Flag Value: ", serial_connection_active);
   DEBUG_SECTION(wfc, "wait_for_confirmation", true);
   DEBUG_ECHOLNPAIR("... is_reload:", is_reload, " maxbeep:", max_beep_count DXC_SAY);
 
@@ -543,6 +544,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_NOZZLE_PARKED)));
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
+    //SERIAL_ECHOLN("=====++++>>Inside While4User: ");
     impatient_beep(max_beep_count);
 
     // If the nozzle has timed out...
@@ -556,6 +558,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
+       SERIAL_ECHOLN("=====++++>> Noozle timeout: ");
         if (serial_connection_active) {
       //TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_HEATER_TIMEOUT), GET_TEXT(MSG_REHEAT)));
           host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_HEATER_TIMEOUT), GET_TEXT(MSG_REHEAT));
@@ -569,6 +572,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         if (serial_connection_active) {
+          SERIAL_ECHOLN("=====++++>> Nozzle Reheat: ");
       //TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, GET_TEXT(MSG_REHEATING)));
           host_prompt_do(PROMPT_INFO, GET_TEXT(MSG_REHEATING));
         }
@@ -592,6 +596,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         if (serial_connection_active) {
+          SERIAL_ECHOLN("=====++++>> Nozzle Reheat Done: ");
       //TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), CONTINUE_STR));
            host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), CONTINUE_STR);
         }

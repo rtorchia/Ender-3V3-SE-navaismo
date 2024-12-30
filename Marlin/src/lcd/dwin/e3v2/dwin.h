@@ -858,7 +858,7 @@ void Draw_OctoTitle(const char *const title);
 void octo_make_name_without_ext(char *dst, char *src, size_t maxlen);
 void octoUpdateScroll();
 void clearOctoScrollVars();
-void Goto_OctoMainMenu();
+
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedHeight();
