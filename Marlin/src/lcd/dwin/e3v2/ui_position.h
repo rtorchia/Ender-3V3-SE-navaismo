@@ -4,44 +4,51 @@
 
 #if ENABLED(DWIN_CREALITY_480_LCD) //
 
-#elif ENABLED(DWIN_CREALITY_320_LCD)//3.2寸屏幕
-//主界面
-    #define LOGO_LITTLE_X  72  //小LOGO坐标
+#elif ENABLED(DWIN_CREALITY_320_LCD)//3.2 inch screen
+//Main interface
+    #define LOGO_LITTLE_X  72  //Small logo coordinates
     #define LOGO_LITTLE_Y  36
-//自动调平界面 -- Automatic leveling interface
-//编辑调平页面 -- Edit Leveling Page
+//Automatic leveling interface --Automatic leveling interface
+//Edit Leveling Page --Edit Leveling Page
     #define WORD_TITLE_X 29 
     #define WORD_TITLE_Y 1
     #define OUTLINE_LEFT_X 12//40
-    #define OUTLINE_LEFT_Y 47//72
-    #define OUTLINE_RIGHT_X OUTLINE_LEFT_X+220//OUTLINE_LEFT_X+200//OUTLINE_LEFT_X+160
+    #define OUTLINE_LEFT_Y 30//72
+    #define OUTLINE_RIGHT_X OUTLINE_LEFT_X+220//Outline left x+200//outline left x+160
     #define OUTLINE_RIGHT_Y OUTLINE_LEFT_Y+220//OUTLINE_LEFT_Y+160
-    //button——position
+    //We calculate the size of each cell
+    #define CELL_SPACING_X 4 // Separation between cells on the X axis
+    #define CELL_SPACING_Y 3 // Separation between cells on the Y axis
+
+    #define GRID_WIDTH ((OUTLINE_RIGHT_X - OUTLINE_LEFT_X) / GRID_MAX_POINTS_X - CELL_SPACING_X)
+    #define GRID_HEIGHT ((OUTLINE_RIGHT_Y - OUTLINE_LEFT_Y) / GRID_MAX_POINTS_Y - CELL_SPACING_Y - 8)    
+   
+    //Button——position
     #define BUTTON_W 82
     #define BUTTON_H 32
     #define BUTTON_EDIT_X OUTLINE_LEFT_X
-    #define BUTTON_EDIT_Y OUTLINE_RIGHT_Y+20//OUTLINE_RIGHT_Y+27
+    #define BUTTON_EDIT_Y OUTLINE_RIGHT_Y+20//Outline right y+27
     #define BUTTON_OK_X  OUTLINE_RIGHT_X-BUTTON_W
     #define BUTTON_OK_Y  BUTTON_EDIT_Y//
-    //数据坐标 -- Data coordinates
-    #define X_Axis_Interval  39//54   //x轴上间隔距离像素 -- The distance between pixels on the x-axis
-    #define Y_Axis_Interval  45//35   //y轴上间隔距离像素 -- The distance between pixels on the y axis
-    #define Rect_LU_X_POS    OUTLINE_LEFT_X+10//32   //第一个左上x坐标 -- The first upper left x coordinate
-    // #define Rect_LU_Y_POS    OUTLINE_LEFT_Y+10//157-4  //第一个左上y坐标 -- The first upper left y coordinate
-    #define Rect_LU_Y_POS    (OUTLINE_LEFT_Y+20)+3*Y_Axis_Interval//157-4  //第一个左上y坐标 -- The first upper left y coordinate
+    //Data coordinates --Data coordinates
+    #define X_Axis_Interval (38 + CELL_SPACING_X) // Adjusted interval with spacing
+    #define Y_Axis_Interval (42 + CELL_SPACING_Y) // Adjusted interval with spacing
 
-    #define Rect_RD_X_POS    Rect_LU_X_POS+45//X_Axis_Interval//X_Axis_Interval//78   //第一个右下x坐标 -- The first lower right x coordinate
-    // #define Rect_RD_Y_POS    Rect_LU_Y_POS+20//Y_Axis_Interval//Y_Axis_Interval//177-4  //第一个右下y坐标 -- The first lower right y coordinate
-    #define Rect_RD_Y_POS    (Rect_LU_Y_POS+30)//Y_Axis_Interval//Y_Axis_Interval//177-4  //第一个右下y坐标 -- The first lower right y coordinate
-	
+    #define Rect_LU_X_POS (OUTLINE_LEFT_X + 10 - 5) // Initial coordinate X
+    #define Rect_LU_Y_POS ((OUTLINE_LEFT_Y + 50) + 3 * Y_Axis_Interval) // Initial Y coordinate
+
+    #define Rect_RD_X_POS (Rect_LU_X_POS + GRID_WIDTH) // Initial lower right X coordinate
+    #define Rect_RD_Y_POS (Rect_LU_Y_POS + GRID_HEIGHT) // Initial Y lower right coordinate
+    
+
 #define TITLE_X 29
 #define TITLE_Y  1
 //  TITLE_X, TITLE_Y);
-//启动页面
+//Start page
 #define CREALITY_LOGO_X   20
 #define CREALITY_LOGO_Y   96
-//主界面
-    #define LOGO_LITTLE_X  72  //小LOGO坐标
+//Main interface
+    #define LOGO_LITTLE_X  72  //Small logo coordinates
     #define LOGO_LITTLE_Y  36
 
     #define ICON_PRINT_X 12
@@ -65,20 +72,20 @@
     #define WORD_LEVEL_X 126+1
     #define WORD_LEVEL_Y 247
 
-    //打印确认页面
+    //Print confirmation page
     #define ICON_Defaut_Image_X 72
     #define ICON_Defaut_Image_Y 25
 
-    //控制-》信息页面
+    //Control 》Information page
     #define ICON_SIZE_X  20  // 
     #define ICON_SIZE_Y  75  //39
-    // #define ICON_SIZE_X  20  // 
-    // #define ICON_SIZE_Y  79  //39
-    //语言选择页面
+    // #define ICON_SIZE_X 20 // 
+    // #define ICON_SIZE_Y 79 //39
+    //Language selection page
     #define WORD_LAGUAGE_X 20
 
 
-    //打印中界面
+    //Printing interface
     #define FIEL_NAME_X   12 
      #define FIEL_NAME_Y  24+11 
     #define ICON_PRINT_TIME_X 117
@@ -95,7 +102,7 @@
     #define NUM_RAMAIN_TIME_X  NUM_PRINT_TIME_X
     #define NUM_RAMAIN_TIME_Y  NUM_PRINT_TIME_Y+40+21
 
-    //划线1,2,3
+    //Underline 1,2,3
     #define LINE_X_START  12
     #define LINE_Y_START  59            
     #define LINE_X_END    12+216
@@ -113,20 +120,20 @@
 
     #define ICON_PERCENT_X   12
     #define ICON_PERCENT_Y   75
-     //打印参数图标坐标
-    #define ICON_NOZZ_X  6//ICON_PERCENT_X  //喷嘴图标
+     //Print parameter icon coordinates
+    #define ICON_NOZZ_X  6//ICON_PERCENT_X //Nozzle icon
     #define ICON_NOZZ_Y  268.5
-    #define ICON_BED_X   ICON_NOZZ_X  //热床图标
+    #define ICON_BED_X   ICON_NOZZ_X  //Hot bed icon
     #define ICON_BED_Y   ICON_NOZZ_Y+6+20
-    #define ICON_SPEED_X 99//ICON_NOZZ_X+64+20  //打印速率
+    #define ICON_SPEED_X 99//ICON_NOZZ_X+64+20 //Print speed
     #define ICON_SPEED_Y  ICON_NOZZ_Y
-    #define ICON_STEP_E_X ICON_SPEED_X//ICON_BED_X+64+20   //E轴挤出比
+    #define ICON_STEP_E_X ICON_SPEED_X//ICON_BED_X+64+20 //E-axis extrusion ratio
     #define ICON_STEP_E_Y ICON_BED_Y
-    #define ICON_ZOFFSET_X 171//ICON_STEP_E_X+64+20//z轴补偿值
+    #define ICON_ZOFFSET_X 171//Icon step e x+64+20//z-axis compensation value
     #define ICON_ZOFFSET_Y ICON_STEP_E_Y
-    #define ICON_FAN_X     171//ICON_SPEED_X+64+20//风扇占空比
+    #define ICON_FAN_X     171//Icon speed x+64+20//Fan duty cycle
     #define ICON_FAN_Y     ICON_SPEED_Y
-//打印参数数据坐标
+//Print parameter data coordinates
     #define ICON_TO_NUM_OFFSET 4
     #define NUM_NOZZ_X     ICON_NOZZ_X+18  //(32,388)
     #define NUM_NOZZ_Y     ICON_NOZZ_Y+ICON_TO_NUM_OFFSET
@@ -146,31 +153,31 @@
     // #define PRECENT_X  NUM_PRECENT_X+20
     // #define PRECENT_Y  NUM_PRECENT_Y
 
-    //图标坐标
+    //Icon coordinates
     #define RECT_SET_X1  12
     #define RECT_SET_Y1  191
     #define RECT_SET_X2  RECT_SET_X1+68
     #define RECT_SET_Y2  RECT_SET_Y1+64
     #define RECT_OFFSET_X   6+68
 
-    #define ICON_SET_X  RECT_SET_X1//RECT_SET_X1+19  
-    #define ICON_SET_Y  RECT_SET_Y1//RECT_SET_Y1+5
+    #define ICON_SET_X  RECT_SET_X1//Rect set x1+19  
+    #define ICON_SET_Y  RECT_SET_Y1//Rect set y1+5
     #define WORD_SET_X  RECT_SET_X1  
     #define WORD_SET_Y  RECT_SET_Y1+34
 
     #define ICON_PAUSE_X  ICON_SET_X+RECT_OFFSET_X  
     #define ICON_PAUSE_Y  ICON_SET_Y
-    #define WORD_PAUSE_X  ICON_PAUSE_X //WORD_SET_X+RECT_OFFSET_X   
+    #define WORD_PAUSE_X  ICON_PAUSE_X //Word set x+rect offset x   
     #define WORD_PAUSE_Y  WORD_SET_Y
 
     #define ICON_STOP_X  ICON_PAUSE_X+RECT_OFFSET_X  
     #define ICON_STOP_Y  ICON_PAUSE_Y
-    #define WORD_STOP_X  ICON_STOP_X //WORD_PAUSE_X+RECT_OFFSET_X  
+    #define WORD_STOP_X  ICON_STOP_X //Word pause x+rect offset x  
     #define WORD_STOP_Y  WORD_PAUSE_Y
 
   
 
-//一键对高界面坐标
+//Align the interface coordinates with one click
     #define LINE_X  111
     #define LINE_Y  117
     #define LINE_Y_SPACE 81+18
@@ -182,19 +189,19 @@
     #define ICON_NOZZ_HOT_X 102
     #define ICON_NOZZ_HOT_Y 36
     #define ICON_Y_SPACE    63+36
-//调平失败UI坐标
+//Leveling failed ui coordinates
 #define ICON_LEVELING_ERR_X  90
 #define ICON_LEVELING_ERR_Y  79
 #define WORD_LEVELING_ERR_X  16
 #define WORD_LEVELING_ERR_Y  148
 
-//打印完成清除底部范围
+//Printing complete clear bottom range
 #define CLEAR_50_X    0
 #define CLEAR_50_Y    ICON_SET_Y-1
-#define OK_BUTTON_X   72  //打印完成按钮位置
+#define OK_BUTTON_X   72  //Print completion button location
 #define OK_BUTTON_Y   264
 
-//开机引导，语言选择
+//Boot boot, language selection
 #define FIRST_X  20
 #define FIRST_Y  29
 #define LINE_START_X 12
@@ -209,7 +216,7 @@
 #define REC_Y2   REC_Y1+37
 #define REC_INTERVAL 40
 
-//异常界面坐标
+//Abnormal interface coordinates
 #define ICON_X 90
 #define ICON_Y 53
 #define WORD_X 16 
@@ -219,7 +226,7 @@
 #define REC_60_X2 REC_X1+208
 #define REC_60_Y2 REC_Y1+210
 
-//PID设置界面
+//Pid setting interface
 #define WORD_AUTO_X 12
 #define WORD_AUTO_Y  45+24
 #define WORD_TEMP_X 84
@@ -227,29 +234,29 @@
 #define ICON_AUTO_X 0
 #define ICON_AUTO_Y 101+24
 #define SHOW_CURE_X1 34
-#define SHOW_CURE_Y1 167 //ICON_AUTO_Y-28  
-#define SHOW_CURE_X2 SHOW_CURE_X1+194//SHOW_CURE_X1+191
-#define SHOW_CURE_Y2 236//SHOW_CURE_Y1+71
+#define SHOW_CURE_Y1 167 //Icon car and 28  
+#define SHOW_CURE_X2 SHOW_CURE_X1+194//Show cure x1+191
+#define SHOW_CURE_Y2 236//Show cure y1+71
 
-// 曲线数据相关
+// Curve data related
 #define CURVE_POINT_NUM       40
-#define Curve_Color_Bed       0xFF6B17 // 浅红色
-#define Curve_Color_Nozzle    0xFF0E42 // 红色
-#define Curve_Psition_Start_X   SHOW_CURE_X1//34     // 0x0000 //左上
-#define Curve_Psition_Start_Y   SHOW_CURE_Y1//144    // 0x0000
-#define Curve_Psition_End_X     SHOW_CURE_X2//225    // 0x0000 //右下
-#define Curve_Psition_End_Y     SHOW_CURE_Y2//221-6    // 0x0000 //右下
+#define Curve_Color_Bed       0xFF6B17 // light red
+#define Curve_Color_Nozzle    0xFF0E42 // red
+#define Curve_Psition_Start_X   SHOW_CURE_X1//34 //0x0000 //Upper left
+#define Curve_Psition_Start_Y   SHOW_CURE_Y1//144    //0x0000
+#define Curve_Psition_End_X     SHOW_CURE_X2//225 //0x0000 //Lower right
+#define Curve_Psition_End_Y     SHOW_CURE_Y2//221-6 //0x0000 //Lower right
 #define Curve_DISTANCE_BED_Y    70
 #define Curve_DISTANCE_NOZZLE_Y 70
 #define Curve_Line_Width        0x01
 #define Curve_Step_Size_X       5      // 0x05
-#define Curve_Bed_Size_Y       Curve_DISTANCE_BED_Y*256/150  // 90 //Y轴数据像素间隔   y数据比例
+#define Curve_Bed_Size_Y       Curve_DISTANCE_BED_Y*256/150  // 90 //Y-axis data pixel interval y data ratio
 #define Curve_Nozzle_Size_Y    Curve_DISTANCE_NOZZLE_Y*256/300
-#define Curve_Zero_Y           Curve_Psition_End_Y+2                                 // 0x0556  Y轴0点坐标
+#define Curve_Zero_Y           Curve_Psition_End_Y+2                                 // 0x0556 Y axis 0 point coordinate
 
-//图片预览界面图标位置
+//Picture preview interface icon position
 
-#if ENABLED(USER_LEVEL_CHECK)  //使用调平校准功能
+#if ENABLED(USER_LEVEL_CHECK)  //Using the leveling calibration function
     #define WORD_TIME_X  12  
     #define WORD_TIME_Y  122
     #define WORD_LENTH_X WORD_TIME_X
@@ -281,20 +288,20 @@
 #define DATA_OFFSET_Y  4
 
 
-//开机引导弹窗
+//Boot boot pop-up window
 #define POPUP_BG_X_LU  16
 #define POPUP_BG_Y_LU  67
 #define POPUP_BG_X_RD  224
 #define POPUP_BG_Y_RD  277
-//清洁提示
+//Cleaning tips
 #define WORD_HINT_CLEAR_X POPUP_BG_X_LU
 #define WORD_HINT_CLEAR_Y 17+POPUP_BG_Y_LU
-//失败后清洁提示
+//Tips for cleaning after failure
 #define WORD_HIGH_CLEAR_X POPUP_BG_X_LU
 #define WORD_HIGH_CLEAR_Y 81+POPUP_BG_Y_LU
 #define ICON_HIGH_ERR_X   70+POPUP_BG_X_LU
 #define ICON_HIGH_ERR_Y   12+POPUP_BG_Y_LU
-//调平失败
+//Leveling failed
 #define ICON_LEVEL_ERR_X  42+POPUP_BG_X_LU
 #define ICON_LEVEL_ERR_Y  11+POPUP_BG_Y_LU
 #define WORD_SCAN_QR_X    POPUP_BG_X_LU
@@ -306,7 +313,7 @@
 #define BUTTON_BOOT_LEVEL_Y  260
 
 
-//G29各个点的坐标
+//The coordinates of each point in G29
 #define G29_X_MIN 3
 #define G29_Y_MIN 3
 #define G29_X_MAX 200.75
@@ -317,4 +324,4 @@
 
 #endif 
 
-#endif   //E3S1_LASER_H
+#endif   //E3 s1 laser h

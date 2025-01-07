@@ -258,7 +258,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
           // Extrude filament to get into hotend
-          unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
+          unscaled_e_move(10, ADVANCED_PAUSE_PURGE_FEEDRATE);
+          
         }
 
         #if ENABLED(HOST_PROMPT_SUPPORT)

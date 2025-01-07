@@ -1,31 +1,31 @@
 /**
 lin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *Based on Sprinter and grbl.
+ *Copyright (c) 2011 Camiel Gubbels /Erik van der Zalm
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *This program is free software: you can redistribute it and/or modify
+ *it under the terms of the GNU General Public License as published by
+ *the Free Software Foundation, either version 3 of the License, or
+ *(at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *This program is distributed in the hope that it will be useful,
+ *but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *You should have received a copy of the GNU General Public License
+ *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 /**
- * DWIN by Creality3D
+ *DWIN by Creality3D
  */
 #include "../../../inc/MarlinConfigPre.h"
 #if ENABLED(DWIN_CREALITY_LCD)
 #include "dwin.h"
-#include "ui_position.h" //UI位置
+#include "ui_position.h" //Ui position
 #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
 #define HAS_ONESTEP_LEVELING 1
 #endif
@@ -96,7 +96,7 @@ lin 3D Printer Firmware
 #define MIN_PRINT_SPEED 10
 #define MAX_PRINT_SPEED 999
 
-// Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE * 2)
+// Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE *2)
 #define MIN_MAXFEEDSPEED 1
 #define MIN_MAXACCELERATION 1
 #define MIN_MAXJERK 0.1
@@ -111,15 +111,15 @@ lin 3D Printer Firmware
 #define ENCODER_WAIT_MS 20
 #define DWIN_VAR_UPDATE_INTERVAL 1024
 #define DACAI_VAR_UPDATE_INTERVAL 4048
-#define HEAT_ANIMATION_FLASH 150                   // 加热动画刷新
-#define DWIN_SCROLL_UPDATE_INTERVAL SEC_TO_MS(0.5) // rock_20210819
+#define HEAT_ANIMATION_FLASH 150                   // Heating animation refresh
+#define DWIN_SCROLL_UPDATE_INTERVAL SEC_TO_MS(0.5) // Rock 20210819
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL SEC_TO_MS(20)
 
-#define PRINT_SET_OFFSET 4 // rock_20211115
-#define TEMP_SET_OFFSET 2  // rock_20211115
+#define PRINT_SET_OFFSET 4 // Rock 20211115
+#define TEMP_SET_OFFSET 2  // Rock 20211115
 #define PID_VALUE_OFFSET 10
 #if ENABLED(DWIN_CREALITY_480_LCD)
-#define JPN_OFFSET -13                           // rock_20211115
+#define JPN_OFFSET -13                           // Rock 20211115
 constexpr uint16_t TROWS = 6, MROWS = TROWS - 1, // Total rows, and other-than-Back
     TITLE_HEIGHT = 30,                           // Title bar height
     MLINE = 53,                                  // Menu line height
@@ -127,7 +127,7 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1, // Total rows, and other-than-B
     MENU_CHR_W = 8, STAT_CHR_W = 10;
 #define MBASE(L) (49 + MLINE * (L))
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-#define JPN_OFFSET -5 // rock_20211115
+#define JPN_OFFSET -5 // Rock 20211115
 constexpr uint16_t TROWS = 6, MROWS = TROWS - 1, // Total rows, and other-than-Back
     TITLE_HEIGHT = 24,                           // Title bar height
     MLINE = 36,                                  // Menu line height
@@ -150,14 +150,14 @@ static uint8_t left_move_index = 0;
 /* Value Init */
 HMI_value_t HMI_ValueStruct;
 HMI_Flag_t HMI_flag{0};
-CRec CardRecbuf; // rock_20211021
+CRec CardRecbuf; // Rock 20211021
 millis_t dwin_heat_time = 0;
-uint8_t G29_level_num = 0; // 记录G29调平了多少个点，用来判断g29是否正常调平
-bool end_flag = false;     // 防止反复刷新曲线完成指令
+uint8_t G29_level_num = 0; // Record how many points g29 has been leveled to determine whether g29 is leveled normally.
+bool end_flag = false;     // Prevent repeated refresh of curve completion instructions
 enum DC_language current_language;
 volatile uint8_t checkkey = 0;
 // 0 Without interruption, 1 runout filament paused 2 remove card pause
-static bool temp_remove_card_flag = false, temp_cutting_line_flag = false /*,temp_wifi_print_flag=false*/;
+static bool temp_remove_card_flag = false, temp_cutting_line_flag = false /*,temp wifi print flag=false*/;
 typedef struct
 {
   uint8_t now, last;
@@ -215,7 +215,7 @@ constexpr float default_max_jerk[] = {DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJER
 
 static uint8_t _card_percent = 0;
 uint8_t Cloud_Progress_Bar = 0; // The cloud prints the transmitted progress bar data
-uint32_t _remain_time = 0;      // rock_20210830
+uint32_t _remain_time = 0;      // Rock 20210830
 
 float default_nozzle_ptemp = DEFAULT_Kp;
 float default_nozzle_itemp = DEFAULT_Ki;
@@ -237,7 +237,7 @@ uint16_t resume_bed_temp = 0;
 
 #if ENABLED(DWIN_CREALITY_LCD)
 #if ENABLED(HOST_ACTION_COMMANDS)
-// Vars for OctoprintJobs
+// Beware of OctoprintJobs
 char vvfilename[50];
 char vvprint_time[50];
 char vvptime_left[50];
@@ -251,7 +251,7 @@ bool updateOctoData = true;
 
 #if HAS_ZOFFSET_ITEM
 float dwin_zoffset = 0, last_zoffset = 0;
-float dwin_zoffset_edit = 0, last_zoffset_edit = 0, temp_zoffset_single = 0; // 当前点的调节前的调平值;
+float dwin_zoffset_edit = 0, last_zoffset_edit = 0, temp_zoffset_single = 0; // The leveling value before adjustment of the current point;
 #endif
 
 int16_t temphot = 0;
@@ -259,10 +259,10 @@ uint8_t afterprobe_fan0_speed = 0;
 bool home_flag = false;
 bool G29_flag = false;
 
-#define DWIN_BOOT_STEP_EEPROM_ADDRESS 0x01 // 设置开机引导步骤
+#define DWIN_BOOT_STEP_EEPROM_ADDRESS 0x01 // Set up boot steps
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x02  // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
-#define DWIN_AUTO_BED_EEPROM_ADDRESS 0x03  // 热床自动PID目标值
-#define DWIN_AUTO_NOZZ_EEPROM_ADDRESS 0x05 // 喷嘴自动PID目标值
+#define DWIN_AUTO_BED_EEPROM_ADDRESS 0x03  // Hot bed automatic pid target value
+#define DWIN_AUTO_NOZZ_EEPROM_ADDRESS 0x05 // Nozzle automatic pid target value
 
 void Draw_Leveling_Highlight(const bool sel)
 {
@@ -308,7 +308,7 @@ void In_out_feedtock_level(uint16_t _distance, uint16_t _feedRate, bool dir)
     current_position.e += _distance;
     line_to_current_position(_feedRate);
   }
-  else // 回抽
+  else // Withdraw
   {
     current_position.e -= _distance;
     line_to_current_position(_feedRate);
@@ -316,7 +316,7 @@ void In_out_feedtock_level(uint16_t _distance, uint16_t _feedRate, bool dir)
   current_position.e = olde;
   planner.set_e_position_mm(olde);
   planner.synchronize();
-  sprintf_P(cmd, PSTR("G1 F%s"), getStr(feedrate_mm_s)); // 设置原来的速度
+  sprintf_P(cmd, PSTR("G1 F%s"), getStr(feedrate_mm_s)); // Set original speed
   gcode.process_subcommands_now(cmd);
 }
 
@@ -333,12 +333,12 @@ void In_out_feedtock(uint16_t _distance, uint16_t _feedRate, bool dir)
     current_position.e += _distance;
     line_to_current_position(_feedRate);
   }
-  else // 回抽
+  else // Withdraw
   {
     if (differ_value)
     {
       current_position.e += differ_value;
-      line_to_current_position(FEEDING_DEF_SPEED); // 速度太快有响声
+      line_to_current_position(FEEDING_DEF_SPEED); // The speed is too fast and there is noise
       planner.synchronize();
     }
     current_position.e -= _distance;
@@ -347,62 +347,62 @@ void In_out_feedtock(uint16_t _distance, uint16_t _feedRate, bool dir)
   current_position.e = olde;
   planner.set_e_position_mm(olde);
   planner.synchronize();
-  sprintf_P(cmd, PSTR("G1 F%s"), getStr(feedrate_mm_s)); // 设置原来的速度
+  sprintf_P(cmd, PSTR("G1 F%s"), getStr(feedrate_mm_s)); // Set original speed
   gcode.process_subcommands_now(cmd);
   // RUN_AND_WAIT_GCODE_CMD(cmd, true);                  //Rock_20230821
 }
 /*
-0自动退料：  准备->自动退料 --->加热到260℃--》弹框提示正在退料中 --->
-            E轴进料15mm---> E轴退料90mm---》弹窗提示人为取出料并降温到140℃----》
-           窗口回退到准备页面
-1自动进料： 准备->自动进料 ---> 先加热到240℃--》弹框提示人为  插入料（斜口45°）并按压
-           ----> 点击确定 ---> E轴进料90mm ----》 窗口回退到准备页面并降温到140℃
+0 Automatic return: Preparation->Automatic return --->Heat to 260℃--"A pop-up box prompts that the material is being returned --->
+            E-axis feeds 15mm---> E-axis withdraws 90mm---》A pop-up window prompts to manually remove the material and cool it to 140℃----》
+           The window returns to the preparation page
+1 Automatic feeding: Preparation -> Automatic feeding ---> First heat to 240℃--》The pop-up box prompts to manually insert the material (oblique mouth 45°) and press
+           ----> Click OK ---> E-axis feeds 90mm ----》 The window returns to the preparation page and cools down to 140℃
 */
-static void Auto_in_out_feedstock(bool dir) // 0退料，1进料
+static void Auto_in_out_feedstock(bool dir) // 0 returns material, 1 feeds
 {
-  if (dir) // 进料
+  if (dir) // Feed
   {
-    Popup_Window_Feedstork_Tip(1); // 进料提示
-    // 显示
-    SET_HOTEND_TEMP(FEED_TEMPERATURE, 0); // 先加热到240℃
-    WAIT_HOTEND_TEMP(60 * 5 * 1000, 5);   // 等待喷嘴温度达到设定值
-    Popup_Window_Feedstork_Finish(1);     // 进料确认
+    Popup_Window_Feedstork_Tip(1); // Feeding tips
+    // show
+    SET_HOTEND_TEMP(FEED_TEMPERATURE, 0); // First heat to 240℃
+    WAIT_HOTEND_TEMP(60 * 5 * 1000, 5);   // Wait for the nozzle temperature to reach the set value
+    Popup_Window_Feedstork_Finish(1);     // Feed confirmation
     HMI_flag.Auto_inout_end_flag = true;
     checkkey = AUTO_IN_FEEDSTOCK;
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 79, 264); // 确定按钮
-    // 返回准备页面
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 79, 264); // OK button
+    // Return to preparation page
   }
-  else // 退料
+  else // Return material
   {
-    Popup_Window_Feedstork_Tip(0);                                    // 退料提示
-    SET_HOTEND_TEMP(EXIT_TEMPERATURE, 0);                             // 先加热到260℃
-    WAIT_HOTEND_TEMP(60 * 5 * 1000, 5);                               // 等待喷嘴温度达到设定值
-    In_out_feedtock(FEEDING_DEF_DISTANCE_1, FEEDING_DEF_SPEED, true); // 进料15mm
-    In_out_feedtock(IN_DEF_DISTANCE, FEEDING_DEF_SPEED / 2, false);   // 回抽90mm
-    Popup_Window_Feedstork_Finish(0);                                 // 退料确认
+    Popup_Window_Feedstork_Tip(0);                                    // Return tips
+    SET_HOTEND_TEMP(EXIT_TEMPERATURE, 0);                             // First heat to 260℃
+    WAIT_HOTEND_TEMP(60 * 5 * 1000, 5);                               // Wait for the nozzle temperature to reach the set value
+    In_out_feedtock(FEEDING_DEF_DISTANCE_1, FEEDING_DEF_SPEED, true); // Feed 15mm
+    In_out_feedtock(IN_DEF_DISTANCE, FEEDING_DEF_SPEED / 2, false);   // Withdraw 90mm
+    Popup_Window_Feedstork_Finish(0);                                 // Return confirmation
     HMI_flag.Auto_inout_end_flag = true;
     checkkey = AUTO_OUT_FEEDSTOCK;
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 79, 264); // 确定按钮
-    SET_HOTEND_TEMP(STOP_TEMPERATURE, 0);                                    // 降温到140℃
-    // WAIT_HOTEND_TEMP(60 * 5 * 1000, 5);    //等待喷嘴温度达到设定值
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 79, 264); // OK button
+    SET_HOTEND_TEMP(STOP_TEMPERATURE, 0);                                    // Cool down to 140℃
+    // WAIT_HOTEND_TEMP(60 *5 *1000, 5); //Wait for the nozzle temperature to reach the set value
   }
 }
-/*获取指定g文件信息 *short_file_name:短文件名 *file:文件信息指针 返回值*/
+/*Get the specified g file information *short_file_name: short file name *file: file information pointer Return value*/
 void get_file_info(char *short_file_name, PrintFile_InfoTypeDef *file)
 {
   if (!card.isMounted())
   {
     return;
   }
-  // 获取根目录
+  // Get root directory
   card.getWorkDirName();
   if (card.filename[0] != '/')
   {
     card.cdup();
   }
-  // 选择文件
+  // Select file
   card.selectFileByName(short_file_name);
-  // 获取gcode文件信息
+  // Get gcode file information
   strcpy(file->filename, card.filename);
   strcpy(file->longfilename, card.longFilename);
 }
@@ -418,33 +418,33 @@ void HMI_ResetLanguage()
 {
   HMI_flag.language = Language_Max;
   HMI_flag.boot_step = Set_language;
-  Save_Boot_Step_Value(); // 保存开机引导步骤
+  Save_Boot_Step_Value(); // Save boot steps
   BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t *)&HMI_flag.language, sizeof(HMI_flag.language));
   HMI_SetLanguageCache();
 }
 static void HMI_ResetDevice()
 {
-  // uint8_t  current_device = DEVICE_UNKNOWN; //暂时这样添加
+  // uint8_t current_device = DEVICE_UNKNOWN; //Add this way temporarily
   // BL24CXX::write(LASER_FDM_ADDR, (uint8_t *)&current_device, 1);
 }
 static void Read_Boot_Step_Value()
 {
 #if BOTH(EEPROM_SETTINGS, IIC_BL24CXX_EEPROM)
-  // 先读取HMI_flag.boot_step的值，判定是否需要开机引导。
+  // First read the value of hmi flag.boot step to determine whether booting is required.
   BL24CXX::read(DWIN_BOOT_STEP_EEPROM_ADDRESS, (uint8_t *)&HMI_flag.boot_step, sizeof(HMI_flag.boot_step));
-  // 读取语言配置项
+  // Read language configuration items
   BL24CXX::read(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t *)&HMI_flag.language, sizeof(HMI_flag.language));
 #endif
   if (HMI_flag.boot_step != Boot_Step_Max)
   {
-    HMI_flag.Need_boot_flag = true; // 需要开机引导
+    HMI_flag.Need_boot_flag = true; // Requires booting
     HMI_flag.boot_step = Set_language;
     HMI_flag.language = English;
   }
   else
   {
-    HMI_flag.Need_boot_flag = false; // 不需要开机引导
-    HMI_StartFrame(true);            // 跳转到主界面
+    HMI_flag.Need_boot_flag = false; // No boot required
+    HMI_StartFrame(true);            // Jump to the main interface
   }
 }
 
@@ -469,7 +469,7 @@ static void Save_Auto_PID_Value()
 
 void HMI_SetLanguage()
 {
-  // rock_901122 解决第一次上电 语言混乱的问题
+  // rock_901122 Solve the problem of language confusion when powering on for the first time
   // if(HMI_flag.language > Portuguese)
   if (HMI_flag.Need_boot_flag || (HMI_flag.language < Chinese) || (HMI_flag.language >= Language_Max))
   {
@@ -482,9 +482,9 @@ void HMI_SetLanguage()
   }
   else
   {
-    // HMI_StartFrame(true);
+    // Hmi start frame(true);
   }
-  // HMI_SetLanguageCache();
+  // Hmi set language cache();
 }
 
 static uint8_t Move_Language(uint8_t curr_language)
@@ -547,13 +547,13 @@ void HMI_ToggleLanguage()
   SERIAL_ECHOLNPAIR("HMI_flag.language=: ", HMI_flag.language);
 // HMI_flag.language = HMI_IsJapanese() ? DWIN_ENGLISH : DACAI_JAPANESE;
 
-// HMI_SetLanguageCache();
+// Hmi set language cache();
 #if BOTH(EEPROM_SETTINGS, IIC_BL24CXX_EEPROM)
   BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t *)&HMI_flag.language, sizeof(HMI_flag.language));
 #endif
 }
 
-// 显示print中标题
+// Show title in print
 static void Show_JPN_print_title(void)
 {
   if (HMI_flag.language < Language_Max)
@@ -717,7 +717,7 @@ void ICON_StartInfo(bool show)
     DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 345);
     if (HMI_flag.language < Language_Max)
     {
-      // rock_j
+      // Rock j
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Info_1, 150, 318);
     }
     else
@@ -750,7 +750,7 @@ void Draw_Menu_Line_UP(uint8_t line, uint8_t icon, uint8_t picID, bool more)
     Draw_More_Icon(line);
   DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 34, 256, MBASE(line) + 34);
 }
-// rock_20210726
+// Rock 20210726
 void ICON_Leveling(bool show)
 {
 #if ENABLED(DWIN_CREALITY_480_LCD)
@@ -773,7 +773,7 @@ void ICON_Leveling(bool show)
     }
     else
     {
-      // rock
+      // Rock
       DWIN_Frame_AreaCopy(1, 56, 242, 80, 238, 121, 195);
     }
   }
@@ -782,7 +782,7 @@ void ICON_Leveling(bool show)
     DWIN_ICON_Not_Filter_Show(ICON, ICON_Leveling_0, ICON_LEVEL_X, ICON_LEVEL_Y);
     if (HMI_flag.language < Language_Max)
     {
-      // 俄语词条偏长，往前移动30像素
+      // The Russian entry is too long and moved forward by 30 pixels.
       if (HMI_flag.language == Russian)
       {
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Level_0, WORD_LEVEL_X, WORD_LEVEL_Y);
@@ -827,7 +827,7 @@ void ICON_Tune()
 #endif
 }
 
-// 打印暂停
+// Printing paused
 void ICON_Pause()
 {
 #if ENABLED(DWIN_CREALITY_480_LCD)
@@ -855,12 +855,12 @@ void ICON_Pause()
 void Item_Control_Reset(const uint16_t line)
 {
   if (HMI_flag.language < Language_Max)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Reset, LBLX, line + JPN_OFFSET); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Reset, LBLX, line + JPN_OFFSET); // Rock j info
 }
-// 继续打印
+// Continue printing
 void ICON_Continue()
 {
-  // rock_20211118
+  // Rock 20211118
   Show_JPN_pause_title();
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -996,7 +996,7 @@ void octoUpdateScroll() {
         // Inc and reset
         scrollOffset++;
         if (scrollOffset > maxOffset) {
-            scrollOffset = 0;  // restart
+            scrollOffset = 0;  // Restart
         }
     }
 }
@@ -1076,7 +1076,7 @@ void Draw_Menu_Cursor(const uint8_t line)
 #if ENABLED(DWIN_CREALITY_480_LCD)
   DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-  // DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) - 8, 14, MBASE(line + 1) - 10);
+  // DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) -8, 14, MBASE(line + 1) -10);
   DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) - 8, 10, MBASE(line + 1) - 12);
   // DWIN_ICON_Not_Filter_Show(ICON, ICON_Rectangle, 17, 130);
 #endif
@@ -1101,11 +1101,11 @@ void Move_Highlight(const int16_t from, const uint16_t newline)
 }
 void Move_Highlight_Lguage(const int16_t from, const uint16_t newline)
 {
-  // Erase_Menu_Cursor(newline - from);
+  // Erase_Menu_Cursor(newline -from);
   uint8_t next_line = newline - from;
-  // Draw_Menu_Cursor(newline);
+  // Draw menu cursor(newline);
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, next_line * REC_INTERVAL + REC_Y1, 10, REC_Y2 + next_line * REC_INTERVAL);
-  //  DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) - 8, 10, MBASE(line + 1) - 12);
+  //  DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) -8, 10, MBASE(line + 1) -12);
   DWIN_Draw_Rectangle(1, Rectangle_Color, REC_X1, newline * LINE_INTERVAL + REC_Y1, REC_X2, REC_Y2 + newline * LINE_INTERVAL);
 }
 void Add_Menu_Line()
@@ -1124,9 +1124,9 @@ void Scroll_Menu(const uint8_t dir)
   DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 15, 31, DWIN_WIDTH, 349);
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   if (checkkey == Selectlanguage)
-    DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH - 1, 315 - 1); // 平移界面
+    DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH - 1, 315 - 1); // Pan interface
   else
-    DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH - 1, 240); // 平移界面
+    DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH - 1, 240); // Pan interface
 #endif
   switch (dir)
   {
@@ -1141,8 +1141,8 @@ void Scroll_Menu(const uint8_t dir)
 
 void Scroll_Menu_Full(const uint8_t dir)
 {
-  // DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH-1, 240); //平移界面
-  DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH - 1, 320 - 1); // 平移界面
+  // DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH-1, 240); //Translation interface
+  DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 11, 25, DWIN_WIDTH - 1, 320 - 1); // Pan interface
   switch (dir)
   {
     // case DWIN_SCROLL_DOWN: Move_Highlight(-1, 0); break;
@@ -1151,14 +1151,14 @@ void Scroll_Menu_Full(const uint8_t dir)
 }
 void Scroll_Menu_Language(uint8_t dir)
 {
-  DWIN_Frame_AreaMove(1, dir, REC_INTERVAL, Color_Bg_Black, 11, 25, LINE_END_X + 2, LINE_END_Y + 6 * LINE_INTERVAL); // 平移界面
+  DWIN_Frame_AreaMove(1, dir, REC_INTERVAL, Color_Bg_Black, 11, 25, LINE_END_X + 2, LINE_END_Y + 6 * LINE_INTERVAL); // Pan interface
   switch (dir)
   {
     // case DWIN_SCROLL_DOWN: Move_Highlight_Lguage(-1, 0); break;
     // case DWIN_SCROLL_UP:   Add_Menu_Line(); break;
   }
 }
-// 转换网格点
+// Convert grid points
 static xy_int8_t Converted_Grid_Point(uint8_t select_num)
 {
   xy_int8_t grid_point;
@@ -1170,34 +1170,34 @@ static void Toggle_Checkbox(xy_int8_t mesh_Curr, xy_int8_t mesh_Last, uint8_t di
 {
   if (dir == DWIN_SCROLL_DOWN)
   {
-    // 将上一个点的背景置成相应颜色
-    // 再显示一次上一个点的数据
-    // 将当前框背景改成黑色
-    // 再显示一次当前点数据
+    // Set the background of the previous point to the corresponding color
+    // Display the data of the previous point again
+    // Change the current box background to black
+    // Display the current point data again
   }
-  else // dir==DWIN_SCROLL_UP
+  else // Dir==dwin scroll up
   {
-    // 将上一个点的背景置成相应颜色
-    // 再显示一次上一个点的数据
-    // 将当前框背景改成黑色
-    // 再显示一次当前点数据
+    // Set the background of the previous point to the corresponding color
+    // Display the data of the previous point again
+    // Change the current box background to black
+    // Display the current point data again
   }
 }
-// 调平界面切换选中状态
+// Leveling interface switches selected state
 static void Level_Scroll_Menu(const uint8_t dir, uint8_t select_num)
 {
   xy_int8_t mesh_Count, mesh_Last;
-  mesh_Count = Converted_Grid_Point(select_num); // 转换网格点
+  mesh_Count = Converted_Grid_Point(select_num); // Convert grid points
   if (dir == DWIN_SCROLL_DOWN)
     mesh_Last = Converted_Grid_Point(select_num + 1);
   else
     mesh_Last = Converted_Grid_Point(select_num - 1); // dir==DWIN_SCROLL_UP
   //  PRINT_LOG("mesh_Count.x = ", mesh_Count.x, " mesh_Count.y = ", mesh_Count.y);
   //  PRINT_LOG("mesh_Last.x = ",mesh_Last.x, " mesh_Last.y = ",mesh_Last.y);
-  // 再显示一次上一个点的数据
+  // Display the data of the previous point again
   Draw_Dots_On_Screen(&mesh_Last, 0, 0);
-  // 将当前框背景改成黑色
-  // 再显示一次当前点数据
+  // Change the current box background to black
+  // Display the current point data again
   Draw_Dots_On_Screen(&mesh_Count, 1, Select_Block_Color);
 }
 inline uint16_t nr_sd_menu_items()
@@ -1212,7 +1212,7 @@ void Draw_Menu_Icon(const uint8_t line, const uint8_t icon)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   DWIN_ICON_Not_Filter_Show(ICON, icon, 20, MBASE(line));
 #endif
-  // DWIN_ICON_Show(ICON, icon, 26, MBASE(line) - 3);
+  // DWIN_ICON_Show(ICON, icon, 26, MBASE(line) -3);
 }
 
 void Erase_Menu_Text(const uint8_t line)
@@ -1220,7 +1220,7 @@ void Erase_Menu_Text(const uint8_t line)
 #if ENABLED(DWIN_CREALITY_480_LCD)
   DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(line) - 14, 271, MBASE(line) + 28);
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(line) - 8, 239, MBASE(line) + 18); // 解决长文件名被覆盖的问题
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(line) - 8, 239, MBASE(line) + 18); // Solve the problem of long file names being overwritten
 #endif
 }
 
@@ -1339,7 +1339,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define CONTROL_CASE_MOVE (CONTROL_CASE_TEMP + 1)
 #define CONTROL_CASE_SAVE (CONTROL_CASE_MOVE + ENABLED(EEPROM_SETTINGS))
 #define CONTROL_CASE_LOAD (CONTROL_CASE_SAVE + ENABLED(EEPROM_SETTINGS))
-#define CONTROL_CASE_SHOW_DATA (CONTROL_CASE_LOAD + 1) // 调平数据展示
+#define CONTROL_CASE_SHOW_DATA (CONTROL_CASE_LOAD + 1) // Leveling data display
 #define CONTROL_CASE_RESET (CONTROL_CASE_SHOW_DATA + ENABLED(EEPROM_SETTINGS))
 
 // #define CONTROL_CASE_ADVSET (CONTROL_CASE_RESET + 1)  //rock_20210726
@@ -1360,12 +1360,12 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define TEMP_CASE_PLA (TEMP_CASE_FAN + ENABLED(HAS_HOTEND))
 #define TEMP_CASE_ABS (TEMP_CASE_PLA + ENABLED(HAS_HOTEND))
 
-#define TEMP_CASE_HM_PID (TEMP_CASE_ABS + 1)      // 手动PID设置 hand movement
-#define TEMP_CASE_Auto_PID (TEMP_CASE_HM_PID + 1) // 自动PID设置
+#define TEMP_CASE_HM_PID (TEMP_CASE_ABS + 1)      // Manual PID setting hand movement
+#define TEMP_CASE_Auto_PID (TEMP_CASE_HM_PID + 1) // Automatic pid setting
 
 #define TEMP_CASE_TOTAL TEMP_CASE_Auto_PID
 
-// 手动PID相关的宏定义
+// Manual pid related macro definitions
 #define HM_PID_CASE_NOZZ_P 1
 #define HM_PID_CASE_NOZZ_I (1 + HM_PID_CASE_NOZZ_P)
 #define HM_PID_CASE_NOZZ_D (1 + HM_PID_CASE_NOZZ_I)
@@ -1404,7 +1404,7 @@ void draw_move_en(const uint16_t line)
 #ifdef USE_STRING_TITLES
   DWIN_Draw_Label(line, F("Move"));
 #else
-  DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, line); // "Move"
+  DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, line); // "move"
 #endif
 }
 
@@ -1422,7 +1422,7 @@ void Item_Prepare_Move(const uint8_t row)
   }
   else
   {
-    // "Move"
+    // "move"
     draw_move_en(MBASE(row));
   }
   Draw_Menu_Line(row, ICON_Axis);
@@ -1522,7 +1522,7 @@ void Item_Prepare_Offset(const uint8_t row)
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
 #else
-    DWIN_Frame_AreaCopy(1, 93, 179, 141, 189, LBLX, MBASE(row)); // "Z-Offset"
+    DWIN_Frame_AreaCopy(1, 93, 179, 141, 189, LBLX, MBASE(row)); // "with offset"
 #endif
     DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, VALUERANGE_X - 14, MBASE(row), probe.offset.z * 100);
 #else
@@ -1572,8 +1572,8 @@ void Item_Prepare_PLA(const uint8_t row)
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(row), F("Preheat " PREHEAT_1_LABEL));
 #else
-    DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(row));      // "Preheat"
-    DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX + 52, MBASE(row)); // "PLA"
+    DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(row));      // "preheat"
+    DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX + 52, MBASE(row)); // "pla"
 #endif
   }
   Draw_Menu_Line(row, ICON_PLAPreheat);
@@ -1594,8 +1594,8 @@ void Item_Prepare_ABS(const uint8_t row)
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(row), F("Preheat " PREHEAT_2_LABEL));
 #else
-    DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(row));      // "Preheat"
-    DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 52, MBASE(row)); // "ABS"
+    DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(row));      // "preheat"
+    DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 52, MBASE(row)); // "abs"
 #endif
   }
   Draw_Menu_Line(row, ICON_ABSPreheat);
@@ -1619,7 +1619,7 @@ void Item_Prepare_Cool(const uint8_t row)
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_COOLDOWN));
 #else
-    DWIN_Frame_AreaCopy(1, 200, 76, 264, 86, LBLX, MBASE(row)); // "Cooldown"
+    DWIN_Frame_AreaCopy(1, 200, 76, 264, 86, LBLX, MBASE(row)); // "cooldown"
 #endif
   }
   Draw_Menu_Line(row, ICON_Cool);
@@ -1664,8 +1664,8 @@ void Item_Prepare_Lang(const uint8_t row)
 void Draw_Prepare_Menu()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true);                   // rock_20230529 //更新一次全部参数
-  HMI_flag.Refresh_bottom_flag = false;         // 标志不刷新底部参数
+  Draw_Mid_Status_Area(true);                   // rock_20230529 //Update all parameters once
+  HMI_flag.Refresh_bottom_flag = false;         // Flag does not refresh bottom parameters
   const int16_t scroll = MROWS - index_prepare; // Scrolled-up lines
 #define PSCROL(L) (scroll + (L))
 #define PVISI(L) WITHIN(PSCROL(L), 0, MROWS)
@@ -1679,7 +1679,7 @@ void Draw_Prepare_Menu()
 #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_PREPARE));
 #else
-    DWIN_Frame_TitleCopy(1, 178, 2, 229, 14); // "Prepare"
+    DWIN_Frame_TitleCopy(1, 178, 2, 229, 14); // "prepare"
 #endif
   }
 
@@ -1692,19 +1692,19 @@ void Draw_Prepare_Menu()
   if (PVISI(PREPARE_CASE_HOME))
     Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME)); // Auto Home
 // #if ENABLED(USE_AUTOZ_TOOL)
-//   if (PVISI(PREPARE_CASE_HEIH)) Item_Prepare_Height(PSCROL(PREPARE_CASE_HEIH)); // pressure test height to obtain the Z offset value
+//   if (PVISI(PREPARE_CASE_HEIH)) Item_Prepare_Height(PSCROL(PREPARE_CASE_HEIH)); //pressure test height to obtain the Z offset value
 // #endif
 // #if ENABLED(USE_AUTOZ_TOOL_2)
-//   if (PVISI(PREPARE_CASE_HEIH)) Item_Prepare_Height(PSCROL(PREPARE_CASE_HEIH)); // pressure test height to obtain the Z offset value
+//   if (PVISI(PREPARE_CASE_HEIH)) Item_Prepare_Height(PSCROL(PREPARE_CASE_HEIH)); //pressure test height to obtain the Z offset value
 // #endif
 #if HAS_ZOFFSET_ITEM
   if (PVISI(PREPARE_CASE_ZOFF))
-    Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
+    Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset /Babystep /Set Home Offset
 #endif
   if (PVISI(PREPARE_CASE_INSTORK))
-    Item_Prepare_instork(PSCROL(PREPARE_CASE_INSTORK)); // Edit Z-Offset / Babystep / Set Home Offset
+    Item_Prepare_instork(PSCROL(PREPARE_CASE_INSTORK)); // Edit Z-Offset /Babystep /Set Home Offset
   if (PVISI(PREPARE_CASE_OUTSTORK))
-    Item_Prepare_outstork(PSCROL(PREPARE_CASE_OUTSTORK)); // Edit Z-Offset / Babystep / Set Home Offset
+    Item_Prepare_outstork(PSCROL(PREPARE_CASE_OUTSTORK)); // Edit Z-Offset /Babystep /Set Home Offset
 #if HAS_HOTEND
   if (PVISI(PREPARE_CASE_PLA))
     Item_Prepare_PLA(PSCROL(PREPARE_CASE_PLA)); // Preheat PLA
@@ -1726,11 +1726,11 @@ void Item_Control_Info(const uint16_t line)
 {
   if (HMI_flag.language < Language_Max)
   {
-// DWIN_Frame_AreaCopy(1, 231, 102, 258, 116, LBLX, line);  // rock_20210726
+// DWIN_Frame_AreaCopy(1, 231, 102, 258, 116, LBLX, line);  //rock_20210726
 #if ENABLED(DWIN_CREALITY_480_LCD)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_info_new, LBLX, line + JPN_OFFSET); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_info_new, LBLX, line + JPN_OFFSET); // Rock j info
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_info_new, LBLX, line + JPN_OFFSET); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_info_new, LBLX, line + JPN_OFFSET); // Rock j info
 #endif
   }
   else
@@ -1748,9 +1748,9 @@ static void Item_Temp_HMPID(const uint16_t line)
   if (HMI_flag.language < Language_Max)
   {
 #if ENABLED(DWIN_CREALITY_480_LCD)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PID_Manually, LBLX + 2, line + JPN_OFFSET); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PID_Manually, LBLX + 2, line + JPN_OFFSET); // Rock j info
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PID_Manually, 42, line + JPN_OFFSET); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PID_Manually, 42, line + JPN_OFFSET); // Rock j info
 #endif
   }
 }
@@ -1759,9 +1759,9 @@ static void Item_Temp_AutoPID(const uint16_t line)
   if (HMI_flag.language < Language_Max)
   {
 #if ENABLED(DWIN_CREALITY_480_LCD)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_PID, LBLX - 10, line + JPN_OFFSET + 5); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_PID, LBLX - 10, line + JPN_OFFSET + 5); // Rock j info
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_PID, 42, line + JPN_OFFSET); // rock_j_info
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_PID, 42, line + JPN_OFFSET); // Rock j info
 #endif
   }
 }
@@ -1769,8 +1769,8 @@ static void Item_Temp_AutoPID(const uint16_t line)
 void Draw_Control_Menu()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true);           // rock_20230529 //更新一次全部参数
-  HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+  Draw_Mid_Status_Area(true);           // rock_20230529 //Update all parameters once
+  HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
 #if CONTROL_CASE_TOTAL >= 6
   const int16_t scroll = MROWS - index_control; // Scrolled-up lines
 #define CSCROL(L) (scroll + (L))
@@ -1863,10 +1863,10 @@ static void Show_Temp_Default_Data(const uint8_t line, uint8_t index)
 void Draw_Tune_Menu()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true); // rock_20230529 //更新一次全部参数
+  Draw_Mid_Status_Area(true); // rock_20230529 //Update all parameters once
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Setup, TITLE_X, TITLE_Y); // 设置
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Setup, TITLE_X, TITLE_Y); // set up
 #if ENABLED(DWIN_CREALITY_480_LCD)
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PrintSpeed, 60, MBASE(TUNE_CASE_SPEED) + JPN_OFFSET);
 #if HAS_HOTEND
@@ -1902,7 +1902,7 @@ void Draw_Tune_Menu()
     ;
   }
 
-  // 显示数据
+  // display data
   Draw_Back_First(select_tune.now == 0);
   if (select_tune.now)
     Draw_Menu_Cursor(select_tune.now);
@@ -1930,7 +1930,7 @@ void Draw_Tune_Menu()
 
 void draw_max_en(const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 245, 119, 271, 130, LBLX, line); // "Max"
+  DWIN_Frame_AreaCopy(1, 245, 119, 271, 130, LBLX, line); // "max"
 }
 void draw_max_accel_en(const uint16_t line)
 {
@@ -1939,54 +1939,54 @@ void draw_max_accel_en(const uint16_t line)
 }
 void draw_speed_en(const uint16_t inset, const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 30, line); // "Speed"
+  DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 30, line); // "speed"
 }
 void draw_jerk_en(const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 64, 119, 106, 129, LBLX + 30, line); // "Jerk"
+  DWIN_Frame_AreaCopy(1, 64, 119, 106, 129, LBLX + 30, line); // "jerk"
 }
 void draw_steps_per_mm(const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 1, 149, 120, 161, LBLX, line); // "Steps-per-mm"
+  DWIN_Frame_AreaCopy(1, 1, 149, 120, 161, LBLX, line); // "steps per mm"
 }
 void say_x(const uint16_t inset, const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 95, 104, 102, 114, LBLX + inset, line); // "X"
+  DWIN_Frame_AreaCopy(1, 95, 104, 102, 114, LBLX + inset, line); // "x"
 }
 void say_y(const uint16_t inset, const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 104, 104, 110, 114, LBLX + inset, line); // "Y"
+  DWIN_Frame_AreaCopy(1, 104, 104, 110, 114, LBLX + inset, line); // "y"
 }
 void say_z(const uint16_t inset, const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 112, 104, 120, 114, LBLX + inset, line); // "Z"
+  DWIN_Frame_AreaCopy(1, 112, 104, 120, 114, LBLX + inset, line); // "z"
 }
 void say_e(const uint16_t inset, const uint16_t line)
 {
-  DWIN_Frame_AreaCopy(1, 237, 119, 244, 129, LBLX + inset, line); // "E"
+  DWIN_Frame_AreaCopy(1, 237, 119, 244, 129, LBLX + inset, line); // "e"
 }
 
 void Draw_Motion_Menu()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true);           // rock_20230529
-  HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+  Draw_Mid_Status_Area(true);           // Rock 20230529
+  HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
   if (HMI_flag.language < Language_Max)
   {
-    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28);                                              // "Motion"
+    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28);                                              //"Motion"
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Motion_Title, TITLE_X, TITLE_Y);
-    // DWIN_Frame_AreaCopy(1, 173, 133, 228, 147, LBLX, MBASE(MOTION_CASE_RATE));           // Max speed
+    // DWIN_Frame_AreaCopy(1, 173, 133, 228, 147, LBLX, MBASE(MOTION_CASE_RATE));           //Max speed
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MaxSpeed, 42, MBASE(MOTION_CASE_RATE) + JPN_OFFSET);
-    // DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(MOTION_CASE_ACCEL));         // Max...
-    // DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(MOTION_CASE_ACCEL) + 1);  // Acceleration
+    // DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(MOTION_CASE_ACCEL));         //Max...
+    // DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(MOTION_CASE_ACCEL) + 1);  //Acceleration
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Acc, 42, MBASE(MOTION_CASE_ACCEL) + JPN_OFFSET);
 #if HAS_CLASSIC_JERK
-    // DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(MOTION_CASE_JERK));        // Max
+    // DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(MOTION_CASE_JERK));        //Max
     // DWIN_Frame_AreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(MOTION_CASE_JERK) + 1);
-    // DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(MOTION_CASE_JERK));   // Jerk
+    // DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(MOTION_CASE_JERK));   //Jerk
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Corner, 42, MBASE(MOTION_CASE_JERK) + JPN_OFFSET);
 #endif
-    // DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(MOTION_CASE_STEPS));         // Flow ratio
+    // DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(MOTION_CASE_STEPS));         //Flow ratio
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Step, 42, MBASE(MOTION_CASE_STEPS) + JPN_OFFSET);
   }
   else
@@ -1994,7 +1994,7 @@ void Draw_Motion_Menu()
 #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_MOTION));
 #else
-    DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Motion"
+    DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "motion"
 #endif
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(MOTION_CASE_RATE), F("Feedrate"));
@@ -2011,7 +2011,7 @@ void Draw_Motion_Menu()
     draw_max_en(MBASE(MOTION_CASE_JERK));
     draw_jerk_en(MBASE(MOTION_CASE_JERK)); // "Max Jerk"
 #endif
-    draw_steps_per_mm(MBASE(MOTION_CASE_STEPS)); // "Steps-per-mm"
+    draw_steps_per_mm(MBASE(MOTION_CASE_STEPS)); // "steps per mm"
 #endif
   }
 
@@ -2040,8 +2040,8 @@ void Draw_Motion_Menu()
 //
 #if HAS_HOTEND || HAS_HEATED_BED
 /*
-  toohigh:报警类型： 1 过高  0 过低
-  Error_id： 0 喷嘴 非0 热床
+  toohigh: alarm type: 1 too high 0 too low
+  Error_id: 0 nozzle non-0 heating bed
 */
 void DWIN_Popup_Temperature(const bool toohigh, int8_t Error_id)
 {
@@ -2074,11 +2074,11 @@ void DWIN_Popup_Temperature(const bool toohigh, int8_t Error_id)
     }
   }
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-  if (toohigh) // 过高
+  if (toohigh) // too high
   {
     DWIN_ICON_Show(ICON, ICON_TempTooHigh, 82, 45);
     delay(5);
-    if (Error_id) // 热床
+    if (Error_id) // hot bed
     {
       if (HMI_flag.language < Language_Max)
       {
@@ -2086,7 +2086,7 @@ void DWIN_Popup_Temperature(const bool toohigh, int8_t Error_id)
         delay(5);
       }
     }
-    else // 喷嘴
+    else // nozzle
     {
       if (HMI_flag.language < Language_Max)
       {
@@ -2095,11 +2095,11 @@ void DWIN_Popup_Temperature(const bool toohigh, int8_t Error_id)
       }
     }
   }
-  else // 过低
+  else // too low
   {
     DWIN_ICON_Show(ICON, ICON_TempTooLow, 82, 45);
     delay(2);
-    if (Error_id) // 热床
+    if (Error_id) // hot bed
     {
       if (HMI_flag.language < Language_Max)
       {
@@ -2107,7 +2107,7 @@ void DWIN_Popup_Temperature(const bool toohigh, int8_t Error_id)
         delay(5);
       }
     }
-    else // 喷嘴
+    else // nozzle
     {
       if (HMI_flag.language < Language_Max)
       {
@@ -2208,7 +2208,7 @@ void Leveling_Error()
 {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   // DWIN_ICON_Show(ICON, ICON_TempTooHigh, 82, 45);
   if (HMI_flag.language < Language_Max)
   {
@@ -2224,53 +2224,53 @@ void Leveling_Error()
 void Popup_Window_Height(uint8_t state)
 {
   Clear_Main_Window();
-  // Draw_Popup_Bkgd_60();
-  HMI_flag.High_Status = state;        // 赋值对高状态，动态显示
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  // Draw popup bkgd 60();
+  HMI_flag.High_Status = state;        // Assign value to high state and display dynamically
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
                                        //  DWIN_ICON_Show(ICON, ICON_BLTouch, 82, 45);
 
-  // 喷嘴加热；喷嘴清洁；喷嘴对高词条
+  // Nozzle heating; nozzle cleaning; nozzle height entry
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_NOZZLE_HOT, WORD_NOZZ_HOT_X, WORD_NOZZ_HOT_Y);                                 // 喷嘴加热词条
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_NOZZLE_CLRAR, WORD_NOZZ_HOT_X, WORD_NOZZ_HOT_Y + WORD_Y_SPACE);                // 喷嘴清洁词条
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_NOZZLE_HIGHT, WORD_NOZZ_HOT_X, WORD_NOZZ_HOT_Y + WORD_Y_SPACE + WORD_Y_SPACE); // 喷嘴清洁词条
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_NOZZLE_HOT, WORD_NOZZ_HOT_X, WORD_NOZZ_HOT_Y);                                 // Nozzle heating entry
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_NOZZLE_CLRAR, WORD_NOZZ_HOT_X, WORD_NOZZ_HOT_Y + WORD_Y_SPACE);                // Nozzle cleaning entry
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_NOZZLE_HIGHT, WORD_NOZZ_HOT_X, WORD_NOZZ_HOT_Y + WORD_Y_SPACE + WORD_Y_SPACE); // Nozzle cleaning entry
   }
-  // 喷嘴加热；喷嘴清洁；喷嘴对高词条
+  // Nozzle heating; nozzle cleaning; nozzle height entry
   switch (state)
   {
   case Nozz_Start:
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                              // 对高中
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                               // 喷嘴未加热图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // 喷嘴未清洁图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴未对高图标
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                              // to high school
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                               // Nozzle not heated icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // Nozzle dirty icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle not aligned icon
     break;
   case Nozz_Hot:
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                              // 对高中
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                                   // 喷嘴加热未完成图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // 喷嘴清洁图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴对高图标
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                              // to high school
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                                   // Nozzle heating unfinished icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // Nozzle cleaning icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle to height icon
     break;
   case Nozz_Clear:
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                              // 对高中
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                                   // 喷嘴加热未完成图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);                   // 喷嘴清洁图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴对高图标
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                              // to high school
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                                   // Nozzle heating unfinished icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);                   // Nozzle cleaning icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle to height icon
     break;
   case Nozz_Hight:
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                          // 对高中
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                               // 喷嘴加热未完成图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // 喷嘴清洁图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴对高图标
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_AUTO_HIGHT_TITLE, WORD_TITLE_X, WORD_TITLE_Y);                          // to high school
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                               // Nozzle heating unfinished icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // Nozzle cleaning icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle to height icon
     break;
   case Nozz_Finish:
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, WORD_TITLE_X, WORD_TITLE_Y);                              // 对高完成
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                               // 喷嘴加热未完成图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // 喷嘴清洁图标
-    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴对高图标
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, WORD_TITLE_X, WORD_TITLE_Y);                              // finish high
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y);                               // Nozzle heating unfinished icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE);               // Nozzle cleaning icon
+    DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle to height icon
     break;
 
   default:
@@ -2286,7 +2286,7 @@ void Popup_Window_Home(const bool parking /*=false*/)
 {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -2309,8 +2309,8 @@ void Popup_Window_Feedstork_Tip(bool parking /*=false*/)
     DWIN_ICON_Show(ICON, ICON_STORKING_TIP, 50, 25);
     if (HMI_flag.language < Language_Max)
     {
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_STORKING_TIP1, 24, 174); // 提示斜口45°裁剪耗材
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_IN_TITLE, 29, 1);        // 进料标题
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_STORKING_TIP1, 24, 174); // Tips for 45° oblique cutting supplies
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_IN_TITLE, 29, 1);        // Feed title
     }
   }
   else
@@ -2318,35 +2318,35 @@ void Popup_Window_Feedstork_Tip(bool parking /*=false*/)
     DWIN_ICON_Show(ICON, ICON_OUT_STORKING_TIP, 50, 25);
     if (HMI_flag.language < Language_Max)
     {
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_STORKING_TIP2, 24, 174); // 提示斜口45°裁剪耗材
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_TITLE, 29, 1);           // 进料标题
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_STORKING_TIP2, 24, 174); // Tips for 45° oblique cutting supplies
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_TITLE, 29, 1);           // Feed title
     }
   }
 #endif
 }
 void Popup_Window_Feedstork_Finish(bool parking /*=false*/)
 {
-  // Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  // Clear main window();
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 25, DWIN_WIDTH - 1, 320 - 1);
-// Draw_Popup_Bkgd_60();
+// Draw popup bkgd 60();
 #if ENABLED(DWIN_CREALITY_320_LCD)
-  if (parking) // 进料确认
+  if (parking) // Feed confirmation
   {
     DWIN_ICON_Show(ICON, ICON_STORKED_TIP, 50, 25);
     if (HMI_flag.language < Language_Max)
     {
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_STORKING_TIP2, 24, 174); // 送料zhi
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_IN_TITLE, 29, 1);        // 进料标题
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_STORKING_TIP2, 24, 174); // free zhi
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_IN_TITLE, 29, 1);        // Feed title
     }
   }
-  else // 退料确认
+  else // Return confirmation
   {
     DWIN_ICON_Show(ICON, ICON_OUT_STORKED_TIP, 50, 25);
     if (HMI_flag.language < Language_Max)
     {
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_STORKED_TIP2, 24, 174); // 提示斜口45°裁剪耗材
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_TITLE, 29, 1);          // 进料标题
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_STORKED_TIP2, 24, 174); // Tips for 45° oblique cutting supplies
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_OUT_TITLE, 29, 1);          // Feed title
     }
   }
 
@@ -2365,16 +2365,16 @@ void Popup_Window_Feedstork_Finish(bool parking /*=false*/)
 //   }
 //   else
 //   {
-//     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (250 - 8 * (parking ? 7 : 15)) / 2, 230, parking ? F("Parking") : F("Moving axis init..."));
-//     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (250 - 8 * 23) / 2, 260, F("This operation is forbidden!"));
-//     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (250 - 8 * 23) / 2, 290, F("We need to go back to zero."));
+//     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (250 -8 *(parking ? 7 : 15)) /2, 230, parking ? F("Parking") : F("Moving axis init..."));
+//     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (250 -8 *23) /2, 260, F("This operation is forbidden!"));
+//     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (250 -8 *23) /2, 290, F("We need to go back to zero."));
 //   }
 // }
-#if ENABLED(SHOW_GRID_VALUES) // 如果显示调平值
+#if ENABLED(SHOW_GRID_VALUES) // If the leveling value is displayed
 static uint16_t Choose_BG_Color(float offset_value)
 {
   uint16_t fill_color;
-  // 填充颜色
+  // fill color
   if (HMI_flag.Need_boot_flag)
     fill_color = Flat_Color;
   else
@@ -2391,13 +2391,13 @@ static uint16_t Choose_BG_Color(float offset_value)
   return fill_color;
 }
 /*
-   mesh_Count：需要处理的网格点的坐标
-  Set_En: 1 需要手动设置背景色 0 自动设置背景色  2
-  Set_BG_Color：需要手动设置的背景色。
-  注意： if(0==Set_En && 0!=Set_BG_Color) 表示 只改变字体的背景色为Set_BG_Color，不改变选中块颜色
+   mesh_Count: The coordinates of the mesh points that need to be processed
+  Set_En: 1 Need to set the background color manually 0 Set the background color automatically 2
+  Set_BG_Color: The background color that needs to be set manually.
+  Note: if(0==Set_En && 0!=Set_BG_Color) means that only the background color of the font is changed to Set_BG_Color, and the color of the selected block is not changed.
 */
 void Draw_Dots_On_Screen(xy_int8_t *mesh_Count, uint8_t Set_En, uint16_t Set_BG_Color)
-{ // 计算位置，填充颜色，填充值
+{ // Calculate position, fill color, fill value
   uint16_t value_LU_x, value_LU_y;
   uint16_t rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y;
   uint16_t rec_fill_color;
@@ -2408,42 +2408,43 @@ void Draw_Dots_On_Screen(xy_int8_t *mesh_Count, uint8_t Set_En, uint16_t Set_BG_
   else
     z_offset_value = z_values[mesh_Count->x][mesh_Count->y];
   if (checkkey != Leveling && checkkey != Level_Value_Edit)
-    return; // 只有在调平界面才运行显示调平值
+    return; // The leveling value is displayed only when running in the leveling interface.
 
-  // 计算矩形区域
-  rec_LU_x = Rect_LU_X_POS + mesh_Count->x * X_Axis_Interval;
-  // rec_LU_y=Rect_LU_Y_POS+mesh_Count->y*Y_Axis_Interval;
-  rec_LU_y = Rect_LU_Y_POS - mesh_Count->y * Y_Axis_Interval;
-  rec_RD_x = Rect_RD_X_POS + mesh_Count->x * X_Axis_Interval;
-  // rec_RD_y=Rect_RD_Y_POS+mesh_Count->y*Y_Axis_Interval;
-  rec_RD_y = Rect_RD_Y_POS - mesh_Count->y * Y_Axis_Interval;
-  // 补偿值的位置
-  value_LU_x = rec_LU_x + 1;
-  // value_LU_y=rec_LU_y+4;
-  value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - 6;
-  // 填充颜色
+ //Calculate rectangular area 
+    rec_LU_x=Rect_LU_X_POS + mesh_Count->x * X_Axis_Interval;
+    // Rec lu y=rect lu y pos+mesh count >y*y axis interval;
+    rec_LU_y = Rect_LU_Y_POS - mesh_Count->y * Y_Axis_Interval;
+    rec_RD_x = rec_LU_x + GRID_WIDTH;                                // Bottom right X
+    rec_RD_y = rec_LU_y + GRID_HEIGHT;                               // Bottom right Y
+
+    //The position of the compensation value
+    value_LU_x=rec_LU_x+1;
+    // Value read y=rec read y+4;
+    value_LU_y=rec_LU_y+(rec_RD_y-rec_LU_y)/2-6;
+
+  // fill color
   if (!Set_En)
-    rec_fill_color = Choose_BG_Color(z_offset_value); // 自动设置
+    rec_fill_color = Choose_BG_Color(z_offset_value); // Automatically set
   else if (1 == Set_En)
-    rec_fill_color = Set_BG_Color; // 手动填充选中块颜色，
+    rec_fill_color = Set_BG_Color; // Manually fill the selected block color,
   else
     rec_fill_color = Select_Color; //
 
   // if(mesh_Count->x==0 && mesh_Count->y==0) z_offset_value=-8.36;
 
-  if (2 == Set_En) //  0==Set_En && 0==Set_BG_Color 才填充选中块颜色
+  if (2 == Set_En) //  0==Set_En && 0==Set_BG_Color only fills the selected block color
   {
     DWIN_Draw_Rectangle(1, Color_Bg_Black, rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y);
-    DWIN_Draw_Rectangle(0, rec_fill_color, rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y);                                      // 选中块为黑色
-    DWIN_Draw_Z_Offset_Float(font6x12, Color_White, rec_fill_color, 1, 2, value_LU_x, value_LU_y, z_offset_value * 100); // 左上角坐标
+    DWIN_Draw_Rectangle(0, rec_fill_color, rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y);                                      // The selected block is black
+    DWIN_Draw_Z_Offset_Float(font6x12, Color_White, rec_fill_color, 1, 2, value_LU_x, value_LU_y, z_offset_value * 100); // Upper left corner coordinates
   }
   else if (1 == Set_En)
   {
     // DWIN_Draw_Rectangle(1, Color_Bg_Black, rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y);
     DWIN_Draw_Rectangle(1, rec_fill_color, rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y);
-    DWIN_Draw_Z_Offset_Float(font6x12, Color_Bg_Black, rec_fill_color, 1, 2, value_LU_x, value_LU_y, z_offset_value * 100); // 左上角坐标
+    DWIN_Draw_Z_Offset_Float(font6x12, Color_Bg_Black, rec_fill_color, 1, 2, value_LU_x, value_LU_y, z_offset_value * 100); // Upper left corner coordinates
   }
-  else //  0==Set_En && 0==Set_BG_Color 才填充选中块颜色
+  else //  0==Set_En && 0==Set_BG_Color only fills the selected block color
   {
     // PRINT_LOG("rec_LU_x = ", rec_LU_x, "rec_LU_y =", rec_LU_y," rec_RD_x = ", rec_RD_x,"rec_RD_y = ", rec_RD_y);
     DWIN_Draw_Rectangle(1, Color_Bg_Black, rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y);
@@ -2451,27 +2452,27 @@ void Draw_Dots_On_Screen(xy_int8_t *mesh_Count, uint8_t Set_En, uint16_t Set_BG_
     if (HMI_flag.Need_boot_flag)
     {
       if (z_offset_value < 10)
-        DWIN_Draw_Z_Offset_Float(font6x12, rec_fill_color, Color_Bg_Black, 2, 0, value_LU_x + 2, value_LU_y, z_offset_value); // 左上角坐标
+        DWIN_Draw_Z_Offset_Float(font6x12, rec_fill_color, Color_Bg_Black, 2, 0, value_LU_x + 2, value_LU_y, z_offset_value); // Upper left corner coordinates
       else
-        DWIN_Draw_Z_Offset_Float(font6x12, rec_fill_color, Color_Bg_Black, 2, 0, value_LU_x + 6, value_LU_y, z_offset_value); // 左上角坐标
+        DWIN_Draw_Z_Offset_Float(font6x12, rec_fill_color, Color_Bg_Black, 2, 0, value_LU_x + 6, value_LU_y, z_offset_value); // Upper left corner coordinates
     }
     else
     {
-      DWIN_Draw_Z_Offset_Float(font6x12, rec_fill_color /*Color_White*/, Color_Bg_Black, 1, 2, value_LU_x, value_LU_y, z_offset_value * 100); // 左上角坐标
+      DWIN_Draw_Z_Offset_Float(font6x12, rec_fill_color /*Color white*/, Color_Bg_Black, 1, 2, value_LU_x, value_LU_y, z_offset_value * 100); // Upper left corner coordinates
     }
   }
 }
 
-void Refresh_Leveling_Value() // 刷新调平值
+void Refresh_Leveling_Value() // Refresh leveling values
 {
   xy_int8_t Grid_Count = {0};
   for (Grid_Count.x = 0; Grid_Count.x < GRID_MAX_POINTS_X; Grid_Count.x++)
   {
-    // if(2==Grid_Count.x)delay(50); //必须有这个参数，否则会刷新不正常
+    // if(2==Grid_Count.x)delay(50); //This parameter must be present, otherwise the refresh will be abnormal.
     for (Grid_Count.y = 0; Grid_Count.y < GRID_MAX_POINTS_Y; Grid_Count.y++)
     {
       Draw_Dots_On_Screen(&Grid_Count, 0, 0);
-      delay(20); // 必须有这个参数，否则会刷新不正常
+      delay(20); // This parameter must be present, otherwise the refresh will be abnormal.
     }
   }
 }
@@ -2485,17 +2486,17 @@ void Popup_Window_Leveling()
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 25, DWIN_WIDTH, 320 - 1);
   Clear_Menu_Area();
-#if ENABLED(SHOW_GRID_VALUES) // 显示网格值
-  // 添加一个网格图
-  DWIN_Draw_Rectangle(0, Color_Yellow, OUTLINE_LEFT_X, OUTLINE_LEFT_Y, OUTLINE_RIGHT_X, OUTLINE_RIGHT_Y); // 画外框
+#if ENABLED(SHOW_GRID_VALUES) // Show grid values
+  // Add a grid chart
+  DWIN_Draw_Rectangle(0, Color_Yellow, OUTLINE_LEFT_X, OUTLINE_LEFT_Y, OUTLINE_RIGHT_X, OUTLINE_RIGHT_Y); // frame
   if (HMI_flag.Edit_Only_flag)
   {
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_LEVELING_EDIT, BUTTON_EDIT_X, BUTTON_EDIT_Y); // 0x97   编辑按钮
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_OK_X, BUTTON_OK_Y);           // 确认按钮
-    Draw_Leveling_Highlight(0);                                                                         // 默认选择0
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_LEVELING_EDIT, BUTTON_EDIT_X, BUTTON_EDIT_Y); // 0x97 Edit button
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_OK_X, BUTTON_OK_Y);           // Confirm button
+    Draw_Leveling_Highlight(0);                                                                         // Default selection is 0
   }
 #else                         //
   // Draw_Popup_Bkgd_60();
@@ -2503,12 +2504,12 @@ void Popup_Window_Leveling()
 #endif
   if (HMI_flag.language < Language_Max)
   {
-#if ENABLED(SHOW_GRID_VALUES) // 显示网格值
+#if ENABLED(SHOW_GRID_VALUES) // Show grid values
     if (checkkey == Control)
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_EDIT_DATA_TITLE, TITLE_X, TITLE_Y); // 显示到顶部
-    //  DWIN_ICON_Show(HMI_flag.language ,LANGUAGE_leveing, WORD_TITLE_X, WORD_TITLE_Y);  //显示到顶部
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_EDIT_DATA_TITLE, TITLE_X, TITLE_Y); // Show to top
+    //  DWIN_ICON_Show(HMI_flag.language ,LANGUAGE_leveling, WORD_TITLE_X, WORD_TITLE_Y); //Show to top
     else
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_leveing, WORD_TITLE_X, WORD_TITLE_Y); // 显示到顶部
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_leveing, WORD_TITLE_X, WORD_TITLE_Y); // Show to top
 #else
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_leveing, 14, 134);
 #endif
@@ -2554,7 +2555,7 @@ void Draw_Show_G_Select_Highlight(const bool sel)
   DWIN_Draw_Rectangle(0, c1, BUTTON_X - 2, BUTTON_Y - 2, BUTTON_X + 83, BUTTON_Y + 33);
   DWIN_Draw_Rectangle(0, c2, BUTTON_X + BUTTON_OFFSET_X - 1, BUTTON_Y - 1, BUTTON_X + BUTTON_OFFSET_X + 82, BUTTON_Y + 32);
   DWIN_Draw_Rectangle(0, c2, BUTTON_X + BUTTON_OFFSET_X - 2, BUTTON_Y - 2, BUTTON_X + BUTTON_OFFSET_X + 83, BUTTON_Y + 33);
-#if ENABLED(USER_LEVEL_CHECK) // 使用调平校准功能
+#if ENABLED(USER_LEVEL_CHECK) // Using the leveling calibration function
   DWIN_Draw_Rectangle(0, c3, ICON_ON_OFF_X - 1, ICON_ON_OFF_Y - 1, ICON_ON_OFF_X + 36, ICON_ON_OFF_Y + 21);
   DWIN_Draw_Rectangle(0, c3, ICON_ON_OFF_X - 2, ICON_ON_OFF_Y - 2, ICON_ON_OFF_X + 37, ICON_ON_OFF_Y + 22);
 #endif
@@ -2583,7 +2584,7 @@ void Popup_window_PauseOrStop()
 {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -2606,13 +2607,13 @@ void Popup_window_PauseOrStop()
   Draw_Select_Highlight(true);
 #endif
 }
-// 开机引导弹出
+// Boot boot popup
 void Popup_window_boot(uint8_t type_popup)
 {
   Clear_Main_Window();
-  // Draw_Popup_Bkgd_60();
+  // Draw popup bkgd 60();
   DWIN_Draw_Rectangle(1, Color_Bg_Window, POPUP_BG_X_LU, POPUP_BG_Y_LU, POPUP_BG_X_RD, POPUP_BG_Y_RD);
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   switch (type_popup)
@@ -2621,8 +2622,8 @@ void Popup_window_boot(uint8_t type_popup)
     if (HMI_flag.language < Language_Max)
     {
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_CLEAR_HINT, WORD_HINT_CLEAR_X, WORD_HINT_CLEAR_Y);
-      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // 确定按钮
-      // 增加一个白色选中块
+      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // OK button
+      // Add a white selection block
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 1, BUTTON_BOOT_Y - 1, BUTTON_BOOT_X + 82, BUTTON_BOOT_Y + 32);
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 2, BUTTON_BOOT_Y - 2, BUTTON_BOOT_X + 83, BUTTON_BOOT_Y + 33);
     }
@@ -2630,10 +2631,10 @@ void Popup_window_boot(uint8_t type_popup)
   case High_faild_clear:
     if (HMI_flag.language < Language_Max)
     {
-      DWIN_ICON_Not_Filter_Show(ICON, ICON_HIGH_ERR, ICON_HIGH_ERR_X, ICON_HIGH_ERR_Y); // 确定按钮
+      DWIN_ICON_Not_Filter_Show(ICON, ICON_HIGH_ERR, ICON_HIGH_ERR_X, ICON_HIGH_ERR_Y); // OK button
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_HIGH_ERR_CLEAR, WORD_HIGH_CLEAR_X, WORD_HIGH_CLEAR_Y);
-      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // 确定按钮
-      // 增加一个白色选中块
+      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // OK button
+      // Add a white selection block
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 1, BUTTON_BOOT_Y - 1, BUTTON_BOOT_X + 82, BUTTON_BOOT_Y + 32);
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 2, BUTTON_BOOT_Y - 2, BUTTON_BOOT_X + 83, BUTTON_BOOT_Y + 33);
     }
@@ -2652,8 +2653,8 @@ void Popup_window_boot(uint8_t type_popup)
     if (HMI_flag.language < Language_Max)
     {
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_BOOT_undone, WORD_HINT_CLEAR_X, WORD_HINT_CLEAR_Y);
-      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // 确定按钮
-      // 增加一个白色选中块
+      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // OK button
+      // Add a white selection block
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 1, BUTTON_BOOT_Y - 1, BUTTON_BOOT_X + 82, BUTTON_BOOT_Y + 32);
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 2, BUTTON_BOOT_Y - 2, BUTTON_BOOT_X + 83, BUTTON_BOOT_Y + 33);
     }
@@ -2661,8 +2662,8 @@ void Popup_window_boot(uint8_t type_popup)
     if (HMI_flag.language < Language_Max)
     {
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_CRTouch_error, WORD_HINT_CLEAR_X, WORD_HINT_CLEAR_Y);
-      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // 确定按钮
-      // 增加一个白色选中块
+      DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, BUTTON_BOOT_X, BUTTON_BOOT_Y); // OK button
+      // Add a white selection block
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 1, BUTTON_BOOT_Y - 1, BUTTON_BOOT_X + 82, BUTTON_BOOT_Y + 32);
       DWIN_Draw_Rectangle(0, Button_Select_Color, BUTTON_BOOT_X - 2, BUTTON_BOOT_Y - 2, BUTTON_BOOT_X + 83, BUTTON_BOOT_Y + 33);
     }
@@ -2677,16 +2678,16 @@ void Draw_Printing_Screen()
 #if ENABLED(DWIN_CREALITY_480_LCD)
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Printing, TITLE_X, TITLE_Y); // 打印中标题
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PrintTime, 43, 181);         // 打印时间
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_RemainTime, 177, 181);       // 剩余时间
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Printing, TITLE_X, TITLE_Y); // Printing title
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PrintTime, 43, 181);         // Printing time
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_RemainTime, 177, 181);       // time left
   }
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Printing, TITLE_X, TITLE_Y);                         // 打印中标题
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PrintTime, WORD_PRINT_TIME_X, WORD_PRINT_TIME_Y);    // 打印时间
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_RemainTime, WORD_RAMAIN_TIME_X, WORD_RAMAIN_TIME_Y); // 剩余时间
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Printing, TITLE_X, TITLE_Y);                         // Printing title
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PrintTime, WORD_PRINT_TIME_X, WORD_PRINT_TIME_Y);    // Printing time
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_RemainTime, WORD_RAMAIN_TIME_X, WORD_RAMAIN_TIME_Y); // time left
   }
 #endif
 }
@@ -2694,12 +2695,12 @@ void Draw_Printing_Screen()
 void Draw_Print_ProgressBar()
 {
 // DWIN_ICON_Not_Filter_Show(ICON, ICON_Bar, 15, 98);
-// DWIN_Draw_Rectangle(1, BarFill_Color, 16 + _card_percent * 240 / 100, 98, 256, 110); //rock_20210917
+// DWIN_Draw_Rectangle(1, BarFill_Color, 16 + _card_percent *240 /100, 98, 256, 110); //rock_20210917
 #if ENABLED(DWIN_CREALITY_480_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, Background_min + _card_percent, 15, 98);
 
   DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 3, 109, 133, _card_percent);
-  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 133 + 15, 133 - 3, F("%")); // rock_20220728
+  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 133 + 15, 133 - 3, F("%")); // Rock 20220728
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, BG_PRINTING_CIRCLE_MIN + _card_percent, ICON_PERCENT_X, ICON_PERCENT_Y);
   // DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 3, NUM_PRECENT_X, NUM_PRECENT_Y, _card_percent);
@@ -2710,12 +2711,12 @@ void Draw_Print_ProgressBar()
 void Draw_Print_ProgressBarOcto(int progress)
 {
 // DWIN_ICON_Not_Filter_Show(ICON, ICON_Bar, 15, 98);
-// DWIN_Draw_Rectangle(1, BarFill_Color, 16 + _card_percent * 240 / 100, 98, 256, 110); //rock_20210917
+// DWIN_Draw_Rectangle(1, BarFill_Color, 16 + _card_percent *240 /100, 98, 256, 110); //rock_20210917
 #if ENABLED(DWIN_CREALITY_480_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, Background_min + _card_percent, 15, 98);
 
   DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 3, 109, 133, _card_percent);
-  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 133 + 15, 133 - 3, F("%")); // rock_20220728
+  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 133 + 15, 133 - 3, F("%")); // Rock 20220728
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, BG_PRINTING_CIRCLE_MIN + progress, 125, 27);
   // DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 3, NUM_PRECENT_X, NUM_PRECENT_Y, _card_percent);
@@ -2729,10 +2730,10 @@ void Draw_Print_ProgressElapsed()
   static bool temp_elapsed_record_flag = true;
   duration_t elapsed = print_job_timer.duration(); // print timer
 #if ENABLED(DWIN_CREALITY_480_LCD)
-  if (elapsed.value < 360000) // rock_20210903
+  if (elapsed.value < 360000) // Rock 20210903
   {
     temp_flash_elapsed_time = false;
-    // 如果剩余时间》100h，就填充黑色并刷新时间
+    // If the remaining time 》100h, fill it with black and refresh the time
     if (temp_elapsed_record_flag != temp_flash_elapsed_time)
     {
       Clear_Print_Time();
@@ -2754,7 +2755,7 @@ void Draw_Print_ProgressElapsed()
   if (elapsed.value < 360000)
   {
     temp_flash_elapsed_time = false;
-    // 如果剩余时间》100h，就填充黑色并刷新时间
+    // If the remaining time 》100h, fill it with black and refresh the time
     if (temp_elapsed_record_flag != temp_flash_elapsed_time)
     {
       Clear_Print_Time();
@@ -2789,7 +2790,7 @@ void Draw_Print_ProgressRemain()
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 153, 131 + 3, F("------"));
     return;
   }
-  if (_remain_time < 360000) // rock_20210903
+  if (_remain_time < 360000) // Rock 20210903
   {
     temp_flash_remain_time = false;
     if (temp_record_flag != temp_flash_remain_time)
@@ -2817,7 +2818,7 @@ void Popup_window_Filament(void)
 {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
                                        //  DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, 0, 240, 24);
@@ -2833,7 +2834,7 @@ void Popup_window_Filament(void)
     else
     {
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_FilamentUseup, 14, 99);
-      // DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 26, 194);   // LANGUAGE_Powerloss_go
+      // DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 26, 194);   //LANGUAGE_Powerloss_go
     }
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 26, 194);
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_filament_cancel, 132, 194);
@@ -2857,11 +2858,11 @@ void Popup_window_Remove_card(void)
   DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, 0, 240, 24);
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 25, 240, 240);
   DWIN_Draw_Rectangle(1, Color_Bg_Window, 16, 30, 234, 240);
-  // if(HMI_flag.language)
+  // If(hmi flag.language)
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Card_Remove_JPN, 16, 44);     // 显示拔卡异常界面
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 79, 194); // 显示确认按钮
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Card_Remove_JPN, 16, 44);     // Display card removal exception interface
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 79, 194); // Show confirmation button
   }
   else
   {
@@ -2870,8 +2871,8 @@ void Popup_window_Remove_card(void)
   DWIN_Draw_Rectangle(0, Select_Color, 78, 193, 162, 227);
 #endif
 }
-#if ENABLED(USER_LEVEL_CHECK) // 使用调平校准功能
-// 缩减的G29
+#if ENABLED(USER_LEVEL_CHECK) // Using the leveling calibration function
+// Reduced G29
 static void G29_small(void) //
 {
   xy_pos_t probe_position_lf,
@@ -2894,42 +2895,42 @@ static void G29_small(void) //
   // xyz_float_t position_arr[4]={{190,0,0},{30,30,0},{30,190,0},{190,190,0}};
   uint8_t loop_j = 0;
   const xy_int8_t grid_temp[4] = {{GRID_MAX_POINTS_X - 1, 0}, {0, 0}, {0, GRID_MAX_POINTS_Y - 1}, {GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1}};
-  // //z_values[grid_temp[0].x][grid_temp[0].y]=0;
+  // //Z values[grid temp[0].x][grid temp[0].y]=0;
   RUN_AND_WAIT_GCODE_CMD(G28_STR, 1);
   SET_BED_LEVE_ENABLE(false);
-  SET_BED_TEMP(65); // 热床加热
+  SET_BED_TEMP(65); // heated bed
   WAIT_BED_TEMP(60 * 5 * 1000, 2);
-  DO_BLOCKING_MOVE_TO_Z(5, 5); // 将z轴抬起到5mm
+  DO_BLOCKING_MOVE_TO_Z(5, 5); // Lift the z-axis to 5mm
   for (loop_j = 0; loop_j < CHECK_POINT_NUM; loop_j++)
   {
     probeByTouch(position_arr[loop_j], &temp_z_arr[loop_j]);
     // temp_z_arr[loop_j]=PROBE_PPINT_BY_TOUCH(position_arr[loop_j].x, position_arr[loop_j].y);
     PRINT_LOG("temp_z_arr[]:", temp_z_arr[loop_j]);
     PRINT_LOG("z_values[]:", z_values[grid_temp[loop_j].x][grid_temp[loop_j].y]);
-    temp_crtouch_z = fabs(temp_z_arr[loop_j] - z_values[grid_temp[loop_j].x][grid_temp[loop_j].y]); // 求浮点数的绝对值
+    temp_crtouch_z = fabs(temp_z_arr[loop_j] - z_values[grid_temp[loop_j].x][grid_temp[loop_j].y]); // Find the absolute value of a floating point number
     PRINT_LOG("temp_crtouch_z:", temp_crtouch_z);
-    // DO_BLOCKING_MOVE_TO_Z(10, 5);  //将z轴抬起到5mm
+    // DO_BLOCKING_MOVE_TO_Z(10, 5); //Lift the z-axis to 5mm
     if (temp_crtouch_z >= CHECK_ERROR_MIN_VALUE)
     {
       loop_index++;
       if (loop_index >= CHECK_ERROR_NUM)
       {
-        HMI_flag.Need_g29_flag = true; // 需要重新调平
-        break;                         // 不需要其他的操作
+        HMI_flag.Need_g29_flag = true; // Needs re-leveling
+        break;                         // No other operations required
       }
     }
     else if (temp_crtouch_z >= CHECK_ERROR_MAX_VALUE)
     {
-      HMI_flag.Need_g29_flag = true; // 需要重新调平
-      break;                         // 不需要其他的操作
+      HMI_flag.Need_g29_flag = true; // Needs re-leveling
+      break;                         // No other operations required
     }
     PRINT_LOG("loop_index:", loop_index);
   }
 
   SET_BED_LEVE_ENABLE(true);
-  // 算出需要校验的四个点的坐标
-  // 分别校准四个点的高度，保存到临时数组里面。
-  // 将临时数组的四个点坐标和上次测试的四个点的坐标分别对比，如果超过2个点的坐标超过了0.05，就重新G29。
+  // Calculate the coordinates of the four points that need to be verified
+  // Calibrate the heights of the four points respectively and save them in a temporary array.
+  // Compare the coordinates of the four points in the temporary array with the coordinates of the four points tested last time. If the coordinates of more than two points exceed 0.05, re-G29.
 }
 #endif
 
@@ -2937,31 +2938,31 @@ void Goto_PrintProcess()
 {
   checkkey = PrintProcess;
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   // Draw_Mid_Status_Area(true); //rock_20230529
-  Draw_Mid_Status_Area(true); // 中部更新一次全部参数
-  // DWIN_Draw_Rectangle(1, Line_Color, LINE_X_START, LINE_Y_START, LINE_X_END, LINE_Y_END); //划线1
-  // DWIN_Draw_Rectangle(1, Line_Color, LINE_X_START, LINE_Y_START+LINE2_SPACE, LINE_X_END, LINE_Y_END+LINE2_SPACE); //划线2
-  // DWIN_Draw_Rectangle(1, Line_Color, LINE_X_START, LINE_Y_START+LINE3_SPACE, LINE_X_END, LINE_Y_END+LINE3_SPACE); //划线3
-  // 词条：打印中；打印时间；剩余时间
+  Draw_Mid_Status_Area(true); // Update all parameters once in the middle
+  // DWIN_Draw_Rectangle(1, Line_Color, LINE_X_START, LINE_Y_START, LINE_X_END, LINE_Y_END); //Draw 1
+  // DWIN_Draw_Rectangle(1, Line_Color, LINE_X_START, LINE_Y_START+LINE2_SPACE, LINE_X_END, LINE_Y_END+LINE2_SPACE); //Draw 2
+  // DWIN_Draw_Rectangle(1, Line_Color, LINE_X_START, LINE_Y_START+LINE3_SPACE, LINE_X_END, LINE_Y_END+LINE3_SPACE); //Draw line 3
+  // Entry: printing; printing time; remaining time
   Draw_Printing_Screen();
-  // 设置界面
+  // Setting interface
   ICON_Tune();
   if (printingIsPaused() && !HMI_flag.cloud_printing_flag)
     ICON_Continue();
-  // 暂停
+  // pause
   if (printingIsPaused())
   {
-    Show_JPN_pause_title(); // 显示标题
+    Show_JPN_pause_title(); // show title
     ICON_Continue();
   }
   else
   {
-    // 打印中
+    // Printing
     Show_JPN_print_title();
     ICON_Pause();
   }
-  // 停止按钮
+  // stop button
   ICON_Stop();
   // Copy into filebuf string before entry
   char shift_name[LONG_FILENAME_LENGTH + 1];
@@ -2972,7 +2973,7 @@ void Goto_PrintProcess()
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   if (strlen(name) > 30)
   {
-    make_name_without_ext(shift_name, name, 30); // 将超过30字符的长文件名粘贴到新的字符串
+    make_name_without_ext(shift_name, name, 30); // Paste long filenames longer than 30 characters into a new string
     print_name = name;
     print_len_name = strlen(name);
     left_move_index = 0;
@@ -2984,20 +2985,20 @@ void Goto_PrintProcess()
     int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, FIEL_NAME_Y, name);
   }
-  DWIN_ICON_Show(ICON, ICON_PrintTime, ICON_PRINT_TIME_X, ICON_PRINT_TIME_Y);    // 打印时间图标
-  DWIN_ICON_Show(ICON, ICON_RemainTime, ICON_RAMAIN_TIME_X, ICON_RAMAIN_TIME_Y); // 剩余时间图标
+  DWIN_ICON_Show(ICON, ICON_PrintTime, ICON_PRINT_TIME_X, ICON_PRINT_TIME_Y);    // Print time icon
+  DWIN_ICON_Show(ICON, ICON_RemainTime, ICON_RAMAIN_TIME_X, ICON_RAMAIN_TIME_Y); // Remaining time icon
 #endif
   _card_percent = card.percentDone();
-  Draw_Print_ProgressBar();     // 显示当前打印进度
-  Draw_Print_ProgressElapsed(); // 显示当前时间
-  Draw_Print_ProgressRemain();  // 显示剩余时间
+  Draw_Print_ProgressBar();     // Show current printing progress
+  Draw_Print_ProgressElapsed(); // Show current time
+  Draw_Print_ProgressRemain();  // Show remaining time
 }
 
 void Goto_MainMenu()
 {
   checkkey = MainMenu;
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
   DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -3010,9 +3011,9 @@ void Goto_MainMenu()
     }
     else
     {
-      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); // rock_j
+      DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); // Rock j
     }
-    //DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); // rock_j
+    //DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Main, TITLE_X, TITLE_Y); //rock_j
   }
 #endif
   ICON_Print();
@@ -3041,7 +3042,7 @@ void HMI_Plan_Move(const feedRate_t fr_mm_s)
   {
     planner.synchronize();
     planner.buffer_line(current_position, fr_mm_s, active_extruder);
-    // DWIN_UpdateLCD();
+    // Dwin update lcd();
   }
 }
 
@@ -3069,7 +3070,7 @@ void HMI_Move_Done(const AxisEnum axis)
   default:
     break;
   }
-  // DWIN_UpdateLCD();
+  // Dwin update lcd();
 }
 
 void HMI_Move_X()
@@ -3085,7 +3086,7 @@ void HMI_Move_X()
     LIMIT(HMI_ValueStruct.Move_X_scaled, (XY_BED_MIN_ZERO)*MINUNITMULT, (X_BED_SIZE)*MINUNITMULT);
     current_position.x = HMI_ValueStruct.Move_X_scaled / MINUNITMULT;
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, VALUERANGE_X, MBASE(1), HMI_ValueStruct.Move_X_scaled);
-    // delay(10);  //解决快速旋转会两个数值一起选中的问题。
+    // delay(10); //Solve the problem that two values ​​​​are selected together during rapid rotation.
     // DWIN_UpdateLCD();
     HMI_Plan_Move(homing_feedrate(X_AXIS));
   }
@@ -3104,7 +3105,7 @@ void HMI_Move_Y()
     LIMIT(HMI_ValueStruct.Move_Y_scaled, (XY_BED_MIN_ZERO)*MINUNITMULT, (Y_BED_SIZE)*MINUNITMULT);
     current_position.y = HMI_ValueStruct.Move_Y_scaled / MINUNITMULT;
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, VALUERANGE_X, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
-    // delay(10);  //解决快速旋转会两个数值一起选中的问题。
+    // delay(10); //Solve the problem that two values ​​​​are selected together during rapid rotation.
     // DWIN_UpdateLCD();
     HMI_Plan_Move(homing_feedrate(Y_AXIS));
   }
@@ -3126,7 +3127,7 @@ void HMI_Move_Z()
     current_position.z = HMI_ValueStruct.Move_Z_scaled / MINUNITMULT;
 
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, VALUERANGE_X, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
-    // delay(10);  //解决快速旋转会两个数值一起选中的问题。
+    // delay(10); //Solve the problem that two values ​​​​are selected together during rapid rotation.
     // DWIN_UpdateLCD();
     HMI_Plan_Move(homing_feedrate(Z_AXIS));
   }
@@ -3149,7 +3150,7 @@ void HMI_Move_E()
     LIMIT(HMI_ValueStruct.Move_E_scaled, last_E_scaled - (EXTRUDE_MAXLENGTH_e)*MINUNITMULT, last_E_scaled + (EXTRUDE_MAXLENGTH_e)*MINUNITMULT);
     current_position.e = HMI_ValueStruct.Move_E_scaled / MINUNITMULT;
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, VALUERANGE_X, MBASE(4), HMI_ValueStruct.Move_E_scaled);
-    delay(10); // 解决快速旋转会两个数值一起选中的问题。
+    delay(10); // Solve the problem that rapid rotation will select two values ​​​​together.
     // DWIN_UpdateLCD();
     HMI_Plan_Move(MMM_TO_MMS(FEEDRATE_E));
   }
@@ -3179,14 +3180,14 @@ void HMI_Zoffset()
     {
       LIMIT(HMI_ValueStruct.offset_value, (Z_PROBE_OFFSET_RANGE_MIN) * 100, (Z_PROBE_OFFSET_RANGE_MAX) * 100);
       last_zoffset = dwin_zoffset;
-      dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f; // rock_20210726
+      dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f; // Rock 20210726
       EncoderRate.enabled = false;
 #if HAS_BED_PROBE
       probe.offset.z = dwin_zoffset;
       // millis_t start = millis();
       TERN_(EEPROM_SETTINGS, settings.save());
       // millis_t end = millis();
-      // SERIAL_ECHOLNPAIR("pl write time:", end - start);
+      // SERIAL_ECHOLNPAIR("pl write time:", end -start);
 #endif
       checkkey = HMI_ValueStruct.show_mode == -4 ? Prepare : Tune;
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, VALUERANGE_X - 14, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
@@ -3197,7 +3198,7 @@ void HMI_Zoffset()
     last_zoffset = dwin_zoffset;
     dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f;
 #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
-    // if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);   // rock_20220214
+    // if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset -last_zoffset);   //rock_20220214
     // serialprintPGM("d:babystep\n");
     babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
 #endif
@@ -3224,14 +3225,14 @@ void HMI_O9000Zoffset()
     {
       LIMIT(HMI_ValueStruct.offset_value, (Z_PROBE_OFFSET_RANGE_MIN) * 100, (Z_PROBE_OFFSET_RANGE_MAX) * 100);
       last_zoffset = dwin_zoffset;
-      dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f; // rock_20210726
+      dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f; // Rock 20210726
       EncoderRate.enabled = false;
 #if HAS_BED_PROBE
       probe.offset.z = dwin_zoffset;
       // millis_t start = millis();
       TERN_(EEPROM_SETTINGS, settings.save());
       // millis_t end = millis();
-      // SERIAL_ECHOLNPAIR("pl write time:", end - start);
+      // SERIAL_ECHOLNPAIR("pl write time:", end -start);
 #endif
       checkkey = HMI_ValueStruct.show_mode == -4 ? Prepare : O9000Tune;
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, VALUERANGE_X - 14, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
@@ -3242,7 +3243,7 @@ void HMI_O9000Zoffset()
     last_zoffset = dwin_zoffset;
     dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f;
 #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
-    // if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);   // rock_20220214
+    // if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset -last_zoffset);   //rock_20220214
     // serialprintPGM("d:babystep\n");
     babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
 #endif
@@ -3251,7 +3252,7 @@ void HMI_O9000Zoffset()
   }
 }
 
-#endif // HAS_ZOFFSET_ITEM
+#endif // Has zoffset item
 
 #if HAS_HOTEND
 void HMI_ETemp()
@@ -3392,7 +3393,7 @@ void HMI_O9000ETemp()
   }
 }
 
-#endif // HAS_HOTEND
+#endif // Has hotend
 
 #if HAS_HEATED_BED
 
@@ -3544,7 +3545,7 @@ void HMI_O9000BedTemp()
   }
 }
 
-#endif // HAS_HEATED_BED
+#endif // Has heated bed
 
 #if HAS_PREHEAT && HAS_FAN
 
@@ -3565,7 +3566,7 @@ void HMI_FanSpeed()
     case -3:
       fan_line = PREHEAT_CASE_FAN;
       break;
-    // case -4: fan_line = TEMP_CASE_FAN + MROWS - index_temp;break;
+    // case -4: fan_line = TEMP_CASE_FAN + MROWS -index_temp;break;
     default:
       fan_line = TUNE_CASE_FAN + MROWS - index_tune;
     }
@@ -3631,7 +3632,7 @@ void HMI_O9000FanSpeed()
     case -3:
       fan_line = PREHEAT_CASE_FAN;
       break;
-    // case -4: fan_line = TEMP_CASE_FAN + MROWS - index_temp;break;
+    // case -4: fan_line = TEMP_CASE_FAN + MROWS -index_temp;break;
     default:
       fan_line = TUNE_CASE_FAN + MROWS - index_tune;
     }
@@ -3801,7 +3802,7 @@ void HMI_MaxJerkXYZE()
   }
 }
 
-#endif // HAS_CLASSIC_JERK
+#endif // Has classic jerk
 
 void HMI_StepXYZE()
 {
@@ -3853,14 +3854,14 @@ static void Set_HM_Value_PID(uint8_t row)
   }
 }
 
-void HMI_HM_PID_Value_Set() // 手动设置PID值
+void HMI_HM_PID_Value_Set() // Manually set pid value
 {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO)
   {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.HM_PID_Temp_Value))
     {
-      // 点击了确认键
+      // Clicked the confirm button
       checkkey = HM_SET_PID;
       EncoderRate.enabled = false;
       if (WITHIN(HMI_flag.HM_PID_ROW, 1, 6))
@@ -3885,7 +3886,7 @@ void HMI_HM_PID_Value_Set() // 手动设置PID值
   }
 }
 
-// 自动设置PID值
+// Automatically set pid value
 void HMI_AUTO_PID_Value_Set()
 {
   char cmd[30] = {0};
@@ -3894,12 +3895,12 @@ void HMI_AUTO_PID_Value_Set()
   {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Auto_PID_Temp))
     {
-      // 点击了确认键
-      // 数据下标清零
+      // Clicked the confirm button
+      // Clear data subscript
       HMI_ValueStruct.Curve_index = 0;
       switch (select_set_pid.now)
       {
-        end_flag = false; // 防止反复刷新曲线完成指令指令
+        end_flag = false; // Prevent repeated refresh of curve completion command
         EncoderRate.enabled = false;
 #if ENABLED(DWIN_CREALITY_480_LCD)
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 210 + PID_VALUE_OFFSET, MBASE(select_set_pid.now), HMI_ValueStruct.Auto_PID_Temp);
@@ -3919,7 +3920,7 @@ void HMI_AUTO_PID_Value_Set()
         Draw_auto_nozzle_PID();
         LIMIT(HMI_ValueStruct.Auto_PID_Temp, 100, thermalManager.hotend_max_target(0));
         HMI_ValueStruct.Auto_PID_Value[select_set_pid.now] = HMI_ValueStruct.Auto_PID_Temp;
-        // HMI_flag.PID_autotune_start=true;
+        // Hmi flag.pid autotune start=true;
         sprintf_P(cmd, PSTR("M303 C8 S%d"), HMI_ValueStruct.Auto_PID_Temp);
         gcode.process_subcommands_now(cmd);
         break;
@@ -3964,7 +3965,7 @@ void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y,
     else if (blink && draw_empty)
       DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("     "));
     else
-      // DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, x, y, p * 10);
+      // DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, x, y, p *10);
       // DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value)
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, x, y, p * 10);
   }
@@ -3989,7 +3990,7 @@ void _draw_xyz_position(const bool force)
     _update_axis_value(Z_AXIS, 188, 296, blink, true);
 #endif
   }
-  // SERIAL_EOL();
+  // Serial eol();
 }
 
 void update_variable()
@@ -4068,7 +4069,7 @@ void update_variable()
 #if HAS_HOTEND
   // if (_new_hotend_temp)
   // {
-  //   DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 3, 0, 25, 245, _hotendtemp);  // rock_20210820
+  //   DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 3, 0, 25, 245, _hotendtemp);  //rock_20210820
   // }
   // update for power continue first display celsius temp
   DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 3, 0, 25, 245, _hotendtemp);
@@ -4089,7 +4090,7 @@ void update_variable()
 #if HAS_HEATED_BED
   // if (_new_bed_temp)
   // {
-  //   DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 3, 0, 25, 272, _bedtemp);  // rock_20210820
+  //   DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 3, 0, 25, 272, _bedtemp);  //rock_20210820
   // }
   // update for power continue first display celsius temp
   DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 3, 0, 25, 272, _bedtemp);
@@ -4112,7 +4113,7 @@ void update_variable()
   if (_new_fanspeed)
   {
     _fanspeed = thermalManager.fan_speed[0];
-    ; // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 176 + 2 * STAT_CHR_W, 247, _fanspeed);
+    ; // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 176 + 2 *STAT_CHR_W, 247, _fanspeed);
   }
 #endif
 
@@ -4263,11 +4264,11 @@ void update_middle_variable()
 #endif
 }
 /**
- * Read and cache the working directory.
+ *Read and cache the working directory.
  *
  * TODO: New code can follow the pattern of menu_media.cpp
- * and rely on Marlin caching for performance. No need to
- * cache files here.
+ *and rely on Marlin caching for performance. No need to
+ *cache files here.
  */
 
 #ifndef strcasecmp_P
@@ -4361,7 +4362,7 @@ void Init_SDItem_Shift()
 #endif
 
 /**
- * Display an SD item, adding a CDUP for subfolders.
+ *Display an SD item, adding a CDUP for subfolders.
  */
 void Draw_SDItem(const uint16_t item, int16_t row = -1)
 {
@@ -4425,7 +4426,7 @@ void Redraw_SD_List()
 
   // Leave title bar unchanged
   Clear_Menu_Area();
-  Draw_Mid_Status_Area(true); // rock_20230529 //更新一次全部参数
+  Draw_Mid_Status_Area(true); // rock_20230529 //Update all parameters once
   Draw_Back_First();
 
   if (card.isMounted())
@@ -4438,8 +4439,8 @@ void Redraw_SD_List()
   }
   // else
   // {
-  //   DWIN_Draw_Rectangle(1, Color_Bg_Red, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-  //   DWIN_Draw_String(false, false, font16x32, Color_Yellow, Color_Bg_Red, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), F("No Media"));
+  //   DWIN_Draw_Rectangle(1, Color_Bg_Red, 10, MBASE(3) -10, DWIN_WIDTH -10, MBASE(4));
+  //   DWIN_Draw_String(false, false, font16x32, Color_Yellow, Color_Bg_Red, ((DWIN_WIDTH) -8 *16) /2, MBASE(3), F("No Media"));
   // }
 }
 
@@ -4461,7 +4462,7 @@ void SDCard_Folder(char *const dirname)
 }
 
 //
-// Watch for media mount / unmount
+// Watch for media mount /unmount
 //
 void HMI_SDCardUpdate()
 {
@@ -4471,7 +4472,7 @@ void HMI_SDCardUpdate()
   {
     return;
   }
-  if (DWIN_lcd_sd_status != card.isMounted()) // flag.mounted
+  if (DWIN_lcd_sd_status != card.isMounted()) // Flag.mounted
   {
     stat = false;
     DWIN_lcd_sd_status = card.isMounted();
@@ -4495,7 +4496,7 @@ void HMI_SDCardUpdate()
         //       to CardReader::manage_media.
         // card.abortFilePrintSoon();
         // wait_for_heatup = wait_for_user = false;
-        // dwin_abort_flag = true; // Reset feedrate, return to Home
+        // dwin_abort_flag = true; //Reset feedrate, return to Home
       }
     }
     DWIN_UpdateLCD();
@@ -4510,7 +4511,7 @@ void HMI_SDCardUpdate()
     //   SERIAL_ECHOLNPAIR("card.isMounted(): ", card.isMounted());
     // }
 
-    // flag.mounted
+    // Flag.mounted
   }
 }
 
@@ -4617,24 +4618,24 @@ void Draw_Status_Area(bool with_update)
   _draw_xyz_position(true);
   if (with_update)
   {
-    // update_variable(); //标志位为0才刷新底部参数
+    // update_variable(); //The bottom parameter is refreshed only when the flag bit is 0
     update_middle_variable();
     DWIN_UpdateLCD();
     delay(5);
   }
 }
-// 中部更新所有参数
+// Update all parameters in the middle
 void Draw_Mid_Status_Area(bool with_update)
 {
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
-  HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+  HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
 #if HAS_HOTEND
   DWIN_ICON_Show(ICON, ICON_HotendTemp, ICON_NOZZ_X, ICON_NOZZ_Y);
   // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, NUM_NOZZ_X, ICON_NOZZ_Y, thermalManager.wholeDegHotend(0));
-  // DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black,NUM_NOZZ_X + 4 * MENU_CHR_W, ICON_NOZZ_Y, F("/"));
-  // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3,  NUM_NOZZ_X + 5 * MENU_CHR_W, ICON_NOZZ_Y, thermalManager.degTargetHotend(0));
+  // DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black,NUM_NOZZ_X + 4 *MENU_CHR_W, ICON_NOZZ_Y, F("/"));
+  // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3,  NUM_NOZZ_X + 5 *MENU_CHR_W, ICON_NOZZ_Y, thermalManager.degTargetHotend(0));
   // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 47, ICON_NOZZ_Y, thermalManager.wholeDegBed());;
   DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 22 + 3 * STAT_CHR_W + 5, NUM_NOZZ_Y - 1, F("/"));
   DWIN_Draw_IntValue_N0SPACE(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 18 + 4 * STAT_CHR_W + 6, NUM_NOZZ_Y, thermalManager.degTargetHotend(0));
@@ -4643,13 +4644,13 @@ void Draw_Mid_Status_Area(bool with_update)
   DWIN_Draw_IntValue_N0SPACE(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 99 + 2 * STAT_CHR_W + 2, NUM_STEP_E_Y, planner.flow_percentage[0]);
   DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 99 + 5 * STAT_CHR_W, NUM_STEP_E_Y - 1, F("%"));
   // DWIN_Draw_IntValue(true, true, 0, DWIN_MIDDLE_FONT_STAT, Color_White, Color_Bg_Black, 3,NUM_STEP_E_X, ICON_STEP_E_Y, planner.flow_percentage[0]);
-  // DWIN_Draw_String(false, false, DWIN_MIDDLE_FONT_STAT, Color_White, Color_Bg_Black, NUM_STEP_E_X + 4 * STAT_CHR_W, ICON_STEP_E_Y, F("%"));
+  // DWIN_Draw_String(false, false, DWIN_MIDDLE_FONT_STAT, Color_White, Color_Bg_Black, NUM_STEP_E_X + 4 *STAT_CHR_W, ICON_STEP_E_Y, F("%"));
 #endif
 
 #if HAS_HEATED_BED
   DWIN_ICON_Show(ICON, ICON_BedTemp, ICON_BED_X, ICON_BED_Y);
   // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, NUM_BED_X + STAT_CHR_W, ICON_BED_Y, thermalManager.wholeDegBed());
-  // DWIN_Draw_String(false, false, DWIN_MIDDLE_FONT_STAT, Color_White, Color_Bg_Black, NUM_BED_X +4 * MENU_CHR_W, ICON_BED_Y, F("/"));
+  // DWIN_Draw_String(false, false, DWIN_MIDDLE_FONT_STAT, Color_White, Color_Bg_Black, NUM_BED_X +4 *MENU_CHR_W, ICON_BED_Y, F("/"));
   // DWIN_Draw_IntValue(true, true, 0, DWIN_MIDDLE_FONT_STAT, Color_White, Color_Bg_Black, 3, NUM_BED_X+ 5*MENU_CHR_W,ICON_BED_Y, thermalManager.degTargetBed());
   // DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 47, ICON_BED_Y, thermalManager.wholeDegBed());
   DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 22 + 3 * STAT_CHR_W + 5, NUM_BED_Y - 1, F("/"));
@@ -4702,15 +4703,15 @@ void HMI_StartFrame(const bool with_update)
 void Draw_Info_Menu()
 {
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
 #if ENABLED(DWIN_CREALITY_480_LCD)
   if (HMI_flag.language < Language_Max)
   {
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Info, TITLE_X, TITLE_Y);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 60, 42);
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Size, 81, 87);     // 尺寸
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Version, 81, 158); // 版本
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Contact, 81, 229); // 联系我们
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Size, 81, 87);     // size
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Version, 81, 158); // Version
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Contact, 81, 229); // Contact us
 
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2 + 20, 120, F(MACHINE_SIZE));
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2 + 20, 195, F(SHORT_BUILD_VERSION));
@@ -4739,10 +4740,10 @@ void Draw_Info_Menu()
   {
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Info, TITLE_X, TITLE_Y);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26);
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Size, 66, 64);              // 尺寸
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Version, 66, 115);          // 版本
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Contact, 66, 178);          // 联系我们
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Hardware_Version, 66, 247); // 联系我们
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Size, 66, 64);              // size
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Version, 66, 115);          // Version
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Contact, 66, 178);          // Contact us
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Hardware_Version, 66, 247); // Contact us
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2 + 20, 90, F(MACHINE_SIZE));
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2 + 20, 149, F(SHORT_BUILD_VERSION));
     if (Chinese == HMI_flag.language)
@@ -4775,7 +4776,7 @@ void Draw_Info_Menu()
 void Draw_Print_File_Menu()
 {
   Clear_Title_Bar();
-  HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+  HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
   if (HMI_flag.language < Language_Max)
   {
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_SelectFile, TITLE_X, TITLE_Y); // rock_j file select
@@ -4803,7 +4804,7 @@ void HMI_Select_language()
 #elif ENABLED(DWIN_CREALITY_320_LCD)
         DWIN_ICON_Show(ICON, ICON_Word_CN + index_language - 1, WORD_LAGUAGE_X, MBASE(MROWS + 2) + JPN_OFFSET);
 #endif
-        // Draw_Menu_Line(MROWS+2);
+        // Draw menu line(mrows+2);
       }
       else
       {
@@ -4819,7 +4820,7 @@ void HMI_Select_language()
       {
         index_language--;
         Scroll_Menu_Full(DWIN_SCROLL_DOWN);
-        // Scroll_Menu(DWIN_SCROLL_DOWN);
+        // Scroll menu(dwin scroll down);
         if (index_language == MROWS + 2)
         {
           DWIN_Draw_Rectangle(1, Color_Bg_Black, 12, MBASE(0) - 9, 239, MBASE(0) + 18);
@@ -4834,7 +4835,7 @@ void HMI_Select_language()
           DWIN_ICON_Show(ICON, ICON_Word_CN + select_language.now - 1, WORD_LAGUAGE_X, MBASE(0) + JPN_OFFSET);
 #endif
         }
-        // Draw_Menu_Line(0);
+        // Draw menu line(0);
       }
       else
       {
@@ -4893,7 +4894,7 @@ void HMI_Select_language()
     checkkey = Prepare;
     select_prepare.set(10);
     Draw_Prepare_Menu();
-    HMI_flag.Refresh_bottom_flag = false; // 标志不刷新底部参数
+    HMI_flag.Refresh_bottom_flag = false; // Flag does not refresh bottom parameters
   }
   DWIN_UpdateLCD();
 }
@@ -4985,7 +4986,7 @@ void HMI_MainMenu()
       checkkey = ONE_HIGH;
 #if ANY(USE_AUTOZ_TOOL, USE_AUTOZ_TOOL_2)
       queue.inject_P(PSTR("M8015"));
-      // Popup_Window_Home();
+      // Popup window home();
       Popup_Window_Height(Nozz_Start);
 #endif
 #else
@@ -5017,7 +5018,7 @@ void DC_Show_defaut_imageOcto()
 #endif
 }
 
-static void Isplay_Estimated_Time(int time) // 显示剩余时间。
+static void Isplay_Estimated_Time(int time) // Display remaining time.
 {
   int h, m, s;
   char cmd[30] = {0};
@@ -5037,18 +5038,18 @@ static void Isplay_Estimated_Time(int time) // 显示剩余时间。
   }
 }
 
-// 图片预览详情信息显示
+// Picture preview details display
 static void Image_Preview_Information_Show(uint8_t ret)
 {
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-  // 显示标题
+  // show title
   if (HMI_flag.language < Language_Max)
   {
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Estimated_Time, WORD_TIME_X, WORD_TIME_Y);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Filament_Used, WORD_LENTH_X, WORD_LENTH_Y);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Layer_Height, WORD_HIGH_X, WORD_HIGH_Y);
-#if ENABLED(USER_LEVEL_CHECK) // 使用调平校准功能
+#if ENABLED(USER_LEVEL_CHECK) // Using the leveling calibration function
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Level_Calibration, WORD_PRINT_CHECK_X, WORD_PRINT_CHECK_Y);
     if (HMI_flag.Level_check_flag)
       DWIN_ICON_Show(ICON, ICON_LEVEL_CALIBRATION_ON, ICON_ON_OFF_X, ICON_ON_OFF_Y);
@@ -5058,7 +5059,7 @@ static void Image_Preview_Information_Show(uint8_t ret)
   }
   if (ret == PIC_MISS_ERR)
   {
-    // 没有图片预览数据
+    // No image preview data
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Black, WORD_TIME_X + DATA_OFFSET_X + 52, WORD_TIME_Y + DATA_OFFSET_Y, F("0"));
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Black, WORD_LENTH_X + DATA_OFFSET_X + 52, WORD_LENTH_Y + DATA_OFFSET_Y, F("0"));
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Black, WORD_HIGH_X + DATA_OFFSET_X + 52, WORD_HIGH_Y + DATA_OFFSET_Y, F("0"));
@@ -5074,20 +5075,20 @@ static void Image_Preview_Information_Show(uint8_t ret)
     predict_time = atoi((char *)model_information.pre_time);
     height1 = atof((char *)model_information.MAXZ);
     height2 = atof((char *)model_information.MINZ);
-    // height3 = height1 - height2;
+    // height3 = height1 -height2;
     height3 = atof((char *)model_information.height);
 
-    // sprintf(char_buf,"%.1f",height3);
+    // Sprintf(char buf,"%.1f",height3);
     sprintf_P(char_buf, PSTR("%smm"), dtostrf(height3, 1, 1, str_1));
     Filament = atof((char *)model_information.filament);
 
     volume = 2.4040625 * Filament;
     // sprintf(char_buf1,"%.1f",volume);
     // sprintf_P(char_buf1, PSTR("%smm^3"), dtostrf(volume, 1, 1, str_1));
-    Isplay_Estimated_Time(predict_time); // 显示剩余时间
+    Isplay_Estimated_Time(predict_time); // Show remaining time
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Black, WORD_LENTH_X + DATA_OFFSET_X, WORD_LENTH_Y + DATA_OFFSET_Y, &model_information.filament[0]);
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Black, WORD_HIGH_X + DATA_OFFSET_X, WORD_HIGH_Y + DATA_OFFSET_Y, &model_information.height[0]); // 高度
-    // DWIN_Draw_String(false,true,font8x16, Popup_Text_Color, Color_Bg_Black, 175, 183, char_buf1);   // 体积
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Black, WORD_HIGH_X + DATA_OFFSET_X, WORD_HIGH_Y + DATA_OFFSET_Y, &model_information.height[0]); // high
+    // DWIN_Draw_String(false,true,font8x16, Popup_Text_Color, Color_Bg_Black, 175, 183, char_buf1); //Volume
   }
 
 #endif
@@ -5138,7 +5139,7 @@ void HMI_SelectFile()
       {
         // If line was shifted
         Erase_Menu_Text(itemnum + MROWS - index_file); // Erase and
-        Draw_SDItem(itemnum - 1);                      // redraw
+        Draw_SDItem(itemnum - 1);                      // Redraw
       }
       if (select_file.now > MROWS && select_file.now > index_file)
       {
@@ -5167,7 +5168,7 @@ void HMI_SelectFile()
       {
         // If line was shifted
         Erase_Menu_Text(select_file.now + 1 + MROWS - index_file); // Erase and
-        Draw_SDItem(itemnum + 1);                                  // redraw
+        Draw_SDItem(itemnum + 1);                                  // Redraw
       }
       if (select_file.now < index_file - MROWS)
       {
@@ -5205,7 +5206,7 @@ void HMI_SelectFile()
     }
     else if (hasUpDir && select_file.now == 1)
     {
-      // CD-Up
+      // Cd up
       SDCard_Up();
       goto HMI_SelectFileExit;
     }
@@ -5224,7 +5225,7 @@ void HMI_SelectFile()
         select_show_pic.reset();
         HMI_flag.select_flag = true;
         Clear_Main_Window();
-        Draw_Mid_Status_Area(true); // rock_20230529
+        Draw_Mid_Status_Area(true); // Rock 20230529
         if (HMI_flag.language < Language_Max)
         {
 #if ENABLED(DWIN_CREALITY_480_LCD)
@@ -5236,23 +5237,23 @@ void HMI_SelectFile()
 #endif
         }
 #if ENABLED(USER_LEVEL_CHECK)
-        select_show_pic.now = 0; // 默认选择
+        select_show_pic.now = 0; // Default selection
 #else
-        select_show_pic.now = 1; // 默认选择
+        select_show_pic.now = 1; // Default selection
 #endif
         Draw_Show_G_Select_Highlight(true);
       }
       char *const name = card.longest_filename();
       char str[strlen(name) + 1];
-      // 取消后缀 例如:filename.gcode 去掉.gocde
+      // Cancel the suffix. For example: filename.gcode and remove .gocde.
       make_name_without_ext(str, name);
       Draw_Title(str);
       uint8_t ret = PIC_MISS_ERR;
-      // Ender-3v3 SE暂时不支持图片预览功能，防止卡死，显示默认预览图片
+      // Ender-3v3 SE temporarily does not support the image preview function to prevent freezing and displays the default preview image.
       ret = gcodePicDataSendToDwin(card.filename, VP_OVERLAY_PIC_PREVIEW_1, PRIWIEW_PIC_FORMAT_NEED, PRIWIEW_PIC_RESOLITION_NEED);
       // if(ret == PIC_MISS_ERR)
-      DC_Show_defaut_image();              // 由于此项目没有图片预览数据，所以显示默认小机器人图片
-      Image_Preview_Information_Show(ret); // 图片预览详情信息显示
+      DC_Show_defaut_image();              // Since this project does not have image preview data, the default small robot image is displayed.
+      Image_Preview_Information_Show(ret); // Picture preview details display
     }
   }
 HMI_SelectFileExit:
@@ -5265,7 +5266,7 @@ void HMI_Printing()
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO || HMI_flag.pause_action || HMI_flag.Level_check_start_flag)
     return;
-  // HMI_flag.pause_action
+  // Hmi flag.pause action
   if (HMI_flag.done_confirm_flag)
   {
     if (encoder_diffState == ENCODER_DIFF_ENTER)
@@ -5345,13 +5346,13 @@ void HMI_Printing()
       checkkey = Tune;
       HMI_ValueStruct.show_mode = 0;
       select_tune.reset();
-      HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+      HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
       index_tune = MROWS;
       Draw_Tune_Menu();
       break;
     case 1: // Pause
       if (HMI_flag.pause_flag)
-      { // 确定
+      { // Sure
         Show_JPN_print_title();
         ICON_Pause();
         char cmd[40];
@@ -5376,7 +5377,7 @@ void HMI_Printing()
       }
       else
       {
-        // 取消
+        // Cancel
         HMI_flag.select_flag = true;
         checkkey = Print_window;
         Popup_window_PauseOrStop();
@@ -5417,10 +5418,10 @@ void HMI_PauseOrStop()
           SERIAL_ECHOLN("M79 S2"); // 3:cloud print pause
         }
         Goto_PrintProcess();
-        // queue.inject_P(PSTR("M25"));
+        // Queue.inject p(pstr("m25"));
         RUN_AND_WAIT_GCODE_CMD("M25", true);
         ICON_Continue();
-        // queue.enqueue_now_P(PSTR("M25"));
+        // Queue.enqueue now p(pstr("m25"));
       }
       else
       {
@@ -5435,7 +5436,7 @@ void HMI_PauseOrStop()
           planner.synchronize();                 // Wait for planner moves to finish!
         wait_for_heatup = wait_for_user = false; // Stop waiting for heating/user
 
-        HMI_flag.disallow_recovery_flag = true; // 不允许恢复数据
+        HMI_flag.disallow_recovery_flag = true; // Data recovery is not allowed
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
         print_job_timer.reset();
@@ -5444,14 +5445,14 @@ void HMI_PauseOrStop()
         thermalManager.zero_fan_speeds();
 
         recovery.info.sd_printing_flag = false; // rock_20210820
-// rock_20210830  下面这句绝对不能要，会进行两次会主界面操作
-// dwin_abort_flag = true;                      // Reset feedrate, return to Home
+// rock_20210830 The following sentence is absolutely not required. It will perform two main interface operations.
+// dwin_abort_flag = true; //Reset feedrate, return to Home
 #ifdef ACTION_ON_CANCEL
         host_action_cancel();
 #endif
         // BL24CXX::EEPROM_Reset(PLR_ADDR, (uint8_t*)&recovery.info, sizeof(recovery.info));//rock_20210812  清空 EEPROM
         // checkkey = Popup_Window;
-        Popup_Window_Home(true); // rock_20221018
+        Popup_Window_Home(true); // Rock 20221018
 
         card.abortFilePrintSoon(); // Let the main loop handle SD abort  //rock_20211020
         checkkey = Back_Main;
@@ -5494,10 +5495,10 @@ void HMI_O900PauseOrStop()
        
         DWIN_OctoPrintJob(vvfilename, vvprint_time, vvptime_left, vvtotal_layer, vvcurr_layer, vvthumb, vvprogress);
 
-        // queue.inject_P(PSTR("M25"));
+        // Queue.inject p(pstr("m25"));
         RUN_AND_WAIT_GCODE_CMD("M25", true);
         ICON_Continue();
-        // queue.enqueue_now_P(PSTR("M25"));
+        // Queue.enqueue now p(pstr("m25"));
       }
       else
       {
@@ -5513,7 +5514,7 @@ void HMI_O900PauseOrStop()
           planner.synchronize();                 // Wait for planner moves to finish!
         wait_for_heatup = wait_for_user = false; // Stop waiting for heating/user
 
-        HMI_flag.disallow_recovery_flag = true; // 不允许恢复数据
+        HMI_flag.disallow_recovery_flag = true; // Data recovery is not allowed
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
         print_job_timer.reset();
@@ -5522,14 +5523,14 @@ void HMI_O900PauseOrStop()
         thermalManager.zero_fan_speeds();
 
         recovery.info.sd_printing_flag = false; // rock_20210820
-// rock_20210830  下面这句绝对不能要，会进行两次会主界面操作
-// dwin_abort_flag = true;                      // Reset feedrate, return to Home
+// rock_20210830 The following sentence is absolutely not required. It will perform two main interface operations.
+// dwin_abort_flag = true; //Reset feedrate, return to Home
 #ifdef ACTION_ON_CANCEL
         host_action_cancel();
 #endif
         // BL24CXX::EEPROM_Reset(PLR_ADDR, (uint8_t*)&recovery.info, sizeof(recovery.info));//rock_20210812  清空 EEPROM
         // checkkey = Popup_Window;
-        Popup_Window_Home(true); // rock_20221018
+        Popup_Window_Home(true); // Rock 20221018
         clearOctoScrollVars();
 
         card.abortFilePrintSoon(); // Let the main loop handle SD abort  //rock_20211020
@@ -5556,7 +5557,7 @@ void HMI_Filament()
   ENCODER_DiffState encoder_diffState;
   if (READ(CHECKFILAMENT_PIN) && HMI_flag.cloud_printing_flag)
   {
-    // 防止抖动  rock_20210910
+    // Prevent shaking rock_20210910
     delay(200);
     if (READ(CHECKFILAMENT_PIN))
     {
@@ -5565,23 +5566,23 @@ void HMI_Filament()
   }
   else if (!READ(CHECKFILAMENT_PIN) && (!HMI_flag.filament_recover_flag))
   {
-    // 防止抖动  rock_20210910
+    // Prevent shaking rock_20210910
     delay(200);
     if (!READ(CHECKFILAMENT_PIN))
     {
       HMI_flag.filament_recover_flag = true;
-      // 清除更新区
+      // Clear update area
       Popup_window_Filament();
     }
   }
   else if (READ(CHECKFILAMENT_PIN) && (HMI_flag.filament_recover_flag))
   {
-    // 防止抖动  rock_20210910
+    // Prevent shaking rock_20210910
     delay(200);
     if (READ(CHECKFILAMENT_PIN))
     {
       HMI_flag.filament_recover_flag = false;
-      // 清除更新区
+      // Clear update area
       Popup_window_Filament();
     }
   }
@@ -5631,26 +5632,26 @@ void HMI_Filament()
     // SERIAL_ECHOLNPAIR("HMI_flag.select_flag=: ", HMI_flag.select_flag);
     if (HMI_flag.select_flag)
     {
-      // if(READ(CHECKFILAMENT_PIN))
+      // If(read(checkfilament pin))
       if (READ(CHECKFILAMENT_PIN) == 0)
       {
-        // 防止抖动  rock_20210910
+        // Prevent shaking rock_20210910
         delay(200);
-        // if(READ(CHECKFILAMENT_PIN))
+        // If(read(checkfilament pin))
         if (READ(CHECKFILAMENT_PIN) == 0)
         {
-          // resume
+          // Resume
           HMI_flag.cutting_line_flag = false;
           temp_cutting_line_flag = false;
           if (HMI_flag.cloud_printing_flag)
           {
-            // 解除断料状态，可以响应云指令
+            // Release the material outage state and respond to cloud commands
             HMI_flag.filement_resume_flag = false;
             // SERIAL_ECHOLN("M79 S3");
             print_job_timer.start();
             gcode.process_subcommands_now_P(PSTR("M24"));
             Goto_PrintProcess();
-            // 暂停界面
+            // Pause interface
             ICON_Pause();
           }
           else
@@ -5662,24 +5663,24 @@ void HMI_Filament()
               Goto_PrintProcess();
             }
           }
-          // 可以接收GCOD指令
+          // Can receive gcod instructions
           HMI_flag.disable_queued_cmd = false;
         }
       }
     }
     else
     {
-      // 不再提示
+      // Don't prompt again
       HMI_flag.cutting_line_flag = false;
       temp_cutting_line_flag = false;
-      // HMI_flag.select_flag=1; //设置成默认选中确定按钮
-      //  Goto_PrintProcess();    //rock_21010914
+      // HMI_flag.select_flag=1; //Set to select the OK button by default
+      //  Goto_PrintProcess(); //rock_21010914
       if (HMI_flag.home_flag)
         planner.synchronize();                 // Wait for planner moves to finish!
       wait_for_heatup = wait_for_user = false; // Stop waiting for heating/user
-      // 不允许恢复数据
+      // Data recovery is not allowed
       HMI_flag.disallow_recovery_flag = true;
-      // rock_20211017
+      // Rock 20211017
       queue.clear();
       quickstop_stepper();
       print_job_timer.stop();
@@ -5689,9 +5690,9 @@ void HMI_Filament()
       thermalManager.setTargetBed(0);
       thermalManager.zero_fan_speeds();
 
-      // rock_20210820
+      // Rock 20210820
       recovery.info.sd_printing_flag = false;
-      // rock_20210830  下面这句绝对不能要，会进行两次会主界面操作
+      // rock_20210830 The following sentence is absolutely not required, and the main interface operation will be performed twice.
       // Reset feedrate, return to Home
       // dwin_abort_flag = true;
 
@@ -5699,7 +5700,7 @@ void HMI_Filament()
       host_action_cancel();
 #endif
       Popup_Window_Home(true);
-      // Let the main loop handle SD abort  // rock_20211020
+      // Let the main loop handle SD abort  //rock_20211020
       card.abortFilePrintSoon();
       checkkey = Back_Main;
       if (HMI_flag.cloud_printing_flag)
@@ -5710,13 +5711,13 @@ void HMI_Filament()
         // gcode.process_subcommands_now_P(PSTR("M79 S4"));
       }
     }
-    // 断料恢复标志位清零
+    // Material break recovery flag cleared
     HMI_flag.filament_recover_flag = false;
   }
   DWIN_UpdateLCD();
 }
 
-/* Remove_card_window */
+/* Remove card window */
 void HMI_Remove_card()
 {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -5726,7 +5727,7 @@ void HMI_Remove_card()
 
   if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
-    // 有卡
+    // Have a card
     if (IS_SD_INSERTED())
     {
       HMI_flag.remove_card_flag = false;
@@ -5736,11 +5737,11 @@ void HMI_Remove_card()
       // #endif
       gcode.process_subcommands_now_P(PSTR("M24"));
       Goto_PrintProcess();
-      // recovery.info.sd_printing_flag=remove_card_flag;
+      // Recovery.info.sd printing flag=remove card flag;
     }
     else
     {
-      // Remove_card_window_check();
+      // Remove card window check();
     }
   }
   DWIN_UpdateLCD();
@@ -5754,11 +5755,11 @@ void CR_Touch_error_func()
     return;
   if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
-    // HMI_flag.cr_touch_error_flag=false;
-    HAL_reboot(); // MCU复位进入BOOTLOADER
+    // Hmi flag.cr touch error flag=false;
+    HAL_reboot(); // Mcu resets into bootloader
   }
 }
-// 一个确定按钮的界面
+// An interface with an OK button
 void HMI_Confirm()
 {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -5769,53 +5770,53 @@ void HMI_Confirm()
   {
     if (Set_language == HMI_flag.boot_step)
     {
-      HMI_flag.boot_step = Set_high;   // 当前步骤转换到对高状态
-      Popup_Window_Height(Nozz_Start); // 跳转到对高页面
-      checkkey = ONE_HIGH;             // 进入对高逻辑
+      HMI_flag.boot_step = Set_high;   // The current step switches to the high state
+      Popup_Window_Height(Nozz_Start); // Jump to height page
+      checkkey = ONE_HIGH;             // Enter the high logic
 #if ANY(USE_AUTOZ_TOOL, USE_AUTOZ_TOOL_2)
       queue.inject_P(PSTR("M8015"));
 #endif
-      // checkkey=Max_GUI;
+      // Checkkey=max gui;
     }
-    else if (Set_high == HMI_flag.boot_step) // 开机引导的对高失败
+    else if (Set_high == HMI_flag.boot_step) // Boot boot failed.
     {
-      HMI_flag.boot_step = Set_high;   // 当前对高失败后，重复对高操作
-      Popup_Window_Height(Nozz_Start); // 跳转到对高页面
-      checkkey = ONE_HIGH;             // 进入对高逻辑
+      HMI_flag.boot_step = Set_high;   // After the current height adjustment fails, repeat the height adjustment operation.
+      Popup_Window_Height(Nozz_Start); // Jump to height page
+      checkkey = ONE_HIGH;             // Enter the high logic
 #if ANY(USE_AUTOZ_TOOL, USE_AUTOZ_TOOL_2)
       queue.inject_P(PSTR("M8015"));
 #endif
     }
-    else if (Set_levelling == HMI_flag.boot_step) // 开机引导调平成功
+    else if (Set_levelling == HMI_flag.boot_step) // Boot boot leveling successful
     {
-      HMI_flag.boot_step = Boot_Step_Max; // 当前步骤设置到开机引导完成标志位并保存
-      Save_Boot_Step_Value();             // 保存开机引导步骤
-      HMI_flag.Need_boot_flag = false;    // 以后不需要开机引导了
-      // HMI_flag.G29_finish_flag=false;  //退出编辑页面，进入调平页面开始也不允许转动旋钮
-      select_page.set(0); // 跳转到主界面的动作
+      HMI_flag.boot_step = Boot_Step_Max; // Set the current step to the boot completion flag and save it
+      Save_Boot_Step_Value();             // Save boot steps
+      HMI_flag.Need_boot_flag = false;    // No need to boot in the future
+      // HMI_flag.G29_finish_flag=false; //Exit the editing page and enter the leveling page. Turning the knob is not allowed at the beginning.
+      select_page.set(0); // Action to jump to the main interface
       Goto_MainMenu();
     }
-    else if (Boot_Step_Max == HMI_flag.boot_step) // 正常对高失败后
+    else if (Boot_Step_Max == HMI_flag.boot_step) // After normal high altitude failure
     {
-      Popup_Window_Height(Nozz_Start); // 跳转到对高页面
-      checkkey = ONE_HIGH;             // 进入对高逻辑
+      Popup_Window_Height(Nozz_Start); // Jump to height page
+      checkkey = ONE_HIGH;             // Enter the high logic
 #if ANY(USE_AUTOZ_TOOL, USE_AUTOZ_TOOL_2)
       queue.inject_P(PSTR("M8015"));
 #endif
-      // HMI_flag.Need_boot_flag=false; //以后不需要开机引导了
-      // select_page.set(0);//跳转到主界面的动作
+      // HMI_flag.Need_boot_flag=false; //No need to boot in the future
+      // select_page.set(0);//The action of jumping to the main interface
       // Goto_MainMenu();
     }
-    else // 不在开机引导步骤的，弹出对高失败界面点击了“确定”按钮，重新开始对高
+    else // If you are not in the booting step, the height setting failure interface pops up and you click the "OK" button to restart the height setting.
     {
-      Popup_Window_Height(Nozz_Start); // 跳转到对高页面
-      checkkey = ONE_HIGH;             // 进入对高逻辑
+      Popup_Window_Height(Nozz_Start); // Jump to height page
+      checkkey = ONE_HIGH;             // Enter the high logic
 #if ANY(USE_AUTOZ_TOOL, USE_AUTOZ_TOOL_2)
       queue.inject_P(PSTR("M8015"));
 #endif
     }
 #if BOTH(EEPROM_SETTINGS, IIC_BL24CXX_EEPROM)
-    // Save_Boot_Step_Value();//保存开机引导步骤
+    // Save boot step value();//Save the boot step
 #endif
   }
 }
@@ -5825,7 +5826,7 @@ void HMI_Auto_In_Feedstock()
   // if (encoder_diffState == ENCODER_DIFF_NO /*|| (!HMI_flag.Auto_inout_end_flag)*/) return;
   if (!HMI_flag.Auto_inout_end_flag)
     return;
-  if (encoder_diffState == ENCODER_DIFF_ENTER) // 点击确认进料完成
+  if (encoder_diffState == ENCODER_DIFF_ENTER) // Click to confirm that the feed is completed
   {
     //  checkkey = Prepare;
     //  select_prepare.set(PREPARE_CASE_INSTORK);
@@ -5833,18 +5834,18 @@ void HMI_Auto_In_Feedstock()
     // SERIAL_ECHOLNPAIR("HMI_flag.Auto_inout_end_flag:", HMI_flag.Auto_inout_end_flag);
     // if (planner.has_blocks_queued())return;
     HMI_flag.Auto_inout_end_flag = false;
-    In_out_feedtock(50, FEEDING_DEF_SPEED * 2, true);               // 40mm/s进料30mm
-    In_out_feedtock(IN_DEF_DISTANCE - 50, FEEDING_DEF_SPEED, true); // 进料60mm
+    In_out_feedtock(50, FEEDING_DEF_SPEED * 2, true);               // 40mm/s feeding 30mm
+    In_out_feedtock(IN_DEF_DISTANCE - 50, FEEDING_DEF_SPEED, true); // Feed 60mm
 
-    HMI_flag.Refresh_bottom_flag = false; // 刷新底部参数
+    HMI_flag.Refresh_bottom_flag = false; // Refresh bottom parameters
     checkkey = Prepare;
     select_prepare.set(PREPARE_CASE_INSTORK);
-    Draw_Mid_Status_Area(true); // rock_20230529
+    Draw_Mid_Status_Area(true); // Rock 20230529
 
     Draw_Prepare_Menu();
-    // HMI_Auto_IN_Out_Feedstock();            //返回准备界面。
-    SET_HOTEND_TEMP(STOP_TEMPERATURE, 0); // 降温到140℃
-    // WAIT_HOTEND_TEMP(60 * 5 * 1000, 5);    //等待喷嘴温度达到设定值
+    // HMI_Auto_IN_Out_Feedstock(); //Return to the preparation interface.
+    SET_HOTEND_TEMP(STOP_TEMPERATURE, 0); // Cool down to 140℃
+    // WAIT_HOTEND_TEMP(60 *5 *1000, 5); //Wait for the nozzle temperature to reach the set value
   }
 }
 
@@ -5855,11 +5856,11 @@ void HMI_Auto_IN_Out_Feedstock()
   // if (encoder_diffState == ENCODER_DIFF_NO && (!HMI_flag.Auto_inout_end_flag)) return;
   if (!HMI_flag.Auto_inout_end_flag)
     return;
-  if (encoder_diffState == ENCODER_DIFF_ENTER) // 点击确认退料完成
+  if (encoder_diffState == ENCODER_DIFF_ENTER) // Click to confirm that the return is completed
   {
-    HMI_flag.Refresh_bottom_flag = false; // 刷新底部参数
+    HMI_flag.Refresh_bottom_flag = false; // Refresh bottom parameters
     checkkey = Prepare;
-    Draw_Mid_Status_Area(true); // rock_20230529
+    Draw_Mid_Status_Area(true); // Rock 20230529
     select_prepare.set(PREPARE_CASE_OUTSTORK);
     Draw_Prepare_Menu();
     HMI_flag.Auto_inout_end_flag = false;
@@ -5868,10 +5869,10 @@ void HMI_Auto_IN_Out_Feedstock()
 void Draw_Move_Menu()
 {
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   if (HMI_flag.language < Language_Max)
   {
-    // "Move"
+    // "move"
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Move_Title, TITLE_X, TITLE_Y);
 // DWIN_Frame_AreaCopy(1, 58, 118, 106, 132, LBLX, MBASE(1));
 // DWIN_Frame_AreaCopy(1, 109, 118, 157, 132, LBLX, MBASE(2));
@@ -5899,7 +5900,7 @@ void Draw_Move_Menu()
 #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
 #else
-    DWIN_Frame_TitleCopy(1, 231, 2, 265, 12); // "Move"
+    DWIN_Frame_TitleCopy(1, 231, 2, 265, 12); // "move"
 #endif
     draw_move_en(MBASE(1));
     say_x(36, MBASE(1)); // "Move X"
@@ -5908,7 +5909,7 @@ void Draw_Move_Menu()
     draw_move_en(MBASE(3));
     say_z(36, MBASE(3)); // "Move Z"
 #if HAS_HOTEND
-    DWIN_Frame_AreaCopy(1, 123, 192, 176, 202, LBLX, MBASE(4)); // "Extruder"
+    DWIN_Frame_AreaCopy(1, 123, 192, 176, 202, LBLX, MBASE(4)); // "extruder"
 #endif
   }
 
@@ -6030,15 +6031,15 @@ void HMI_Prepare()
 #if ENABLED(DWIN_CREALITY_320_LCD)
         DWIN_Draw_Rectangle(1, All_Black, 50, 206, DWIN_WIDTH, 236);
 #endif
-        // 显示新增的图标
+        // Show new icons
         Draw_Menu_Icon(MROWS, ICON_Axis + select_prepare.now - 1);
-        // Draw "More" icon for sub-menus  显示新的更多符号到新行
+        // Draw "More" icon for sub-menus Show new more symbol to new line
         if (index_prepare < 7)
           Draw_More_Icon(MROWS - index_prepare + 1);
         if (index_prepare == PREPARE_CASE_OUTSTORK)
         {
           Item_Prepare_outstork(MROWS);
-          // Draw_More_Icon(MROWS - index_prepare + 1);
+          // Draw_More_Icon(MROWS -index_prepare + 1);
         }
 #if HAS_HOTEND
         if (index_prepare == PREPARE_CASE_PLA)
@@ -6071,9 +6072,9 @@ void HMI_Prepare()
         if (index_prepare == MROWS)
           Draw_Back_First();
         // else
-        // Draw_Menu_Line(0, ICON_Axis + select_prepare.now - 1);
+        // Draw_Menu_Line(0, ICON_Axis + select_prepare.now -1);
 
-        // if (index_prepare < 6) Draw_More_Icon(MROWS - index_prepare + 1);
+        // if (index_prepare < 6) Draw_More_Icon(MROWS -index_prepare + 1);
         else if (index_prepare == 6)
           Item_Prepare_Move(0);
         else if (index_prepare == 7)
@@ -6130,7 +6131,7 @@ void HMI_Prepare()
       gcode.process_subcommands_now_P(PSTR("G92.9 Z0"));
       break;
     case PREPARE_CASE_HOME: // Homing
-      // HMI_flag.power_back_to_zero_flag = true; // rock_20230914
+      // HMI_flag.power_back_to_zero_flag = true; //rock_20230914
       checkkey = Last_Prepare;
       index_prepare = MROWS;
       select_prepare.now = PREPARE_CASE_HOME;
@@ -6146,22 +6147,22 @@ void HMI_Prepare()
       // checkkey = AUTO_IN_FEEDSTOCK;
       index_prepare = select_prepare.now;
       // select_prepare.now = PREPARE_CASE_INSTORK;
-      Auto_in_out_feedstock(true); // 进料
+      Auto_in_out_feedstock(true); // Feed
       break;
     case PREPARE_CASE_OUTSTORK:
-      checkkey = Last_Prepare; // 防止回零过程中可以再准备界面切换
+      checkkey = Last_Prepare; // Prevent interface switching during the zero return process.
       // checkkey = AUTO_IN_FEEDSTOCK;
       Popup_Window_Home();
       gcode.process_subcommands_now_P(PSTR("G28"));
-      checkkey = Last_Prepare; // 防止回零过程中可以再准备界面切换
+      checkkey = Last_Prepare; // Prevent interface switching during the zero return process.
       // checkkey = AUTO_OUT_FEEDSTOCK;
       //  index_prepare = MROWS;
       // select_prepare.now = PREPARE_CASE_OUTSTORK;
       index_prepare = select_prepare.now;
-      Auto_in_out_feedstock(false); // 退料
+      Auto_in_out_feedstock(false); // Return material
       break;
 #if HAS_ZOFFSET_ITEM
-    case PREPARE_CASE_ZOFF: // Z-offset
+    case PREPARE_CASE_ZOFF: // With offset
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
       checkkey = Homeoffset;
       HMI_ValueStruct.show_mode = -4;
@@ -6211,7 +6212,7 @@ void HMI_Prepare()
       // break;
       select_language.reset();
       index_language = MROWS + 2;
-      HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+      HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
       Draw_Select_language();
       checkkey = Selectlanguage;
       break;
@@ -6225,7 +6226,7 @@ void HMI_Prepare()
 void Draw_Temperature_Menu()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true); // rock_20230529
+  Draw_Mid_Status_Area(true); // Rock 20230529
 #if TEMP_CASE_TOTAL >= 6
   const int16_t scroll = MROWS - index_temp; // Scrolled-up lines
 #define CSCROL(L) (scroll + (L))
@@ -6350,7 +6351,7 @@ void HMI_Control()
           {
             Draw_Menu_Icon(0, ICON_Temperature);
             Draw_More_Icon(0);
-            // DWIN_Frame_AreaCopy(1, 57, 104,  84, 116, 60, 53);  //显示温度到左上角
+            // DWIN_Frame_AreaCopy(1, 57, 104, 84, 116, 60, 53); //Display the temperature to the upper left corner
             // DWIN_ICON_Show(HMI_flag.language ,LANGUAGE_Temp_Title, TITLE_X, TITLE_Y);
             DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Temp, 42, MBASE(0) + JPN_OFFSET);
             // DWIN_Draw_Line(Line_Color, 16, 49 + 33, BLUELINE_X, 49 + 34);
@@ -6358,7 +6359,7 @@ void HMI_Control()
           break;
         case MROWS + 2: // Move >
           Draw_Menu_Line(0, ICON_Motion, GET_TEXT(MSG_MOTION), true);
-          // DWIN_Frame_AreaCopy(1,  87, 104, 114, 116, 60, 155);   // Motion >
+          // DWIN_Frame_AreaCopy(1,  87, 104, 114, 116, 60, 155);   //Motion >
         default:
           break;
         }
@@ -6409,7 +6410,7 @@ void HMI_Control()
       HMI_flag.Edit_Only_flag = true;
       Popup_Window_Leveling();
       checkkey = Leveling;
-      Refresh_Leveling_Value(); // 刷新调平值和颜色到屏幕上
+      Refresh_Leveling_Value(); // Flush leveling values ​​and colors to the screen
 
       break;
 #endif
@@ -6417,7 +6418,7 @@ void HMI_Control()
       // Reset EEPROM
       settings.reset();
       HMI_AudioFeedback();
-      // 复位后语言要重新刷新一次
+      // After resetting, the language needs to be refreshed again.
       // Draw_Control_Menu();
       Clear_Main_Window();
 #if ENABLED(DWIN_CREALITY_480_LCD)
@@ -6429,11 +6430,11 @@ void HMI_Control()
       settings.save();
       delay(100);
       HMI_ResetLanguage();
-      HMI_ValueStruct.Auto_PID_Value[1] = 100; // PID数复位
-      HMI_ValueStruct.Auto_PID_Value[2] = 260; // PID数复位
+      HMI_ValueStruct.Auto_PID_Value[1] = 100; // Pid number reset
+      HMI_ValueStruct.Auto_PID_Value[2] = 260; // Pid number reset
       Save_Auto_PID_Value();
-      // DWIN_SHOW_MAIN_PIC();
-      HAL_reboot(); // MCU复位进入BOOTLOADER
+      // Dwin show main pic();
+      HAL_reboot(); // Mcu resets into bootloader
       break;
 #endif
     /*
@@ -6457,7 +6458,7 @@ void HMI_Control()
 }
 
 #if HAS_ONESTEP_LEVELING
-// 改变调平值
+// Change leveling value
 void HMI_Levling_Change()
 {
   uint16_t rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y, value_LU_x, value_LU_y;
@@ -6466,36 +6467,36 @@ void HMI_Levling_Change()
     return;
   else
   {
-    xy_int8_t mesh_Count = Converted_Grid_Point(select_level.now); // 转换网格点
-                                                                   // 计算矩形区域
+    xy_int8_t mesh_Count = Converted_Grid_Point(select_level.now); // Convert grid points
+                                                                   // Calculate rectangular area
     rec_LU_x = Rect_LU_X_POS + mesh_Count.x * X_Axis_Interval;
-    // rec_LU_y=Rect_LU_Y_POS+mesh_Count.y*Y_Axis_Interval;
+    // Rec lu y=rect lu y pos+mesh count.y*y axis interval;
     rec_LU_y = Rect_LU_Y_POS - mesh_Count.y * Y_Axis_Interval;
     rec_RD_x = Rect_RD_X_POS + mesh_Count.x * X_Axis_Interval;
-    // rec_RD_y=Rect_RD_Y_POS+mesh_Count.y*Y_Axis_Interval;
+    // Rec rd y=rect rd y pos+mesh count.y*y axis interval;
     rec_RD_y = Rect_RD_Y_POS - mesh_Count.y * Y_Axis_Interval;
-    // 补偿值的位置
+    // The position of the compensation value
     value_LU_x = rec_LU_x + 1;
-    // value_LU_y=rec_LU_y+4;
+    // Value read y=rec read y+4;
     value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - 6;
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Temp_Leveling_Value)) // 点击了确认键
+    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Temp_Leveling_Value)) // Clicked the confirm button
     {
       checkkey = Leveling;
-      Draw_Leveling_Highlight(true); // 默认选择框到编辑
-      // Refresh_Leveling_Value();    //刷新调平值和颜色到屏幕上
+      Draw_Leveling_Highlight(true); // Default select box to edit
+      // Refresh_Leveling_Value(); //Refresh the leveling value and color to the screen
       z_values[mesh_Count.x][mesh_Count.y] = HMI_ValueStruct.Temp_Leveling_Value / 100;
       // refresh_bed_level();
-      // xy_int8_t mesh_Count=Converted_Grid_Point(select_level.now);    //转换网格点
+      // xy_int8_t mesh_Count=Converted_Grid_Point(select_level.now); //Convert grid points
       // SERIAL_ECHOLNPAIR("temp_zoffset_single:", temp_zoffset_single, );
-      //  babystep.add_mm(Z_AXIS, -temp_zoffset_single); //撤回移动的 baby_steper
-      // DO_BLOCKING_MOVE_TO_Z(3-temp_zoffset_single, 5);//每次都上升到5mm的高度再移动
+      //  babystep.add_mm(Z_AXIS, -temp_zoffset_single); //Withdraw the moved baby_steper
+      // DO_BLOCKING_MOVE_TO_Z(3-temp_zoffset_single, 5);//Rise to a height of 5mm each time before moving
       // HMI_ValueStruct.Temp_Leveling_Value=(HMI_ValueStruct.Temp_Leveling_Value/100-temp_zoffset_single)*100;
       // Draw_Dots_On_Screen(&mesh_Count,1,Select_Block_Color);
       HMI_ValueStruct.Temp_Leveling_Value = z_values[mesh_Count.x][mesh_Count.y] * 100;
       // SERIAL_ECHOLNPAIR("HMI_ValueStruct.Temp_Leveling_Value22:", z_values[mesh_Count.x][mesh_Count.y]);
-      DWIN_Draw_Z_Offset_Float(font6x12, Color_White, Select_Color, 1, 2, value_LU_x, value_LU_y, HMI_ValueStruct.Temp_Leveling_Value); // 左上角坐标
-      Draw_Dots_On_Screen(&mesh_Count, 0, 0);                                                                                           // 将当前选中块置为不选中
-      DO_BLOCKING_MOVE_TO_Z(5, 5);                                                                                                      // 每次都上升到5mm的高度再移动
+      DWIN_Draw_Z_Offset_Float(font6x12, Color_White, Select_Color, 1, 2, value_LU_x, value_LU_y, HMI_ValueStruct.Temp_Leveling_Value); // Upper left corner coordinates
+      Draw_Dots_On_Screen(&mesh_Count, 0, 0);                                                                                           // Set the currently selected block to unselected
+      DO_BLOCKING_MOVE_TO_Z(5, 5);                                                                                                      // Raise to a height of 5mm each time before moving
     }
     else
     {
@@ -6503,14 +6504,14 @@ void HMI_Levling_Change()
       last_zoffset_edit = dwin_zoffset_edit;
       dwin_zoffset_edit = HMI_ValueStruct.Temp_Leveling_Value / 100.0f;
       temp_zoffset_single += (dwin_zoffset_edit - last_zoffset_edit);
-      // babystep.add_mm(Z_AXIS, dwin_zoffset_edit - last_zoffset_edit);
+      // babystep.add_mm(Z_AXIS, dwin_zoffset_edit -last_zoffset_edit);
       DO_BLOCKING_MOVE_TO_Z(dwin_zoffset_edit, 5);
-      DWIN_Draw_Z_Offset_Float(font6x12, Color_White, Select_Color, 1, 2, value_LU_x, value_LU_y, HMI_ValueStruct.Temp_Leveling_Value); // 左上角坐标
-      // Draw_Dots_On_Screen(&mesh_Count,2,Select_Color); //设置字体背景色，不改变选中块颜色
+      DWIN_Draw_Z_Offset_Float(font6x12, Color_White, Select_Color, 1, 2, value_LU_x, value_LU_y, HMI_ValueStruct.Temp_Leveling_Value); // Upper left corner coordinates
+      // Draw_Dots_On_Screen(&mesh_Count,2,Select_Color); //Set the font background color without changing the selected block color
     }
   }
 }
-// 编辑调平数据页面
+// Edit Leveling Data Page
 void HMI_Leveling_Edit()
 {
   uint16_t rec_LU_x, rec_LU_y, rec_RD_x, rec_RD_y, value_LU_x, value_LU_y;
@@ -6523,11 +6524,11 @@ void HMI_Leveling_Edit()
     {
       Level_Scroll_Menu(DWIN_SCROLL_UP, select_level.now);
     }
-    // 选中增加逻辑
+    // Select Add Logic
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW)
   {
-    // 选中减少逻辑
+    // Check reduce logic
     if (select_level.dec())
     {
       Level_Scroll_Menu(DWIN_SCROLL_DOWN, select_level.now);
@@ -6535,27 +6536,27 @@ void HMI_Leveling_Edit()
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
-    xy_int8_t mesh_Count = Converted_Grid_Point(select_level.now); // 转换网格点
-                                                                   // 计算矩形区域
+    xy_int8_t mesh_Count = Converted_Grid_Point(select_level.now); // Convert grid points
+                                                                   // Calculate rectangular area
     rec_LU_x = Rect_LU_X_POS + mesh_Count.x * X_Axis_Interval;
-    // rec_LU_y=Rect_LU_Y_POS+mesh_Count.y*Y_Axis_Interval;
+    // Rec lu y=rect lu y pos+mesh count.y*y axis interval;
     rec_LU_y = Rect_LU_Y_POS - mesh_Count.y * Y_Axis_Interval;
     rec_RD_x = Rect_RD_X_POS + mesh_Count.x * X_Axis_Interval;
-    // rec_RD_y=Rect_RD_Y_POS+mesh_Count.y*Y_Axis_Interval;
+    // Rec rd y=rect rd y pos+mesh count.y*y axis interval;
     rec_RD_y = Rect_RD_Y_POS - mesh_Count.y * Y_Axis_Interval;
-    // 补偿值的位置
+    // The position of the compensation value
     value_LU_x = rec_LU_x + 1;
-    // value_LU_y=rec_LU_y+4;
+    // Value read y=rec read y+4;
     value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - 6;
-    // 临时代码  需要继续优化
-    //  xy_int8_t mesh_Count=Converted_Grid_Point(select_level.now);    //转换网格点
-    Draw_Dots_On_Screen(&mesh_Count, 2, Select_Color); // 设置字体背景色，不改变选中块颜色
+    // Temporary code needs to continue to be optimized
+    //  xy_int8_t mesh_Count=Converted_Grid_Point(select_level.now); //Convert grid points
+    Draw_Dots_On_Screen(&mesh_Count, 2, Select_Color); // Set the font background color without changing the selected block color
     checkkey = Change_Level_Value;
-    temp_zoffset_single = 0; // 当前点的调节前的调平值
+    temp_zoffset_single = 0; // Leveling value before adjustment of current point
     dwin_zoffset_edit = z_values[mesh_Count.x][mesh_Count.y];
     HMI_ValueStruct.Temp_Leveling_Value = z_values[mesh_Count.x][mesh_Count.y] * 100;
     // SERIAL_ECHOLNPAIR("HMI_ValueStruct.Temp_Leveling_Value11:", z_values[mesh_Count.x][mesh_Count.y]);
-    DWIN_Draw_Z_Offset_Float(font6x12, Color_White, Select_Color, 1, 2, value_LU_x, value_LU_y, HMI_ValueStruct.Temp_Leveling_Value); // 左上角坐标
+    DWIN_Draw_Z_Offset_Float(font6x12, Color_White, Select_Color, 1, 2, value_LU_x, value_LU_y, HMI_ValueStruct.Temp_Leveling_Value); // Upper left corner coordinates
     // Draw_Dots_On_Screen(&mesh_Count,1,Select_Block_Color);
     DO_BLOCKING_MOVE_TO_XY(mesh_Count.x * G29_X_INTERVAL + G29_X_MIN, mesh_Count.y * G29_Y_INTERVAL + G29_Y_MIN, 100);
     DO_BLOCKING_MOVE_TO_Z(z_values[mesh_Count.x][mesh_Count.y], 5);
@@ -6574,11 +6575,11 @@ void HMI_Leveling()
     Draw_Leveling_Highlight(true);
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
-    if (HMI_flag.select_flag) // 点击编辑
+    if (HMI_flag.select_flag) // Click to edit
     {
       if (!HMI_flag.power_back_to_zero_flag)
       {
-        HMI_flag.leveling_edit_home_flag = true; // 调平编辑回零中，禁止其他操作
+        HMI_flag.leveling_edit_home_flag = true; // Leveling and editing are returning to zero, and other operations are prohibited.
         HMI_flag.power_back_to_zero_flag = true;
         checkkey = Last_Prepare;
         Popup_Window_Home();
@@ -6592,16 +6593,16 @@ void HMI_Leveling()
         xy_int8_t mesh_Count = {0, 0};
         Draw_Dots_On_Screen(&mesh_Count, 1, Select_Block_Color);
         EncoderRate.enabled = true;
-        DO_BLOCKING_MOVE_TO_Z(5, 5); // 每次都上升到5mm的高度再移动
+        DO_BLOCKING_MOVE_TO_Z(5, 5); // Raise to a height of 5mm each time before moving
       }
     }
-    else // 点击确定
+    else // Click OK
     {
       gcode.process_subcommands_now_P(PSTR("M420 S1"));
       refresh_bed_level();
-      settings.save(); // 保存编辑好的调平数据到EEPROM
+      settings.save(); // Save the edited leveling data to eeprom
       delay(100);
-      HMI_flag.G29_finish_flag = false; // 退出编辑页面，进入调平页面开始也不允许转动旋钮
+      HMI_flag.G29_finish_flag = false; // Even after exiting the editing page and entering the leveling page, turning the knob is not allowed.
       if (HMI_flag.Edit_Only_flag)
       {
         HMI_flag.Edit_Only_flag = false;
@@ -6611,10 +6612,10 @@ void HMI_Leveling()
       }
       else
       {
-        Goto_MainMenu(); // 回到主界面
+        Goto_MainMenu(); // Return to the main interface
       }
-      // HMI_flag.Refresh_bottom_flag=false;//标志不刷新底部参数
-      // Draw_Mid_Status_Area(true); //rock_20230529 //更新一次全部参数
+      // HMI_flag.Refresh_bottom_flag=false;//The flag does not refresh the bottom parameters
+      // Draw_Mid_Status_Area(true); //rock_20230529 //Update all parameters once
     }
   }
 }
@@ -6635,8 +6636,8 @@ void HMI_AxisMove()
     if (encoder_diffState == ENCODER_DIFF_ENTER)
     {
       HMI_flag.ETempTooLow_flag = false;
-      HMI_ValueStruct.Move_X_scaled = current_position.x * MINUNITMULT; // rock_20210827
-      HMI_ValueStruct.Move_Y_scaled = current_position.y * MINUNITMULT; // rock_20210827
+      HMI_ValueStruct.Move_X_scaled = current_position.x * MINUNITMULT; // Rock 20210827
+      HMI_ValueStruct.Move_Y_scaled = current_position.y * MINUNITMULT; // Rock 20210827
       HMI_ValueStruct.Move_Z_scaled = current_position.z * MINUNITMULT;
       HMI_ValueStruct.Move_E_scaled = current_position.e * MINUNITMULT;
       Draw_Move_Menu();
@@ -6651,7 +6652,7 @@ void HMI_AxisMove()
       return;
     }
     else
-      return; // 解决弹出低温窗口还能旋转的界面 rock_20230602
+      return; // Solve the problem of the pop-up low-temperature window that can also rotate the interface rock_20230602
   }
 #endif
 
@@ -6719,7 +6720,7 @@ void HMI_AxisMove()
   DWIN_UpdateLCD();
 }
 
-/* TemperatureID */
+/* Temperature id */
 void HMI_Temperature()
 {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -6737,7 +6738,7 @@ void HMI_Temperature()
         Scroll_Menu(DWIN_SCROLL_UP);
         switch (index_temp)
         {
-        // 手动PID设置
+        // Manual pid setting
         case TEMP_CASE_HM_PID:
           Draw_Menu_Icon(MROWS, ICON_HM_PID);
           if (HMI_flag.language < Language_Max)
@@ -6749,7 +6750,7 @@ void HMI_Temperature()
 #endif
           }
           break;
-        case TEMP_CASE_Auto_PID: // 自动PID设置
+        case TEMP_CASE_Auto_PID: // Automatic pid setting
           Draw_Menu_Icon(MROWS, ICON_Auto_PID);
           if (HMI_flag.language < Language_Max)
           {
@@ -6758,7 +6759,7 @@ void HMI_Temperature()
             DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_PID, 42, MBASE(MROWS) + JPN_OFFSET);
 #endif
           }
-          // queue.inject_P(G28_STR); // G28 will set home_flag
+          // queue.inject_P(G28_STR); //G28 will set home_flag
           // // Popup_Window_Home();
           break;
         default:
@@ -6834,7 +6835,7 @@ void HMI_Temperature()
       HMI_ValueStruct.Fan_speed = thermalManager.fan_speed[0];
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, VALUERANGE_X, MBASE(select_temp.now + MROWS - index_temp) + TEMP_SET_OFFSET, HMI_ValueStruct.Fan_speed);
       EncoderRate.enabled = true;
-      HMI_ValueStruct.show_mode = -1; // 解决选中数字错行的问题 20230721
+      HMI_ValueStruct.show_mode = -1; // Solve the problem of wrong rows of selected numbers 20230721
       break;
 #endif
 #if HAS_HOTEND
@@ -6846,15 +6847,15 @@ void HMI_Temperature()
 
       Clear_Main_Window();
       Draw_Mid_Status_Area(true);
-      HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+      HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
       if (HMI_flag.language < Language_Max)
       {
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PLASetup_Title, TITLE_X, TITLE_Y);
 #if ENABLED(DWIN_CREALITY_480_LCD)
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26);                     // 返回
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PLA_NOZZLE, 42, 84 - font_offset); // +JPN_OFFSET
+        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26);                     // return
+        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PLA_NOZZLE, 42, 84 - font_offset); // +jpn offset
 #if HAS_HEATED_BED
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_PLA_BED, 42, 120 - font_offset);
 #endif
@@ -6896,14 +6897,14 @@ void HMI_Temperature()
       HMI_ValueStruct.show_mode = -3;
       Clear_Main_Window();
       Draw_Mid_Status_Area(true);
-      HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+      HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
       if (HMI_flag.language < Language_Max)
       {
-        // DWIN_Frame_TitleCopy(1, 142, 16, 223, 29);                                        // "ABS Settings"
+        // DWIN_Frame_TitleCopy(1, 142, 16, 223, 29);                                        //"ABS Settings"
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABSSetup_Title, TITLE_X, TITLE_Y);
 #if ENABLED(DWIN_CREALITY_480_LCD)
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 60, 42);                      // 返回
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABS_NOZZLE, 60, 102 - font_offset); // +JPN_OFFSET
+        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 60, 42);                      // return
+        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABS_NOZZLE, 60, 102 - font_offset); // +jpn offset
 #if HAS_HEATED_BED
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABS_BED, 60, 155 - font_offset);
 #endif
@@ -6914,8 +6915,8 @@ void HMI_Temperature()
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABSSetupSave, 60, 261 - font_offset);
 #endif
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26);                     // 返回
-        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABS_NOZZLE, 42, 84 - font_offset); // +JPN_OFFSET
+        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Back, 42, 26);                     // return
+        DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABS_NOZZLE, 42, 84 - font_offset); // +jpn offset
 #if HAS_HEATED_BED
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ABS_BED, 42, 120 - font_offset);
 #endif
@@ -6947,18 +6948,18 @@ void HMI_Temperature()
 #endif
     }
     break;
-    case TEMP_CASE_HM_PID: // 手动PID设置
+    case TEMP_CASE_HM_PID: // Manual pid setting
       checkkey = HM_SET_PID;
       // HMI_ValueStruct.show_mode = -1;
       select_hm_set_pid.reset();
       Draw_HM_PID_Set();
       break;
-    case TEMP_CASE_Auto_PID: // 自动PID设置
+    case TEMP_CASE_Auto_PID: // Automatic pid setting
       checkkey = AUTO_SET_PID;
       select_set_pid.reset();
       Draw_Auto_PID_Set();
       break;
-#endif // HAS_HOTEND
+#endif // Has hotend
     }
   }
   DWIN_UpdateLCD();
@@ -6969,23 +6970,23 @@ void Draw_auto_nozzle_PID()
   Clear_Main_Window();
 #if ENABLED(DWIN_CREALITY_480_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, Auto_Set_Nozzle_PID, 0, 185);
-  Draw_Mid_Status_Area(true); // rock_20230529
+  Draw_Mid_Status_Area(true); // Rock 20230529
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_Set_Nozzle_PID_Title, TITLE_X, TITLE_Y); // 标题
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_Set_Nozzle_PID_Title, TITLE_X, TITLE_Y); // title
     Draw_Back_First(1);
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_PID_ING, 0, MBASE(1) + JPN_OFFSET);
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_NOZZ_EX, 26, 174 + JPN_OFFSET);
   }
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, Auto_Set_Nozzle_PID, ICON_AUTO_X, ICON_AUTO_Y);
-  Draw_Mid_Status_Area(true); // rock_20230529
+  Draw_Mid_Status_Area(true); // Rock 20230529
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_Set_Nozzle_PID_Title, TITLE_X, TITLE_Y); // 标题
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_Set_Nozzle_PID_Title, TITLE_X, TITLE_Y); // title
     Draw_Back_First(1);
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_PID_ING, WORD_AUTO_X, WORD_AUTO_Y);
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_NOZZ_EX, WORD_TEMP_X, WORD_TEMP_Y); // 喷嘴温度 带选中色
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_NOZZ_EX, WORD_TEMP_X, WORD_TEMP_Y); // Nozzle temperature with selected color
   }
 #endif
 }
@@ -6996,13 +6997,13 @@ void Draw_auto_bed_PID()
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   DWIN_ICON_Not_Filter_Show(Background_ICON, Auto_Set_Bed_PID, ICON_AUTO_X, ICON_AUTO_Y);
-  Draw_Mid_Status_Area(true); // rock_20230529
+  Draw_Mid_Status_Area(true); // Rock 20230529
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_Set_Bed_PID_Title, TITLE_X, TITLE_Y); // 标题
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Auto_Set_Bed_PID_Title, TITLE_X, TITLE_Y); // title
     Draw_Back_First(1);
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_PID_ING, WORD_AUTO_X, WORD_AUTO_Y);
-    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_BED_EX, WORD_TEMP_X, WORD_TEMP_Y); // 热床温度 带选中色
+    DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_BED_EX, WORD_TEMP_X, WORD_TEMP_Y); // Heating bed temperature with selected color
   }
 #endif
 }
@@ -7010,10 +7011,10 @@ void Draw_auto_bed_PID()
 void Draw_HM_PID_Set()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true); // rock_20230529
+  Draw_Mid_Status_Area(true); // Rock 20230529
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Set_PID_Manually, TITLE_X, TITLE_Y); // 运动
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Set_PID_Manually, TITLE_X, TITLE_Y); // sports
     Draw_Back_First();
     LOOP_L_N(i, 5)
     Draw_Menu_Line(i + 1, ICON_HM_PID_NOZZ_P + i);
@@ -7021,7 +7022,7 @@ void Draw_HM_PID_Set()
     {
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MaxSpeed, 70, row);
     };
-    // EEPROM里面读出来的值到显示到屏幕上
+    // The value read from Eeprom is displayed on the screen.
     HMI_ValueStruct.HM_PID_Value[1] = PID_PARAM(Kp, 0);
     HMI_ValueStruct.HM_PID_Value[2] = unscalePID_i(PID_PARAM(Ki, 0));
     HMI_ValueStruct.HM_PID_Value[3] = unscalePID_d(PID_PARAM(Kd, 0));
@@ -7044,14 +7045,14 @@ void Draw_HM_PID_Set()
 void Draw_Auto_PID_Set()
 {
   Clear_Main_Window();
-  Draw_Mid_Status_Area(true); // rock_20230529
+  Draw_Mid_Status_Area(true); // Rock 20230529
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Set_Auto_PID, TITLE_X, TITLE_Y); // 运动
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Set_Auto_PID, TITLE_X, TITLE_Y); // sports
     Draw_Back_First();
     LOOP_L_N(i, 2)
-    Draw_Menu_Line(i + 1, ICON_FLAG_MAX); // 不画图标
-    // 单独画一次图标
+    Draw_Menu_Line(i + 1, ICON_FLAG_MAX); // Don't draw icon
+    // Draw the icon once alone
     DWIN_ICON_Not_Filter_Show(ICON, ICON_Auto_PID_Bed, 26, MBASE(1) - 3);
     DWIN_ICON_Not_Filter_Show(ICON, ICON_Auto_PID_Nozzle, 26, MBASE(2) - 3);
 
@@ -7076,10 +7077,10 @@ void Draw_Auto_PID_Set()
 void Draw_Max_Speed_Menu()
 {
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag refresh bottom parameter
   if (HMI_flag.language < Language_Max)
   {
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_mspeed_title, TITLE_X, TITLE_Y); // 运动
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_mspeed_title, TITLE_X, TITLE_Y); // sports
     auto say_max_speed = [](const uint16_t row)
     {
       DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MaxSpeed, 70, row);
@@ -7114,10 +7115,10 @@ void Draw_Max_Speed_Menu()
 void Draw_Max_Accel_Menu()
 {
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag refresh bottom parameter
   if (HMI_flag.language < Language_Max)
   {
-    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); // "Acceleration"
+    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); //"Acceleration"
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_maccel_title, TITLE_X, TITLE_Y);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MAX_ACCX, 42, MBASE(1) + JPN_OFFSET);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MAX_ACCY, 42, MBASE(2) + JPN_OFFSET);
@@ -7131,7 +7132,7 @@ void Draw_Max_Accel_Menu()
 #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_ACCELERATION));
 #else
-    DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Acceleration"
+    DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "acceleration"
 #endif
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(1), F("Max Accel X"));
@@ -7161,14 +7162,14 @@ void Draw_Max_Accel_Menu()
   DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(2) + 3, planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
   DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(3) + 3, planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
 #if HAS_HOTEND
-  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(4) + 3, planner.settings.max_acceleration_mm_per_s2[E_AXIS]); // rock_20211009
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(4) + 3, planner.settings.max_acceleration_mm_per_s2[E_AXIS]); // Rock 20211009
 #endif
 #elif ENABLED(DWIN_CREALITY_320_LCD)
   DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 192, MBASE(1) + 3, planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
   DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 192, MBASE(2) + 3, planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
   DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 192, MBASE(3) + 3, planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
 #if HAS_HOTEND
-  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 192, MBASE(4) + 3, planner.settings.max_acceleration_mm_per_s2[E_AXIS]); // rock_20211009
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 192, MBASE(4) + 3, planner.settings.max_acceleration_mm_per_s2[E_AXIS]); // Rock 20211009
 #endif
 #endif
 }
@@ -7177,11 +7178,11 @@ void Draw_Max_Accel_Menu()
 void Draw_Max_Jerk_Menu()
 {
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag refresh bottom parameter
   if (HMI_flag.language < Language_Max)
   {
-    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); // "Jerk"
-    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_mjerk_title, TITLE_X, TITLE_Y); // 运动  jerk
+    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); //"Jerk"
+    DWIN_ICON_Show(HMI_flag.language, LANGUAGE_mjerk_title, TITLE_X, TITLE_Y); // movement jerk
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MAX_CORNERX, 42, MBASE(1) + JPN_OFFSET);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MAX_CORNERY, 42, MBASE(2) + JPN_OFFSET);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_MAX_CORNERZ, 42, MBASE(3) + JPN_OFFSET);
@@ -7195,7 +7196,7 @@ void Draw_Max_Jerk_Menu()
 #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_JERK));
 #else
-    DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Jerk"
+    DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "jerk"
 #endif
 #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(1), F("Max Jerk X"));
@@ -7205,30 +7206,30 @@ void Draw_Max_Jerk_Menu()
     DWIN_Draw_Label(MBASE(4), F("Max Jerk E"));
 #endif
 #else
-    draw_max_en(MBASE(1));                                           // "Max"
-    draw_jerk_en(MBASE(1));                                          // "Jerk"
+    draw_max_en(MBASE(1));                                           // "max"
+    draw_jerk_en(MBASE(1));                                          // "jerk"
     DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(1)); // "Speed"
-    // draw_speed_en(80, MBASE(1));    // "Speed"
-    say_x(115 + 6, MBASE(1)); // "X"
+    // draw_speed_en(80, MBASE(1));    //"Speed"
+    say_x(115 + 6, MBASE(1)); // "x"
 
-    draw_max_en(MBASE(2));  // "Max"
+    draw_max_en(MBASE(2));  // "max"
     draw_jerk_en(MBASE(2)); // "Jerk"
-    // draw_speed_en(80, MBASE(2));    // "Speed"
-    DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(2)); // "Speed"
-    say_y(115 + 6, MBASE(2));                                        // "Y"
+    // draw_speed_en(80, MBASE(2));    //"Speed"
+    DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(2)); // "speed"
+    say_y(115 + 6, MBASE(2));                                        // "y"
 
-    draw_max_en(MBASE(3));  // "Max"
+    draw_max_en(MBASE(3));  // "max"
     draw_jerk_en(MBASE(3)); // "Jerk"
-    // draw_speed_en(80, MBASE(3));    // "Speed"
-    DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(3)); // "Speed"
-    say_z(115 + 6, MBASE(3));                                        // "Z"
+    // draw_speed_en(80, MBASE(3));    //"Speed"
+    DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(3)); // "speed"
+    say_z(115 + 6, MBASE(3));                                        // "z"
 
 #if HAS_HOTEND
-    draw_max_en(MBASE(4));  // "Max"
+    draw_max_en(MBASE(4));  // "max"
     draw_jerk_en(MBASE(4)); // "Jerk"
-    // draw_speed_en(72, MBASE(4));  // "Speed"
-    DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(4)); // "Speed"
-    say_e(115 + 6, MBASE(4));                                        // "E"
+    // draw_speed_en(72, MBASE(4));  //"Speed"
+    DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + 77, MBASE(4)); // "speed"
+    say_e(115 + 6, MBASE(4));                                        // "e"
 #endif
 #endif
   }
@@ -7257,10 +7258,10 @@ void Draw_Max_Jerk_Menu()
 void Draw_Steps_Menu()
 {
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag refresh bottom parameter
   if (HMI_flag.language < Language_Max)
   {
-    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); // "Steps per mm"
+    // DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); //"Steps per mm"
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_ratio_title, TITLE_X, TITLE_Y);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Step_Per_X, 42, MBASE(1) + JPN_OFFSET);
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Step_Per_Y, 42, MBASE(2) + JPN_OFFSET);
@@ -7287,12 +7288,12 @@ void Draw_Steps_Menu()
     draw_steps_per_mm(MBASE(1));
     say_x(103 + 16, MBASE(1)); // "Steps-per-mm X"  rock_20210907
     draw_steps_per_mm(MBASE(2));
-    say_y(103 + 16, MBASE(2)); // "Y"
+    say_y(103 + 16, MBASE(2)); // "y"
     draw_steps_per_mm(MBASE(3));
-    say_z(103 + 16, MBASE(3)); // "Z"
+    say_z(103 + 16, MBASE(3)); // "z"
 #if HAS_HOTEND
     draw_steps_per_mm(MBASE(4));
-    say_e(103 + 16, MBASE(4)); // "E"
+    say_e(103 + 16, MBASE(4)); // "e"
 #endif
 #endif
   }
@@ -7305,7 +7306,7 @@ void Draw_Steps_Menu()
   DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 210, MBASE(2) + 3, planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT + 0.0002);
   DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 210, MBASE(3) + 3, planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT + 0.0002);
 #if HAS_HOTEND
-  // rock_20210907  迪文屏显示浮点数424.9有异常所以+0.0002
+  // rock_20210907 The DWIN screen displays an abnormal floating point number of 424.9, so +0.0002
   DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 210, MBASE(4) + 3, (planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT + 0.0002));
 #endif
 #elif ENABLED(DWIN_CREALITY_320_LCD)
@@ -7313,7 +7314,7 @@ void Draw_Steps_Menu()
   DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 192, MBASE(2) + 3, planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT + 0.0002);
   DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 192, MBASE(3) + 3, planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT + 0.0002);
 #if HAS_HOTEND
-  // rock_20210907  迪文屏显示浮点数424.9有异常所以+0.0002
+  // rock_20210907 The DWIN screen displays an abnormal floating point number of 424.9, so +0.0002
   DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 192, MBASE(4) + 3, (planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT + 0.0002));
 #endif
 #endif
@@ -7560,7 +7561,7 @@ void HMI_HomeOffX() { HMI_HomeOffN(X_AXIS, HMI_ValueStruct.Home_OffX_scaled, -50
 void HMI_HomeOffY() { HMI_HomeOffN(Y_AXIS, HMI_ValueStruct.Home_OffY_scaled, -500, 500); }
 void HMI_HomeOffZ() { HMI_HomeOffN(Z_AXIS, HMI_ValueStruct.Home_OffZ_scaled, -20, 20); }
 
-#endif // HAS_HOME_OFFSET
+#endif // Has home offset
 
 #if HAS_ONESTEP_LEVELING
 /*Probe Offset */
@@ -7588,7 +7589,7 @@ void HMI_ProbeOff()
     case 0: // Back
       checkkey = AdvSet;
       select_advset.set(ADVSET_CASE_PROBEOFF);
-      // Draw_AdvSet_Menu();
+      // Draw adv set menu();
       break;
     case 1: // Probe Offset X
       checkkey = ProbeOffX;
@@ -7626,7 +7627,7 @@ void HMI_ProbeOffN(float &posScaled, float &offset_ref)
 void HMI_ProbeOffX() { HMI_ProbeOffN(HMI_ValueStruct.Probe_OffX_scaled, probe.offset.x); }
 void HMI_ProbeOffY() { HMI_ProbeOffN(HMI_ValueStruct.Probe_OffY_scaled, probe.offset.y); }
 
-#endif // HAS_ONESTEP_LEVELING
+#endif // Has onestep leveling
 
 /* Info */
 void HMI_Info()
@@ -7644,7 +7645,7 @@ void HMI_Info()
     select_page.set(3);
     Goto_MainMenu();
 #endif
-    HMI_flag.Refresh_bottom_flag = false; // 标志不刷新底部参数
+    HMI_flag.Refresh_bottom_flag = false; // Flag does not refresh bottom parameters
   }
   DWIN_UpdateLCD();
 }
@@ -7659,7 +7660,7 @@ void HMI_M117Info()
   {
     // If enter go back to main menu
     Goto_MainMenu();
-    HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数 --Flag not to refresh bottom parameters
+    HMI_flag.Refresh_bottom_flag = true; // Flag not to refresh bottom parameters --Flag not to refresh bottom parameters
   }
   DWIN_UpdateLCD(); // Update LCD
 }
@@ -7674,7 +7675,7 @@ void HMI_OctoFinish()
   {
     // If enter go back to main menu
     Goto_MainMenu();
-    HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数 --Flag not to refresh bottom parameters
+    HMI_flag.Refresh_bottom_flag = true; // Flag not to refresh bottom parameters --Flag not to refresh bottom parameters
   }
   DWIN_UpdateLCD(); // Update LCD
 }
@@ -7686,7 +7687,7 @@ void HMI_O9000()
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO || HMI_flag.pause_action || HMI_flag.Level_check_start_flag)
     return;
-  // HMI_flag.pause_action
+  // Hmi flag.pause action
   if (HMI_flag.done_confirm_flag)
   {
     if (encoder_diffState == ENCODER_DIFF_ENTER)
@@ -7766,13 +7767,13 @@ void HMI_O9000()
       checkkey = O9000Tune;
       HMI_ValueStruct.show_mode = 0;
       select_tune.reset();
-      HMI_flag.Refresh_bottom_flag = false; // 标志刷新底部参数
+      HMI_flag.Refresh_bottom_flag = false; // Flag refresh bottom parameter
       index_tune = MROWS;
       Draw_Tune_Menu();
       break;
     case 1: // Pause
       if (HMI_flag.pause_flag)
-      { // 确定
+      { // Sure
         Show_JPN_print_title();
         ICON_Pause();
         char cmd[40];
@@ -7798,7 +7799,7 @@ void HMI_O9000()
       }
       else
       {
-        // 取消
+        // Cancel
         HMI_flag.select_flag = true;
         checkkey = O9000Print_window;
         Popup_window_PauseOrStop();
@@ -7816,7 +7817,7 @@ void HMI_O9000()
   DWIN_UpdateLCD();
 }
 
-// OctoTune
+// octo tune
 void HMI_O9000Tune()
 {
   updateOctoData=false;
@@ -7902,7 +7903,7 @@ void HMI_O9000Tune()
       break;
 #endif
 #if HAS_ZOFFSET_ITEM
-    case TUNE_CASE_ZOFF: // Z-offset
+    case TUNE_CASE_ZOFF: // With offset
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
       checkkey = O9000Homeoffset;
       HMI_ValueStruct.offset_value = BABY_Z_VAR * 100;
@@ -8005,7 +8006,7 @@ void HMI_Tune()
       break;
 #endif
 #if HAS_ZOFFSET_ITEM
-    case TUNE_CASE_ZOFF: // Z-offset
+    case TUNE_CASE_ZOFF: // With offset
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
       checkkey = Homeoffset;
       HMI_ValueStruct.offset_value = BABY_Z_VAR * 100;
@@ -8283,7 +8284,7 @@ void HMI_MaxJerk()
   }
   DWIN_UpdateLCD();
 }
-#endif // HAS_CLASSIC_JERK
+#endif // Has classic jerk
 
 /* Step */
 void HMI_Step()
@@ -8323,16 +8324,16 @@ void HMI_Step()
   }
   DWIN_UpdateLCD();
 }
-void HMI_Boot_Set() // 开机引导设置
+void HMI_Boot_Set() // Boot settings
 {
   switch (HMI_flag.boot_step)
   {
   case Set_language:
-    HMI_SetLanguage(); // 上电设置语言
+    HMI_SetLanguage(); // Set language after power on
     break;
   case Set_high:
-    // Popup_Window_Height(Nozz_Start);//跳转到对高页面
-    // checkkey = ONE_HIGH; //进入对高逻辑
+    // Popup_Window_Height(Nozz_Start);//Jump to the height page
+    // checkkey = ONE_HIGH; //Enter high logic
     // #if ANY(USE_AUTOZ_TOOL,USE_AUTOZ_TOOL_2)
     // queue.inject_P(PSTR("M8015"));
 
@@ -8353,7 +8354,7 @@ void HMI_Boot_Set() // 开机引导设置
 void HMI_Init()
 {
   HMI_SDCardInit();
-  if ((HMI_flag.language < Chinese) || (HMI_flag.language >= Language_Max)) // 上电语言乱，就先设置成英文
+  if ((HMI_flag.language < Chinese) || (HMI_flag.language >= Language_Max)) // The language is confusing when you power on, so set it to English first.
   {
     HMI_flag.language = English;
   }
@@ -8367,10 +8368,10 @@ void HMI_Init()
 #endif
     delay(30);
   }
-  Read_Boot_Step_Value(); // 读取开机引导步骤的值
+  Read_Boot_Step_Value(); // Read the value of the boot step
   Read_Auto_PID_Value();
   if (HMI_flag.Need_boot_flag)
-    HMI_Boot_Set(); // 开机引导设置
+    HMI_Boot_Set(); // Boot settings
   PRINT_LOG("HMI_flag.boot_step:", HMI_flag.boot_step, "HMI_flag.language:", HMI_flag.language);
   PRINT_LOG("HMI_ValueStruct.Auto_PID_Value[1]:", HMI_ValueStruct.Auto_PID_Value[1], "HMI_ValueStruct.Auto_PID_Value[2]:", HMI_ValueStruct.Auto_PID_Value[2]);
 }
@@ -8383,7 +8384,7 @@ void DWIN_Update()
     // SD card print
     if (recovery.info.sd_printing_flag)
     {
-      // rock_20210814
+      // Rock 20210814
       Remove_card_window_check();
     }
     // SD card print
@@ -8404,7 +8405,7 @@ void Check_Filament_Update(void)
   static uint32_t lMs = millis();
   static uint8_t lNoMatCnt = 0;
   if ((card.isPrinting() || (!HMI_flag.filement_resume_flag)) && (!temp_cutting_line_flag))
-  // if(card.isPrinting() && (!temp_cutting_line_flag) || !HMI_flag.filement_resume_flag)//SD卡打印或者云打印
+  // if(card.isPrinting() && (!temp_cutting_line_flag) || !HMI_flag.filement_resume_flag)//SD card printing or cloud printing
   {
     if (millis() - lMs > 500)
     {
@@ -8426,17 +8427,17 @@ void Check_Filament_Update(void)
         lNoMatCnt = 0;
         if (HMI_flag.cloud_printing_flag)
         {
-          // 断料状态挂到，缺料状态
+          // The material outage state is hung up, the material shortage state
           HMI_flag.filement_resume_flag = true;
           SERIAL_ECHOLN("M79 S2");
           // M25: Pause the SD print in progress.
           queue.inject_P(PSTR("M25"));
-          // 云打印暂停
+          // Cloud printing suspended
           print_job_timer.pause();
         }
         else
         {
-// sd卡打印暂停
+// SD card printing paused
 #if ENABLED(POWER_LOSS_RECOVERY)
           if (recovery.enabled)
             recovery.save(true, false);
@@ -8504,10 +8505,10 @@ void EachMomentUpdate()
     if (!HMI_flag.Refresh_bottom_flag)
     {
       update_middle_variable();
-      // update_variable(); //标志位为0才刷新底部参数
+      // update_variable(); //The bottom parameter is refreshed only when the flag bit is 0
     }
   }
-  if (checkkey == PrintProcess) // 打印中动态显示打印中的文件名
+  if (checkkey == PrintProcess) // Dynamically display the file name being printed during printing
   {
     if (strlen(print_name) > 30)
     {
@@ -8525,7 +8526,7 @@ void EachMomentUpdate()
     }
   }
 
-  if (thermalManager.degTargetHotend(0) > 0) // 喷嘴加热动画处理
+  if (thermalManager.degTargetHotend(0) > 0) // Nozzle heating animation processing
   {
     if (ELAPSED(ms, next_heat_flash_ms))
     {
@@ -8546,7 +8547,7 @@ void EachMomentUpdate()
         DWIN_ICON_Show(Background_ICON, heat_index, ICON_NOZZ_X, ICON_NOZZ_Y);
     }
   }
-  if (thermalManager.degTargetBed() > 0) // 热床加热动画处理
+  if (thermalManager.degTargetBed() > 0) // Heating bed heating animation processing
   {
     if (ELAPSED(ms, next_heat_bed_flash_ms))
     {
@@ -8567,7 +8568,7 @@ void EachMomentUpdate()
         DWIN_ICON_Show(Background_ICON, bed_heat_index, ICON_BED_X, ICON_BED_Y);
     }
   }
-  if ((HMI_flag.High_Status > Nozz_Start) && (HMI_flag.High_Status < Nozz_Finish)) // 动态显示对高过程中的状态  1S更新一次
+  if ((HMI_flag.High_Status > Nozz_Start) && (HMI_flag.High_Status < Nozz_Finish)) // Dynamically displays the status during the height adjustment process, updated once every 1 second
   {
     if (ELAPSED(ms, next_high_ms) && (checkkey == ONE_HIGH))
     {
@@ -8578,13 +8579,13 @@ void EachMomentUpdate()
         switch (HMI_flag.High_Status)
         {
         case Nozz_Hot:
-          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y); // 喷嘴未加热图标
+          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y); // Nozzle not heated icon
           break;
         case Nozz_Clear:
-          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE); // 喷嘴未清洁图标
+          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE); // Nozzle dirty icon
           break;
         case Nozz_Hight:
-          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴未对高图标
+          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH_HOT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle not aligned icon
           break;
         default:
           break;
@@ -8596,13 +8597,13 @@ void EachMomentUpdate()
         switch (HMI_flag.High_Status)
         {
         case Nozz_Hot:
-          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y); // 喷嘴加热未完成图标
+          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HEAT, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y); // Nozzle heating unfinished icon
           break;
         case Nozz_Clear:
-          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE); // 喷嘴清洁图标
+          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_CLEAR, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE); // Nozzle cleaning icon
           break;
         case Nozz_Hight:
-          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // 喷嘴对高图标
+          DWIN_ICON_Not_Filter_Show(ICON, ICON_NOZZLE_HIGH, ICON_NOZZ_HOT_X, ICON_NOZZ_HOT_Y + ICON_Y_SPACE + ICON_Y_SPACE); // Nozzle to height icon
           break;
         default:
           break;
@@ -8621,10 +8622,10 @@ void EachMomentUpdate()
     {
       HMI_flag.print_finish = false;
       HMI_flag.done_confirm_flag = true;
-      // 底部需要放新的显示，需要清除
+      // New display needs to be placed at the bottom and needs to be cleared
       DWIN_Draw_Rectangle(1, Color_Bg_Black, CLEAR_50_X, CLEAR_50_Y, DWIN_WIDTH - 1, STATUS_Y - 1);
-      Clear_Title_Bar();                   // 清除标题
-      HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+      Clear_Title_Bar();                   // clear title
+      HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
       TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
 
       planner.finish_and_disable();
@@ -8633,12 +8634,12 @@ void EachMomentUpdate()
       // rock_20211122
       _card_percent = 100;
       _remain_time = 0;
-      // 显示剩余时间
+      // Show remaining time
       Draw_Print_ProgressRemain();
       Draw_Print_ProgressBar();
 #if ENABLED(DWIN_CREALITY_480_LCD)
       // show print done confirm
-      if (HMI_flag.language < Language_Max) // rock_20211120
+      if (HMI_flag.language < Language_Max) // Rock 20211120
       {
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, TITLE_X, TITLE_Y);
         DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, 72, 302 - 19);
@@ -8646,7 +8647,7 @@ void EachMomentUpdate()
 
 #elif ENABLED(DWIN_CREALITY_320_LCD)
       // show print done confirm
-      if (HMI_flag.language < Language_Max) // rock_20211120
+      if (HMI_flag.language < Language_Max) // Rock 20211120
       {
         DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, TITLE_X, TITLE_Y);
         DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, OK_BUTTON_X, OK_BUTTON_Y);
@@ -8662,7 +8663,7 @@ void EachMomentUpdate()
         if (HMI_flag.pause_flag)
         {
           // DWIN_ICON_Show(HMI_flag.language ,LANGUAGE_Pausing, TITLE_X, TITLE_Y);
-          Show_JPN_pause_title(); // rock_20211118
+          Show_JPN_pause_title(); // Rock 20211118
           ICON_Continue();
         }
         else
@@ -8692,7 +8693,7 @@ void EachMomentUpdate()
       HMI_flag.pause_action = false;
     }
   }
-  // 联机打印是否暂停
+  // Whether online printing is paused
   if (HMI_flag.online_pause_flag && printingIsPaused() && !planner.has_blocks_queued())
   {
     HMI_flag.online_pause_flag = false;
@@ -8707,7 +8708,7 @@ void EachMomentUpdate()
     TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
     TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
 
-// rock_20210724 测试部要求暂停仍然在加热
+// rock_20210724 The testing department asked for a pause and it is still heating.
 // thermalManager.disable_all_heaters();
 #endif
     queue.inject_P(PSTR("G1 F1200 X0 Y0"));
@@ -8722,7 +8723,7 @@ void EachMomentUpdate()
   // cutting after homing  || HMI_flag.cloud_printing_flag
   if (HMI_flag.cutting_line_flag && printingIsPaused() && (!planner.has_blocks_queued() || HMI_flag.filement_resume_flag))
   {
-    // 防止HMI_flag.filement_resume_flag置1进入，也要继续等待planer为空
+    // Prevent hmi flag.filement resume flag from being set to 1 and continue to wait for the planner to be empty.
     if (!planner.has_blocks_queued())
     {
       HMI_flag.cutting_line_flag = false;
@@ -8730,22 +8731,22 @@ void EachMomentUpdate()
       TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
       TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
 #endif
-      // rock_20211104 WIFI盒子会发回零指令
+      // rock_20211104 WIFI box will send back zero command
       queue.inject_P(PSTR("G1 F1200 X0 Y0"));
       // check filament resume
       if (checkkey == Popup_Window)
       {
         checkkey = Filament_window;
         Popup_window_Filament();
-        // 禁止接收Gcode指令
+        // Disable receiving gcode instructions
         HMI_flag.disable_queued_cmd = true;
-        // rock_20210917
+        // Rock 20210917
         HMI_flag.select_flag = true;
       }
     }
   }
 
-  // 云打印状态更新
+  // Cloud Printing Status Update
   if (HMI_flag.cloud_printing_flag && (checkkey == PrintProcess) && !HMI_flag.filement_resume_flag)
   {
     static uint16_t last_Printtime = 0;
@@ -8753,27 +8754,27 @@ void EachMomentUpdate()
     static bool flag = 0;
     duration_t elapsed = print_job_timer.duration(); // print timer
     const uint16_t min = (elapsed.value % 3600) / 60;
-    // 更新进度条
+    // Update progress bar
     _card_percent = Cloud_Progress_Bar;
-    if (last_card_percent != _card_percent) // 更新APP进度条
+    if (last_card_percent != _card_percent) // Update app progress bar
     {
       last_card_percent = _card_percent;
       Draw_Print_ProgressBar();
       Draw_Print_ProgressRemain();
     }
-    // 更新打印时间
+    // Update printing time
     if (last_Printtime != min)
     { // 1 minute update
       SERIAL_ECHOLNPAIR(" elapsed.value=: ", elapsed.value);
       last_Printtime = min;
       Draw_Print_ProgressElapsed();
-      //  _remain_time -= 60;  //剩余时间减去1分钟
+      //  _remain_time -= 60; //Remaining time minus 1 minute
       // Draw_Print_ProgressRemain();
     }
     if (_card_percent <= 1 && !flag)
     {
       flag = true;
-      // _remain_time=0; //rock_20210831  解决剩余时间不清零的问题。
+      // _remain_time=0; //rock_20210831 solves the problem that the remaining time is not cleared.
       // Draw_Print_ProgressRemain();
     }
   }
@@ -8782,7 +8783,7 @@ void EachMomentUpdate()
   {
     // print process
     const uint8_t card_pct = card.percentDone();
-    // _card_percent=card.percentDone();
+    // Card percent=card.percent done();
     static uint8_t last_cardpercentValue = 101;
     if (last_cardpercentValue != card_pct)
     {
@@ -8808,12 +8809,12 @@ void EachMomentUpdate()
 
     // Estimate remaining time every 20 seconds
     static millis_t next_remain_time_update = 0;
-    if (_card_percent >= 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) // rock_20210922
+    if (_card_percent >= 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) // Rock 20210922
     {
-      // _remain_time = (elapsed.value - dwin_heat_time) / (_card_percent * 0.01f) - (elapsed.value - dwin_heat_time);
+      // _remain_time = (elapsed.value -dwin_heat_time) /(_card_percent *0.01f) -(elapsed.value -dwin_heat_time);
       card_Index = card.getIndex();
       // card_Index = 1;
-      // rock_20211115 解决偶尔剩余时间显示异常显示>100H 问题
+      // rock_20211115 Solve the problem of occasionally abnormal display of remaining time >100H
       if (card_Index > 0)
       {
         _remain_time = ((elapsed.value - dwin_heat_time) * ((float)card.getFileSize() / card_Index)) - (elapsed.value - dwin_heat_time);
@@ -8827,7 +8828,7 @@ void EachMomentUpdate()
     }
     else if (_card_percent <= 1 && ELAPSED(ms, next_remain_time_update))
     {
-      // rock_20210831  解决剩余时间不清零的问题。
+      // rock_20210831 solves the problem that the remaining time is not cleared.
       _remain_time = 0;
       Draw_Print_ProgressRemain();
     }
@@ -8839,7 +8840,7 @@ void EachMomentUpdate()
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
     dwin_zoffset = BABY_Z_VAR;
     select_page.set(0);
-    Goto_MainMenu(); // rock_20210831
+    Goto_MainMenu(); // Rock 20210831
   }
 #if ENABLED(POWER_LOSS_RECOVERY)
   else if (DWIN_lcd_sd_status && recovery.dwin_flag)
@@ -8871,8 +8872,8 @@ void EachMomentUpdate()
     // TODO: Get the name of the current file from someplace
     //
     //(void)recovery.interrupted_file_exists();
-    // char * const name = card.longest_filename();
-    // const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
+    // char *const name = card.longest_filename();
+    // const int8_t npos = _MAX(0U, DWIN_WIDTH -strlen(name) *(MENU_CHR_W)) /2;
     // DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, npos, 252, name);
     const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(fileInfo.longfilename) * (MENU_CHR_W)) / 2;
 #if ENABLED(DWIN_CREALITY_480_LCD)
@@ -8913,12 +8914,12 @@ void EachMomentUpdate()
     // DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, fileInfo.longfilename);
   }
 #endif
-  if (HMI_flag.Pressure_Height_end) // 一键对高完成
+  if (HMI_flag.Pressure_Height_end) // Complete high level with one click
   {
     HMI_flag.Pressure_Height_end = false;
     HMI_flag.local_leveling_flag = true;
     checkkey = Leveling;
-    //  HMI_Leveling();
+    //  Hmi leveling();
     Popup_Window_Leveling();
     // DWIN_UpdateLCD();
     // pressure test height to obtain the Z offset value
@@ -8927,7 +8928,7 @@ void EachMomentUpdate()
     // queue.inject_P(PSTR("M8015"));
     // Popup_Window_Home();
   }
-  // DWIN_UpdateLCD(); //晓亮删除 ——20230207
+  // DWIN_UpdateLCD(); //Delete by Xiaoliang——20230207
   HAL_watchdog_refresh();
 }
 
@@ -8960,7 +8961,7 @@ void Show_G_Pic(void)
 #if ENABLED(USER_LEVEL_CHECK)
     if (select_show_pic.dec())
     {
-      // if(-1==select_show_pic.now)select_show_pic.now=2;
+      // If( 1==select show pic.now)select show pic.now=2;
     }
 #else
     if (select_show_pic.dec())
@@ -8974,19 +8975,19 @@ void Show_G_Pic(void)
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
   {
-    // 获取长文件名
+    // Get long file name
     const bool is_subdir = !card.flag.workDirIsRoot;
     const uint16_t filenum = select_file.now - 1 - is_subdir;
     index_show_pic = select_show_pic.now;
     card.getfilename_sorted(SD_ORDER(filenum, card.get_num_Files()));
-    // char * const name = card.longest_filename();
-    // 短文件名
+    // char *const name = card.longest_filename();
+    // short file name
     // SERIAL_ECHOLN(card.filename);
     switch (index_show_pic)
     {
     case 2:
       // Reset highlight for next entry
-      if (IS_SD_INSERTED()) // 有卡
+      if (IS_SD_INSERTED()) // Have a card
       {
         select_print.reset();
         select_file.reset();
@@ -8994,26 +8995,26 @@ void Show_G_Pic(void)
         HMI_flag.heat_flag = true;
         HMI_flag.print_finish = false;
         HMI_ValueStruct.show_mode = 0;
-        // rock_20210819
+        // Rock 20210819
         recovery.info.sd_printing_flag = true;
 
         card.openAndPrintFile(card.filename);
         Goto_PrintProcess();
-#if ENABLED(USER_LEVEL_CHECK) // 使用调平校准功能
+#if ENABLED(USER_LEVEL_CHECK) // Using the leveling calibration function
         if (HMI_flag.Level_check_flag && (!card.isPrinting()))
         {
-          // Popup_Window_Home();
-          HMI_flag.Level_check_start_flag = true; // 调平校准开始标志位置1
+          // Popup window home();
+          HMI_flag.Level_check_start_flag = true; // Leveling calibration start mark position 1
           HMI_flag.Need_g29_flag = false;
-          G29_small(); // 调平校准标志位置1
+          G29_small(); // Leveling calibration mark position 1
           if (HMI_flag.Need_g29_flag)
           {
             RUN_AND_WAIT_GCODE_CMD("G29", 1);
-            HMI_flag.Need_g29_flag = false; // 放在g29之后
+            HMI_flag.Need_g29_flag = false; // Put it after g29
           }
           else
             RUN_AND_WAIT_GCODE_CMD(G28_STR, 1);
-          HMI_flag.Level_check_start_flag = false; // 调平校准开始标志位清除
+          HMI_flag.Level_check_start_flag = false; // Leveling calibration start flag cleared
         }
 #endif
       }
@@ -9027,7 +9028,7 @@ void Show_G_Pic(void)
       checkkey = SelectFile;
       Draw_Print_File_Menu();
       break;
-#if ENABLED(USER_LEVEL_CHECK) // 使用调平校准功能
+#if ENABLED(USER_LEVEL_CHECK) // Using the leveling calibration function
     case 0:
       if (!flag)
       {
@@ -9056,7 +9057,7 @@ void Draw_Select_language()
 {
   uint8_t i;
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Title_Language, TITLE_X, TITLE_Y);
   Draw_Back_First();
   // index_select = 0;
@@ -9076,9 +9077,9 @@ void Draw_Poweron_Select_language()
 {
   uint8_t i;
   Clear_Main_Window();
-  HMI_flag.Refresh_bottom_flag = true; // 标志不刷新底部参数
+  HMI_flag.Refresh_bottom_flag = true; // Flag does not refresh bottom parameters
   DWIN_ICON_Show(HMI_flag.language, LANGUAGE_Title_Language, TITLE_X, TITLE_Y);
-  // Draw_Menu_Cursor(0);
+  // Draw menu cursor(0);
   Draw_laguage_Cursor(0);
   index_select = 0;
   DWIN_ICON_Show(ICON, ICON_Word_CN, FIRST_X, FIRST_Y);
@@ -9092,7 +9093,7 @@ void Draw_Poweron_Select_language()
   {
 #if ENABLED(DWIN_CREALITY_480_LCD)
 #elif ENABLED(DWIN_CREALITY_320_LCD)
-    // Draw_Language_Icon_AND_Word(i, FIRST_Y + i * WORD_INTERVAL);
+    // Draw_Language_Icon_AND_Word(i, FIRST_Y + i *WORD_INTERVAL);
     // DWIN_ICON_Show(ICON, ICON_Word_CN+i, FIRST_X, FIRST_Y+i*WORD_INTERVAL);
     DWIN_Draw_Line(Line_Color, LINE_START_X, LINE_START_Y + i * LINE_INTERVAL, LINE_END_X, LINE_END_Y + i * LINE_INTERVAL);
     delay(2);
@@ -9115,7 +9116,7 @@ void HMI_Poweron_Select_language()
         // Scroll up and draw a blank bottom line
         // Scroll_Menu_Full(DWIN_SCROLL_UP);
         Scroll_Menu_Language(DWIN_SCROLL_UP);
-// 显示新增的图标
+// Show new icons
 // Draw_Menu_Icon(MROWS, ICON_FLAG_CN + index_language);
 #if ENABLED(DWIN_CREALITY_480_LCD)
         DWIN_ICON_Show(ICON, ICON_Word_CN + index_language, 25, MBASE(MROWS) + JPN_OFFSET);
@@ -9196,11 +9197,11 @@ void HMI_Poweron_Select_language()
 #if BOTH(EEPROM_SETTINGS, IIC_BL24CXX_EEPROM)
     BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t *)&HMI_flag.language, sizeof(HMI_flag.language));
 #endif
-    // SERIAL_ECHOLNPAIR("set_language_id:",set_language_id);
+    // Serial echolnpair("set language id:",set language id);
     checkkey = POPUP_CONFIRM;
     Popup_window_boot(Clear_nozz_bed);
   }
-  // DWIN_UpdateLCD();
+  // Dwin update lcd();
 }
 
 void DWIN_HandleScreen()
@@ -9233,11 +9234,11 @@ void DWIN_HandleScreen()
     HMI_Control();
     break;
   case Leveling:
-#if ENABLED(SHOW_GRID_VALUES) // 如果需要显示调平网格值显示
+#if ENABLED(SHOW_GRID_VALUES) // If you need to display the leveling grid value display
     HMI_Leveling();
 #endif
     break;
-#if ENABLED(SHOW_GRID_VALUES) // 如果需要显示调平网格值显示
+#if ENABLED(SHOW_GRID_VALUES) // If you need to display the leveling grid value display
   case Level_Value_Edit:
     HMI_Leveling_Edit();
     break;
@@ -9384,16 +9385,16 @@ void DWIN_HandleScreen()
     break;
   case HM_SET_PID:
     HMI_Hm_Set_PID();
-    break; // 手动设置PID；
+    break; // Manually set pid;
   case AUTO_SET_PID:
     HMI_Auto_set_PID();
-    break; // 自动设置PID；
+    break; // Automatically set pid;
   case AUTO_SET_NOZZLE_PID:
     HMI_Auto_Bed_PID();
-    break; // HMI_Auto_Nozzle_PID();break; //自动设置喷嘴PID；
+    break; // HMI_Auto_Nozzle_PID();break; //Automatically set the nozzle PID;
   case AUTO_SET_BED_PID:
     HMI_Auto_Bed_PID();
-    break; // 自动设置热床PID
+    break; // Automatically set the hot bed pid
   case HM_PID_Value:
     HMI_HM_PID_Value_Set();
     break;
@@ -9405,13 +9406,13 @@ void DWIN_HandleScreen()
     break;
   case AUTO_IN_FEEDSTOCK:
     HMI_Auto_In_Feedstock();
-    break; // 进料完成确认界面
+    break; // Feeding completion confirmation interface
   case AUTO_OUT_FEEDSTOCK:
     HMI_Auto_IN_Out_Feedstock();
-    break; // 完成确认返回准备界面界面
+    break; // Complete the confirmation and return to the preparation interface.
   case POPUP_CONFIRM:
     HMI_Confirm();
-    break;       // 单独一个确认按钮的界面
+    break;       // Interface with a single confirmation button
   case M117Info: // M117 window fix for HMI
     HMI_M117Info();
     break;
@@ -9448,7 +9449,7 @@ void DWIN_HandleScreen()
   // NOP();
   // {
   //   static uint8_t prev_checkkey = 0;
-  //   if(prev_checkkey != checkkey)
+  //   if (prev_checkkey != checkkey)
   //   {
   //     SERIAL_ECHOLNPAIR("DWIN_HandleScreen-prev_checkkey:", prev_checkkey, ", checkkey:", checkkey);
   //     prev_checkkey = checkkey;
@@ -9608,14 +9609,14 @@ void HMI_Auto_set_PID(void)
       // SERIAL_ECHOLNPAIR("HMI_Auto_set_PID:encoder_diffState:", encoder_diffState);
       checkkey = AUTO_PID_Value;
       if (select_set_pid.now == 2)
-        thermalManager.set_fan_speed(0, 255); // 全速打开模型风扇
+        thermalManager.set_fan_speed(0, 255); // Turn on the model fan at full speed
       HMI_ValueStruct.Auto_PID_Temp = HMI_ValueStruct.Auto_PID_Value[select_set_pid.now];
 #if ENABLED(DWIN_CREALITY_480_LCD)
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 210 + PID_VALUE_OFFSET, MBASE(select_set_pid.now), HMI_ValueStruct.Auto_PID_Temp);
 #elif ENABLED(DWIN_CREALITY_320_LCD)
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 192 + PID_VALUE_OFFSET, MBASE(select_set_pid.now), HMI_ValueStruct.Auto_PID_Temp);
 #endif
-      // EncoderRate.enabled = true;//20230821暂时取消快速增减，解决热床数值跳变的问题
+      // EncoderRate.enabled = true;//20230821 Temporarily cancel the rapid increase and decrease to solve the problem of hot bed value jump
     }
     else
     {
@@ -9717,7 +9718,7 @@ void HMI_Auto_Bed_PID(void)
       if (!end_flag)
       {
         end_flag = true;
-        thermalManager.set_fan_speed(0, 0); // 关闭模型风扇
+        thermalManager.set_fan_speed(0, 0); // Turn off the model fan
         DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Auto_PID_END, WORD_AUTO_X, WORD_AUTO_Y);
       }
       if (Encoder_ReceiveAnalyze() == ENCODER_DIFF_ENTER)
@@ -9756,7 +9757,7 @@ void HMI_Auto_Bed_PID(void)
       }
     }
   }
-  // DWIN_UpdateLCD(); //晓亮删除——20230207
+  // DWIN_UpdateLCD(); //Xiaoliang delete——20230207
 }
 
 // Function to send string to LCD
@@ -9820,19 +9821,19 @@ void DWIN_OctoPrintJob(char *filename, char *print_time, char *ptime_left, char 
   ICON_Tune();
   if (printingIsPaused() && !HMI_flag.cloud_printing_flag)
     ICON_Continue();
-  // 暂停 -- Pause
+  // Pause --Pause
   if (printingIsPaused())
   {
-    // Show_JPN_pause_title(); // 显示标题 - Show Title
+    // Show_JPN_pause_title(); //Show title -Show Title
     ICON_Continue();
   }
   else
   {
-    // 打印中 -- Printing
+    // Printing --Printing
     // Show_JPN_print_title();
     ICON_Pause();
   }
-  // 停止按钮 -- Stop
+  // Stop button --Stop
   ICON_Stop();
 }
 
@@ -9900,7 +9901,7 @@ void DWIN_OctoJobFinish()
   DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Black, 80, 186, F(show_layers));    // Label Print Time
 
   // show print done confirm
-  if (HMI_flag.language < Language_Max) // rock_20211120
+  if (HMI_flag.language < Language_Max) // Rock 20211120
   {
     DWIN_ICON_Show(HMI_flag.language, LANGUAGE_LEVEL_FINISH, TITLE_X, TITLE_Y);
     DWIN_ICON_Not_Filter_Show(HMI_flag.language, LANGUAGE_Confirm, OK_BUTTON_X, 225);
@@ -9911,14 +9912,14 @@ void DWIN_OctoShowGCodeImage()
 {
   checkkey = M117Info; // Implement Human Interface Control for M117
   Clear_Main_Window();
- // OctoDWINPreview();
+ // Octo dwin preview();
 }
 
 void DWIN_CompletedHoming()
 {
   HMI_flag.home_flag = false;
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
-  // PRINT_LOG("checkkey:",checkkey);
+  // Print log("checkkey:",checkkey);
   if (checkkey == Last_Prepare)
   {
     if (HMI_flag.leveling_edit_home_flag)
@@ -9926,19 +9927,19 @@ void DWIN_CompletedHoming()
       HMI_flag.leveling_edit_home_flag = false;
       checkkey = Level_Value_Edit;
       Popup_Window_Leveling();
-      Draw_Leveling_Highlight(1); // 默认编辑框
+      Draw_Leveling_Highlight(1); // Default edit box
                                   //  checkkey = Leveling;
-      Refresh_Leveling_Value();   // 刷新调平值和颜色到屏幕上
+      Refresh_Leveling_Value();   // Flush leveling values ​​and colors to the screen
       select_level.reset();
       xy_int8_t mesh_Count = {0, 0};
 
       Draw_Dots_On_Screen(&mesh_Count, 1, Select_Block_Color);
       EncoderRate.enabled = true;
-      DO_BLOCKING_MOVE_TO_Z(5, 5); // 每次都上升到5mm的高度再移动
+      DO_BLOCKING_MOVE_TO_Z(5, 5); // Raise to a height of 5mm each time before moving
     }
     else
     {
-      // PRINT_LOG("(HMI_flag.leveling_edit_home_flag:",HMI_flag.leveling_edit_home_flag);
+      // Print log("(hmi flag.leveling edit home flag:",hmi flag.leveling edit home flag);
       checkkey = Prepare;
       // select_prepare.now = PREPARE_CASE_HOME;
       index_prepare = MROWS;
@@ -9977,4 +9978,4 @@ void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y,
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 
-#endif // DWIN_CREALITY_LCD
+#endif // Dwin creality lcd
