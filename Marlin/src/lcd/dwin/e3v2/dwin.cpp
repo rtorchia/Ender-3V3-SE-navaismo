@@ -576,16 +576,32 @@ static void Show_JPN_pause_title(void)
 
 void DWIN_Draw_Z_Offset_Float(uint8_t size, uint16_t color, uint16_t bcolor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value)
 {
-  if (value < 0)
-  {
-    DWIN_Draw_FloatValue(true, true, 0, size, color, bcolor, iNum, fNum, x + 2, y, -value);
-    DWIN_Draw_String(false, true, font6x12, color, bcolor, x + 2, y, F("-"));
-  }
-  else
-  {
-    DWIN_Draw_FloatValue(true, true, 0, size, color, bcolor, iNum, fNum, x + 1, y, value);
-    DWIN_Draw_String(false, true, font6x12, color, bcolor, x, y, F(""));
-  }
+  #if ENABLED(COMPACT_GRID_VALUES)
+    char valueStr[48] = "\0";
+    if (value < 0)
+    {
+      DWIN_Draw_String(false, true, font6x12, bcolor == Color_Bg_Black ? Color_Blue : color, bcolor, x+5, y, F("-")); // draw minus sign above
+      value *= -1;
+    } else {
+      DWIN_Draw_String(false, true, font6x12, bcolor == Color_Bg_Black ? Color_Red : color, bcolor, x+5, y, F("+")); // draw plus sign above
+    }
+    if (value < 100) {
+      sprintf_P(valueStr, ".%02d", static_cast<int>(value & 0xFF));
+    } else {
+      sprintf_P(valueStr, "%d.%d", static_cast<int>((value & 0xFF) / 100), static_cast<int>(((value & 0xFF) % 100) / 10));
+    }
+    DWIN_Draw_String(false, true, size, color, bcolor, x, y+8, F(valueStr));
+  #else // COMPACT_GRID_VALUES
+    if (value < 0)
+    {
+      DWIN_Draw_FloatValue(true, true, 0, size, color, bcolor, iNum, fNum, x+1, y, -value);
+      DWIN_Draw_String(false, true, font6x12, color, bcolor, x, y, F("-"));
+    }
+    else
+    {
+      DWIN_Draw_FloatValue(true, true, 0, size, color, bcolor, iNum, fNum, x, y, value);
+    }
+  #endif // COMPACT_GRID_VALUES
 }
 #endif
 void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value)
@@ -2411,16 +2427,15 @@ void Draw_Dots_On_Screen(xy_int8_t *mesh_Count, uint8_t Set_En, uint16_t Set_BG_
     return; // The leveling value is displayed only when running in the leveling interface.
 
  //Calculate rectangular area 
-    rec_LU_x=Rect_LU_X_POS + mesh_Count->x * X_Axis_Interval;
+    rec_LU_x = Rect_LU_X_POS + mesh_Count->x * X_Axis_Interval;
     // Rec lu y=rect lu y pos+mesh count >y*y axis interval;
     rec_LU_y = Rect_LU_Y_POS - mesh_Count->y * Y_Axis_Interval;
-    rec_RD_x = rec_LU_x + GRID_WIDTH;                                // Bottom right X
-    rec_RD_y = rec_LU_y + GRID_HEIGHT;                               // Bottom right Y
-
+    rec_RD_x = Rect_RD_X_POS + mesh_Count->x * X_Axis_Interval;// Bottom right X
+    rec_RD_y = Rect_RD_Y_POS - mesh_Count->y * Y_Axis_Interval;// Bottom right Y
     //The position of the compensation value
-    value_LU_x=rec_LU_x+1;
+    value_LU_x = rec_LU_x + (rec_RD_x - rec_LU_x) / 2 - CELL_TEXT_WIDTH / 2;
     // Value read y=rec read y+4;
-    value_LU_y=rec_LU_y+(rec_RD_y-rec_LU_y)/2-6;
+    value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - CELL_TEXT_HEIGHT / 2 + 1;
 
   // fill color
   if (!Set_En)
@@ -6470,15 +6485,16 @@ void HMI_Levling_Change()
     xy_int8_t mesh_Count = Converted_Grid_Point(select_level.now); // Convert grid points
                                                                    // Calculate rectangular area
     rec_LU_x = Rect_LU_X_POS + mesh_Count.x * X_Axis_Interval;
-    // Rec lu y=rect lu y pos+mesh count.y*y axis interval;
+    // Rec lu y=rect lu y pos+mesh count >y*y axis interval;
     rec_LU_y = Rect_LU_Y_POS - mesh_Count.y * Y_Axis_Interval;
     rec_RD_x = Rect_RD_X_POS + mesh_Count.x * X_Axis_Interval;
     // Rec rd y=rect rd y pos+mesh count.y*y axis interval;
-    rec_RD_y = Rect_RD_Y_POS - mesh_Count.y * Y_Axis_Interval;
-    // The position of the compensation value
-    value_LU_x = rec_LU_x + 1;
+    rec_RD_y = Rect_RD_Y_POS - mesh_Count.y * Y_Axis_Interval;// Bottom right Y
+    //The position of the compensation value
+    value_LU_x = rec_LU_x + (rec_RD_x - rec_LU_x) / 2 - CELL_TEXT_WIDTH / 2;
     // Value read y=rec read y+4;
-    value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - 6;
+    value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - CELL_TEXT_HEIGHT / 2 + 1;
+
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Temp_Leveling_Value)) // Clicked the confirm button
     {
       checkkey = Leveling;
@@ -6539,15 +6555,15 @@ void HMI_Leveling_Edit()
     xy_int8_t mesh_Count = Converted_Grid_Point(select_level.now); // Convert grid points
                                                                    // Calculate rectangular area
     rec_LU_x = Rect_LU_X_POS + mesh_Count.x * X_Axis_Interval;
-    // Rec lu y=rect lu y pos+mesh count.y*y axis interval;
+    // Rec lu y=rect lu y pos+mesh count >y*y axis interval;
     rec_LU_y = Rect_LU_Y_POS - mesh_Count.y * Y_Axis_Interval;
     rec_RD_x = Rect_RD_X_POS + mesh_Count.x * X_Axis_Interval;
     // Rec rd y=rect rd y pos+mesh count.y*y axis interval;
-    rec_RD_y = Rect_RD_Y_POS - mesh_Count.y * Y_Axis_Interval;
-    // The position of the compensation value
-    value_LU_x = rec_LU_x + 1;
+    rec_RD_y = Rect_RD_Y_POS - mesh_Count.y * Y_Axis_Interval;// Bottom right Y
+    //The position of the compensation value
+    value_LU_x = rec_LU_x + (rec_RD_x - rec_LU_x) / 2 - CELL_TEXT_WIDTH / 2;
     // Value read y=rec read y+4;
-    value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - 6;
+    value_LU_y = rec_LU_y + (rec_RD_y - rec_LU_y) / 2 - CELL_TEXT_HEIGHT / 2 + 1;
     // Temporary code needs to continue to be optimized
     //  xy_int8_t mesh_Count=Converted_Grid_Point(select_level.now); //Convert grid points
     Draw_Dots_On_Screen(&mesh_Count, 2, Select_Color); // Set the font background color without changing the selected block color
