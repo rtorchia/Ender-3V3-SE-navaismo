@@ -3517,7 +3517,7 @@ void HMI_O9000EFlow()
 
 void HMI_EFlow()
 {
- ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO)
   {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.E_Flow))
@@ -3534,6 +3534,7 @@ void HMI_EFlow()
     // E_Flow value
     if (0 == HMI_ValueStruct.show_mode)
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, VALUERANGE_X, MBASE(select_tune.now + MROWS - index_tune) + PRINT_SET_OFFSET, HMI_ValueStruct.E_Flow);
+      
     else
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, VALUERANGE_X, MBASE(select_tune.now + MROWS - index_tune) + PRINT_SET_OFFSET, HMI_ValueStruct.E_Flow);
       
@@ -8172,6 +8173,16 @@ void HMI_Tune()
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, VALUERANGE_X, MBASE(TUNE_CASE_TEMP + MROWS - index_tune) + PRINT_SET_OFFSET, HMI_ValueStruct.E_Temp);
       EncoderRate.enabled = true;
       break;
+
+    case TUNE_CASE_FLOW: // Flow rate
+      checkkey = EFlow;
+      HMI_ValueStruct.E_Flow = planner.flow_percentage[0];
+      LIMIT(HMI_ValueStruct.E_Flow, FLOW_MINVAL, FLOW_MAXVAL);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, VALUERANGE_X, MBASE(TUNE_CASE_FLOW + MROWS - index_tune) + PRINT_SET_OFFSET, HMI_ValueStruct.E_Flow);
+      EncoderRate.enabled = true;
+      break;
+
+
 #endif
 #if HAS_HEATED_BED
     case TUNE_CASE_BED: // Bed temp

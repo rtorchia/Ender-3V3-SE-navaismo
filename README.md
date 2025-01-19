@@ -25,7 +25,18 @@
 <br />
 
 
-  ![Octorpint Print Job Detai](https://i.imgur.com/Ir8u0tD.jpeg)
+  ![Octorpint Print Job Detai](https://i.imgur.com/HDJQjH8_d.webp?maxwidth=1520&fidelity=grand)
+
+
+<br />
+
+
+
+
+<br />
+
+
+  ![Octorpint Print Job Detai](https://i.imgur.com/sWYtlSG.jpeg)
 
 
 <br />
