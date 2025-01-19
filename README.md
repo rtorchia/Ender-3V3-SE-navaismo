@@ -15,6 +15,7 @@
 >  - [x] Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
 >  - [x] Increased Buffers for the Serial Communication.
 >  - [x] Increased the BaudRate from 115200 to 128000. 
+>  - [x] Added a new Item to the TUNE Menu to control the Extrusion/Flow Rate from 0 to 200%.
 
 
 <br />
@@ -38,7 +39,7 @@
 > [!TIP]
 >
 > Under Firmware folder you can find a precompiled .bin inside a zip file, which you can just flash on your printer, if youre running 1.0.6 already.
-> 1. Put the firmware on your SD-Card(Format you SD to fat32 recommended to use MiniTool Partition or Gparted)
+> 1. Put the firmware on your Printer SD-Card(Not the LCD), format you SD to fat32 recommended to use MiniTool Partition or Gparted
 > 2. Rename it to something random, i.E. "hiPrinterPleaseFlashThisFirmware123.bin"
 > 3. Plug the SD Card in your printer and turn it on
 > 4. Wait for the update to finish - it needs ~10 seconds.
