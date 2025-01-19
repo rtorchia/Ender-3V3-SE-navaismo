@@ -123,6 +123,7 @@ enum processID : uint8_t {
   #if HAS_HOTEND
     Extruder,
     ETemp,
+    EFlow,
   #endif
   Homeoffset,
   #if HAS_HEATED_BED
@@ -163,6 +164,7 @@ enum processID : uint8_t {
     O9000Tune,
     O9000PrintSpeed,
     O9000ETemp,
+    O9000EFlow,
     O9000BedTemp,
     O9000FanSpeed,
     O9000Homeoffset,
@@ -646,6 +648,7 @@ typedef struct
 {
   #if ENABLED(HAS_HOTEND)
     celsius_t E_Temp = 0;
+    int16_t E_Flow = 0;
   #endif
   #if ENABLED(HAS_HEATED_BED)
     celsius_t Bed_Temp = 0;

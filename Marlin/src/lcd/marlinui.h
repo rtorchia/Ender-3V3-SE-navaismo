@@ -113,6 +113,7 @@
   typedef struct {
     #if ENABLED(HAS_HOTEND)
       celsius_t hotend_temp;
+      int16_t flow_rate;
     #endif
     #if ENABLED(HAS_HEATED_BED)
       celsius_t bed_temp;

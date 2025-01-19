@@ -527,6 +527,11 @@
 #define BED_MAXTEMP      120
 #define CHAMBER_MAXTEMP  60
 
+// Minimum flow rate for extruder
+#define FLOW_MINVAL 0
+// Maximum flow rate for extruder
+#define FLOW_MAXVAL 200
+
 /**
  * Thermal Overshoot
  * During heatup (and printing) the temperature can often "overshoot" the target by many degrees
