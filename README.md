@@ -2,8 +2,8 @@
 - Included the Autolevel-Grid to a 7x7-Mesh based on the fork of [@aschmitt1909](https://github.com/aschmitt1909/Ender-3V3-SE)
 - Included the Linear Advance functions based     on the fork of [@queeup-Forks](https://github.com/queeup-Forks/Ender-3V3-SE)
 - Included the Support of Hosts Commands based    on the fork of [@rtorchia](https://github.com/rtorchia/Ender-3V3-SE/commits/main/) 
-- [PR#18](https://github.com/navaismo/Ender-3V3-SE/pull/18) for Adaptative Mesh for the Bed Level Grid from [@eduard-sukahrev](https://github.com/eduard-sukharev).
-- [PR#22](https://github.com/navaismo/Ender-3V3-SE/pull/22) to Enable Input Shaping LCD Menu under Control Settings from [@eduard-sukahrev](https://github.com/eduard-sukharev). 
+- [PR#18](https://github.com/navaismo/Ender-3V3-SE/pull/18) for Adaptative Mesh for the Bed Level Grid from [@eduard-sukharev](https://github.com/eduard-sukharev).
+- [PR#22](https://github.com/navaismo/Ender-3V3-SE/pull/22) to Enable Input Shaping LCD Menu under Control Settings from [@eduard-sukharev](https://github.com/eduard-sukharev). 
 
 
 > [!IMPORTANT]
