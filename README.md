@@ -2,6 +2,8 @@
 - Included the Autolevel-Grid to a 7x7-Mesh based on the fork of [@aschmitt1909](https://github.com/aschmitt1909/Ender-3V3-SE)
 - Included the Linear Advance functions based     on the fork of [@queeup-Forks](https://github.com/queeup-Forks/Ender-3V3-SE)
 - Included the Support of Hosts Commands based    on the fork of [@rtorchia](https://github.com/rtorchia/Ender-3V3-SE/commits/main/) 
+- [PR#18](https://github.com/navaismo/Ender-3V3-SE/pull/18) for Adaptative Mesh for the Bed Level Grid from [@eduard-sukahrev](https://github.com/eduard-sukharev).
+- [PR#22](https://github.com/navaismo/Ender-3V3-SE/pull/22) to Enable Input Shaping LCD Menu under Control Settings from [@eduard-sukahrev](https://github.com/eduard-sukharev). 
 
 
 > [!IMPORTANT]
@@ -11,12 +13,13 @@
 >  - [x] The 7x7 Mesh to 5x5
 >  - [x] Increase the Z distance when M600(change filament) is invoked to provide enough space to change and purge the filament.
 >  - [x] Added M117 Support to show Messages in the LCD Screen.
->  - [x] Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD
+>  - [x] Added the detailed page and controls of a Print Job Coming from Octoprint to be shown in the LCD.
 >  - [x] Added custom comand O9000 to receive the data to render in the Print Job Page from Octo print.
 >  - [x] Increased Buffers for the Serial Communication.
 >  - [x] Increased the BaudRate from 115200 to 128000. 
 >  - [x] Added a new Item to the TUNE Menu to control the Extrusion/Flow Rate from 0 to 200%.
->  - [x] Added @eduard-sukharev Input Shaping LCD Menu
+>  - [x] Added @eduard-sukharev Adaptative Mesh for the Bed Level Grid.
+>  - [x] Added @eduard-sukharev Input Shaping LCD Menu.
 
 
 <br />
@@ -55,6 +58,10 @@
 
 
 <br />
+
+
+
+  ![Octorpint Print Job Detai](https://i.imgur.com/HGceUAl.jpeg)
 
 
 
