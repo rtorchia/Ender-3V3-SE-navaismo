@@ -16,6 +16,7 @@
 >  - [x] Increased Buffers for the Serial Communication.
 >  - [x] Increased the BaudRate from 115200 to 128000. 
 >  - [x] Added a new Item to the TUNE Menu to control the Extrusion/Flow Rate from 0 to 200%.
+>  - [x] Added @eduard-sukharev Input Shaping LCD Menu
 
 
 <br />
@@ -40,6 +41,22 @@
 
 
 <br />
+
+
+
+  ![Octorpint Print Job Detai](https://i.imgur.com/xGjRIQl.png)
+
+
+<br />
+
+
+
+  ![Octorpint Print Job Detai](https://i.imgur.com/mOqacZJ.png)
+
+
+<br />
+
+
 
 ----
 
