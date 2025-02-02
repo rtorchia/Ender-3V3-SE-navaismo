@@ -28,7 +28,7 @@ char curr_layer[50] = {0};
 char thumbnail[50] = {0};
 char progress[10] = {0};
 char param_value[50] = {0};
-// bool serial_connection_active = false; // defined in serical.cpp
+// bool serial_connection_active = false; // defined in serial.cpp
 
 const char *getParsedValue(char *str)
 {
