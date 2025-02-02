@@ -30,27 +30,6 @@ char progress[10] = {0};
 char param_value[50] = {0};
 // bool serial_connection_active = false; // defined in serial.cpp
 
-const char *getParsedValue(char *str)
-{
-  const char delimiter[] = "|";
-  char *token;
-
-  // Split the string to get the first part (before '|')
-  token = strtok(str, delimiter);
-
-  // Split again to get the second part (after '|')
-  token = strtok(NULL, delimiter); // NULL tells strtok to continue with the same string
-
-  if (token != NULL)
-  {
-    // Copy the second part into the param_value variable
-    strncpy(param_value, token, sizeof(param_value) - 1);
-    param_value[sizeof(param_value) - 1] = '\0'; // Ensure null termination
-  }
-
-  return param_value;
-
-}
 const std::string getParsedValue(const char *str)
 {
   const char delimiter[] = "|";
